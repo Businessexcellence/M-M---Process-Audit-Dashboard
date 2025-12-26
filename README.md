@@ -1,387 +1,403 @@
 # M&M Recruitment Process Audit Dashboard
 
-**Real-time QA Insights & Performance Analytics**
+## 🎯 Project Overview
 
-## 🌐 Live URLs
-
-- **Development Server**: https://3000-ile3zkyblze0f5esem0nb-2e1b9533.sandbox.novita.ai
-- **Production** (after deployment): Will be available at Cloudflare Pages URL
-
-## 📊 Project Overview
-
-A comprehensive, real-time audit dashboard for monitoring and analyzing M&M recruitment process quality metrics. The dashboard provides detailed insights into recruitment accuracy, error patterns, recruiter performance, and actionable recommendations.
+A comprehensive, real-time QA insights dashboard for monitoring and analyzing the M&M recruitment process audit data. This dashboard provides detailed analytics, visualizations, and actionable recommendations to improve recruitment quality and efficiency.
 
 ### Key Features
 
-✅ **Excel Data Import** - Upload and parse recruitment audit data from Excel files  
-✅ **Real-time Filtering** - Filter by Year, Month, Week, Stage, Parameter, and Recruiter  
-✅ **Key Metrics Dashboard** - Overall Accuracy, Error Rate, Total Audits, Sample Coverage  
-✅ **Dynamic Visualizations** - 10+ interactive charts using Chart.js  
-✅ **AI-Powered Insights** - Automated narrative generation and recommendations  
-✅ **Multi-View Analysis** - Overview, Stage & Parameter, Recruiter, Trends, and Insights tabs  
-✅ **Heatmap Visualization** - Stage x Parameter performance matrix  
-✅ **Recruiter Performance** - Scatter plots, bar charts, and detailed tables  
-✅ **Trend Analysis** - FY comparison and weekly performance tracking  
-✅ **M&M Brand Styling** - Professional red and white color theme
+✅ **Excel Data Import** - Upload and validate Excel files with automatic data parsing  
+✅ **Real-time Metrics** - Track accuracy, error rates, audit counts, and sample coverage  
+✅ **Interactive Visualizations** - Multiple chart types including line, bar, heatmap, scatter, and funnel charts  
+✅ **Multi-dimensional Filtering** - Filter by year, month, week, stage, parameter, and recruiter  
+✅ **Stage & Parameter Analysis** - Heatmap view with top/worst parameter identification  
+✅ **Recruiter Performance** - Individual recruiter metrics with quadrant analysis  
+✅ **FY Trend Comparison** - Compare performance across financial years  
+✅ **AI-Powered Insights** - Dynamic narrative generation and recommendations  
+✅ **PDF Export** - Generate downloadable reports  
+✅ **M&M Branding** - Custom red and white theme with professional styling
 
-## 🎨 Design Philosophy
+## 🌐 URLs
 
-The dashboard follows M&M's brand identity with:
-- **Primary Color**: M&M Red (#C8102E)
-- **Accent Colors**: Dark Red (#8B0000), Light Red (#FFE5E5)
-- **Neutral Colors**: White backgrounds, Grey text and borders
-- **Clean UI**: Card-based layout with subtle shadows and hover effects
-- **Responsive Design**: Optimized for desktop and tablet viewing
+**Development Dashboard**: https://3000-ile3zkyblze0f5esem0nb-2e1b9533.sandbox.novita.ai
 
-## 📂 Data Architecture
+**Production**: (Deploy to Cloudflare Pages for production URL)
 
-### Expected Excel File Structure
+**GitHub**: (Push to GitHub after deployment)
 
-The dashboard expects an Excel file with the following sheets:
+## 📊 Data Architecture
 
-#### 1. **Audit Count** (Main data sheet)
-Required columns:
-- Client
-- Financial Year
-- Month, Month Number
-- Week
-- Recruitment Stage
-- Parameter
-- Recruiter Name
-- Program Manager
-- Req ID
-- Total Population
-- Opportunity Count
-- Opportunity Pass
-- Opportunity Fail
-- Opportunity NA
-- Opportunity Excluding NA
-- Accuracy Score
-- Error (Error Rate)
-- Sample Count
+### Data Models
 
-#### 2. **FY23** (Weekly data for FY23)
-Columns:
-- Week / Week Number
-- Total Opportunities
-- Accuracy Score
-- Sample Size / Audit Samples
+The dashboard expects Excel files with the following structure:
 
-#### 3. **FY24** (Weekly data for FY24)
-Same structure as FY23
+#### Required Sheets:
 
-#### 4. **Recruiter Wise Data**
-Columns:
-- Recruiter Name
-- Accuracy Score
-- Error Count
-- Sample Count
-- Program Manager
+1. **Audit Count** - Main audit data with dimensions and metrics
+   - Dimensions: Client, Financial Year, Month, Month Number, Week, Recruitment Stage, Parameter, Recruiter Name, Program Manager, Req ID
+   - Metrics: Total Population, Opportunity Count, Opportunity Pass, Opportunity Fail, Opportunity NA, Accuracy Score, Error Rate, Sample Count
 
-#### 5. **Sheet3 / Sheet5** (Parameter error tables)
-Columns:
-- Parameter
-- Total Errors
-- Error counts by recruiter
+2. **FY23** - FY23 weekly figures
+   - Week, Total Opportunities, Accuracy Score, Sample Size
 
-### Data Storage
+3. **FY24** - FY24 weekly figures (optional)
+   - Week, Total Opportunities, Accuracy Score, Sample Size
 
-**Current Implementation**: In-memory data storage (suitable for development)
+4. **Recruiter Wise Data** - Recruiter-level audit scores
+   - Recruiter Name, Accuracy Score, Error Count, Sample Count, Program Manager
 
-**Recommended for Production**: 
-- Cloudflare D1 Database for persistent storage
-- Cloudflare KV for caching filter states
-- Cloudflare R2 for storing uploaded Excel files
+5. **Sheet3/Sheet5** - Parameter and error tables
+   - Parameter, Total Errors, Error counts by recruiter
 
-## 📊 Dashboard Views
+### Recruitment Stages
 
-### 1. Overview Tab
-- **Key Metrics Tiles**: Accuracy, Error Rate, Total Audits, Sample Coverage
-- **Dynamic Narrative**: AI-generated insights based on current data
-- **Monthly Accuracy vs Error Rate**: FY comparison chart
-- **Stage-wise Audit Scores**: Bar chart by recruitment stage
-- **Parameter Error Hotspots**: Top 10 high-error parameters
-- **Weekly Trends**: Accuracy and volume over time
-- **Opportunities Funnel**: Visual flow from population to pass/fail
+- Pre-Sourcing
+- Intake
+- Intake Meeting
+- Screening
+- Assessment Interview
+- OfferAPL
+- Pre-Onboarding
 
-### 2. Stage & Parameter Comparison Tab
-- **Top 3 Best/Worst Parameters**: Quick identification cards
-- **Parameter Distribution**: Categorization by performance
-- **Heatmap**: Stage x Parameter accuracy matrix with color coding
+### Key Parameters Tracked
 
-### 3. Recruiter View Tab
-- **Performance Quadrant**: Scatter plot (Sample Count vs Accuracy)
-- **Top 10 Recruiters**: Bar chart by accuracy
-- **Performance Table**: Detailed recruiter metrics with status badges
+- Intake Meeting form Completeness Correctness
+- Candidate assessment sheet submission
+- Completeness Correctness of CES
+- Documents Check (Resume, ID Proof, Educational Certificates, etc.)
+- Offer Letter Accuracy
+- Pre-Offer Documents check
+- BGV Initiation
+- Medical Test
+- Joining Bonus / Notice Buyout
+- And more...
 
-### 4. Trends & FY Comparison Tab
-- **FY Metrics Cards**: Summary for FY23, FY24, FY25
-- **Monthly Trend Lines**: Multi-year accuracy comparison
-- **Weekly Trends**: Detailed week-by-week analysis
-
-### 5. Insights & Recommendations Tab
-- **AI-Powered Insights**: Automated analysis of performance patterns
-- **Recommended Actions**: Specific, actionable recommendations
-- **Critical Error Patterns**: Top 5 error-prone parameters
-- **Best Practices**: Top 5 high-performing parameters
-
-## 🎯 Measures and Calculations
-
-### Key Formulas
+### Calculated Measures
 
 ```javascript
-// Accuracy Score
-Accuracy = (Opportunity Pass / Opportunity Excluding NA) × 100
-
-// Error Rate
-Error Rate = (Opportunity Fail / Opportunity Excluding NA) × 100
-
-// Sample Coverage
-Sample Coverage = (Sample Count / Total Population) × 100
-
-// Recruiter Error Contribution
-Error Contribution % = (Recruiter Errors / Total Errors) × 100
+Accuracy Score = Opportunity Pass / (Opportunity Count - Opportunity NA) × 100
+Error Rate = Opportunity Fail / (Opportunity Count - Opportunity NA) × 100
+Sample Coverage = Sample Count / Total Population × 100
+Error Contribution = Recruiter Errors / Total Errors × 100
 ```
+
+### Storage Services
+
+- **Local Development**: In-memory data storage with sample data generator
+- **Production**: Can integrate with Cloudflare D1, KV, or R2 for persistent storage
+
+## 📱 Dashboard Views
+
+### 1. Overview View
+- **Key Metrics Cards**: Overall Accuracy, Error Rate, Total Audits, Sample Coverage
+- **Dynamic Narrative**: AI-generated insights based on current data
+- **Monthly Accuracy vs Error Rate**: FY comparison chart
+- **Stage-wise Audit Scores**: Performance by recruitment stage
+- **Parameter Error Hotspots**: Top 10 error-prone parameters
+- **Weekly Trend**: Accuracy and volume over time
+- **Opportunities Funnel**: Conversion visualization
+
+### 2. Stage & Parameter Comparison
+- **Heatmap Matrix**: Stage × Parameter with color-coded accuracy scores
+- **Top 3 Best Parameters**: Highest performing parameters
+- **Top 3 Worst Parameters**: Parameters needing improvement
+- **Color Scale**: White (100%) → Dark Red (0%) for visual clarity
+
+### 3. Recruiter View
+- **Performance Table**: Detailed recruiter metrics
+- **Scatter Plot**: Sample count vs accuracy with error bubble size
+- **Quadrant Analysis**: Identify high-volume/low-accuracy recruiters
+- **Program Manager Grouping**: Color-coded by PM
+
+### 4. Trends & FY Comparison
+- **FY Metrics Cards**: Aggregate metrics for FY23, FY24, FY25
+- **Monthly Comparison**: Line chart comparing accuracy across financial years
+- **Low Sample Indicators**: Markers for months below 20% sample threshold
+
+### 5. Insights & Recommendations
+- **Dynamic Recommendations**: Auto-generated based on data patterns
+- **Priority Matrix**: High/Medium priority action items
+- **Training Needs**: Targeted recommendations by parameter
+- **Error Pattern Analysis**: Critical insights for improvement
+
+## 🎨 Design & Styling
+
+### M&M Color Palette
+- **Primary Red**: #C8102E
+- **Dark Red**: #A00D25
+- **Light Red**: #FFE5E9
+- **White**: #FFFFFF
+- **Grey**: #6B7280
+- **Light Grey**: #F3F4F6
+- **Border**: #E5E7EB
+
+### Typography
+- Font Family: Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto
+- Headings: Bold, Red accent
+- Body: Regular, Grey text
+
+### Icons
+- FontAwesome 6.4.0 for consistent iconography
+- Stage-specific icons (magnifying glass, briefcase, checklist, etc.)
 
 ## 🚀 User Guide
 
 ### Getting Started
 
-1. **Upload Excel File**
-   - Click the "Upload Excel" button in the header
-   - Select your Excel file (must match expected structure)
-   - Dashboard will validate and load the data
+1. **Open Dashboard**: Navigate to the dashboard URL
+2. **Upload Data**: Click "Upload Excel" button in top-right corner
+3. **Select File**: Choose your Excel file (must match required format)
+4. **Validation**: System validates required sheets automatically
+5. **View Insights**: Dashboard populates with your data
 
-2. **Apply Filters**
-   - Use the global filter bar to narrow down data
-   - Filter by: Year, Month, Week, Stage, Parameter, Recruiter
-   - Active filters display as pills below the filter bar
+### Using Filters
 
-3. **Navigate Views**
-   - Use the tab navigation to switch between views
-   - Each tab provides specialized analysis
+**Global Filters** (top band):
+- **Financial Year**: Multi-select FY23, FY24, FY25
+- **Month**: Select specific month or view all
+- **Week**: Filter by week number
+- **Recruitment Stage**: Focus on specific stage
+- **Parameter**: Analyze specific parameter
+- **Recruiter**: View individual recruiter performance
 
-4. **Export Results**
-   - Click "Export PDF" to generate a report (feature in development)
-   - Use "Reset" button to clear all filters
+**Filter Actions**:
+- **Apply**: Filters apply automatically on selection
+- **Reset**: Click "Reset" button to clear all filters
+- **Active Filters**: View applied filters as pills below filter bar
 
-### Filter Behavior
+### Navigation
 
-- **Default**: All filters set to "All" (shows all data)
-- **Multiple Filters**: Applied as AND conditions (all must match)
-- **Remove Filter**: Click the X on any active filter pill
-- **Reset All**: Click the "Reset" button in header
+Use the tab menu to switch between views:
+- 📊 Overview - Main dashboard with key metrics
+- 📋 Stage & Parameter - Detailed heatmap analysis
+- 👥 Recruiter View - Individual performance
+- 📈 Trends & FY Comparison - Historical analysis
+- 💡 Insights & Recommendations - AI-powered suggestions
 
-### Chart Interactions
+### Exporting Data
 
-- **Hover**: View detailed tooltips on all charts
-- **Legend**: Click legend items to show/hide data series
-- **Heatmap**: Hover over cells for exact values
+**PDF Export**:
+1. Click "Export PDF" button
+2. System generates report with key metrics
+3. PDF downloads automatically
+4. Includes: Metrics, insights, and timestamp
 
-## 💻 Technical Stack
+### Sample Data
+
+If no file is uploaded, the dashboard generates sample data for demonstration:
+- 100 audit records
+- 5 recruiters
+- 10 parameters
+- 6 recruitment stages
+- FY23 and FY24 data
+
+## 🛠 Technical Stack
 
 ### Frontend
-- **HTML5** with semantic markup
-- **Tailwind CSS** via CDN for styling
-- **Font Awesome** for icons
-- **Chart.js 4.5.1** for data visualizations
-- **SheetJS (XLSX)** for Excel parsing
-- **Axios** for API communication
+- **Framework**: Hono (TypeScript)
+- **Styling**: Tailwind CSS (CDN)
+- **Charts**: Chart.js 4.4.0
+- **Excel Parsing**: SheetJS (xlsx) 0.18.5
+- **PDF Generation**: jsPDF 2.5.1
+- **Icons**: FontAwesome 6.4.0
 
 ### Backend
-- **Hono** - Lightweight web framework
-- **TypeScript** - Type-safe development
-- **Vite** - Build tool and dev server
-- **Wrangler** - Cloudflare Pages deployment
+- **Runtime**: Cloudflare Workers
+- **Build Tool**: Vite 6.4.1
+- **Package Manager**: npm
 
 ### Deployment
-- **Platform**: Cloudflare Pages (Edge Computing)
-- **Build**: `npm run build` → Vite bundling
-- **Dev Server**: PM2 + Wrangler Pages Dev
-- **Production**: Cloudflare Pages with global CDN
+- **Platform**: Cloudflare Pages
+- **CDN**: Global edge network
+- **Development**: PM2 process manager
 
-## 🛠️ Development
-
-### Prerequisites
-- Node.js 18+
-- npm or pnpm
-
-### Installation
-
-```bash
-# Clone the repository
-git clone <repository-url>
-cd webapp
-
-# Install dependencies
-npm install
-
-# Build the project
-npm run build
-
-# Start development server (local machine)
-npm run dev
-
-# Start development server (sandbox)
-npm run dev:sandbox
-# or use PM2
-pm2 start ecosystem.config.cjs
-```
-
-### Project Structure
+## 📦 Project Structure
 
 ```
 webapp/
 ├── src/
-│   ├── index.tsx           # Main Hono application
-│   └── renderer.tsx        # JSX renderer
+│   └── index.tsx              # Main Hono application
 ├── public/
 │   └── static/
-│       └── dashboard.js    # Frontend JavaScript (2000+ lines)
-├── sample-data.xlsx        # Sample Excel file for testing
-├── ecosystem.config.cjs    # PM2 configuration
-├── wrangler.jsonc         # Cloudflare configuration
-├── vite.config.ts         # Vite build configuration
-├── package.json           # Dependencies and scripts
-└── README.md             # This file
+│       └── dashboard.js       # Dashboard logic and visualizations
+├── dist/                      # Build output (generated)
+│   ├── _worker.js            # Compiled worker
+│   └── _routes.json          # Routes config
+├── ecosystem.config.cjs       # PM2 configuration
+├── package.json               # Dependencies and scripts
+├── tsconfig.json              # TypeScript config
+├── vite.config.ts            # Vite build config
+├── wrangler.jsonc            # Cloudflare config
+└── README.md                 # This file
 ```
 
-### Available Scripts
+## 💻 Development
+
+### Prerequisites
+- Node.js 18+ and npm
+- PM2 (pre-installed in sandbox)
+
+### Local Development
 
 ```bash
-npm run dev          # Vite dev server (local)
-npm run dev:sandbox  # Wrangler dev server (sandbox)
-npm run build        # Build for production
-npm run preview      # Preview production build
-npm run deploy       # Deploy to Cloudflare Pages
-npm run clean-port   # Kill process on port 3000
-npm run test         # Test with curl
+# Install dependencies
+npm install
+
+# Build project
+npm run build
+
+# Start development server
+npm run dev:sandbox
+
+# Or use PM2
+pm2 start ecosystem.config.cjs
+
+# Check logs
+pm2 logs --nostream
+
+# Test locally
+curl http://localhost:3000
 ```
 
-## 📈 Features Completed
+### Scripts
 
-### ✅ Data Management
-- [x] Excel file upload with validation
-- [x] Multi-sheet data parsing
-- [x] In-memory data storage
-- [x] Data structure validation
-- [x] Error handling and user feedback
+```json
+{
+  "dev": "vite",
+  "dev:sandbox": "wrangler pages dev dist --ip 0.0.0.0 --port 3000",
+  "build": "vite build",
+  "preview": "wrangler pages dev dist",
+  "deploy": "npm run build && wrangler pages deploy dist",
+  "deploy:prod": "npm run build && wrangler pages deploy dist --project-name webapp",
+  "clean-port": "fuser -k 3000/tcp 2>/dev/null || true",
+  "test": "curl http://localhost:3000"
+}
+```
 
-### ✅ Global Filtering
-- [x] 6 filter dimensions (Year, Month, Week, Stage, Parameter, Recruiter)
-- [x] Active filter pills display
-- [x] Reset all filters
-- [x] Real-time filter application
+## 🚀 Deployment to Cloudflare Pages
 
-### ✅ Key Metrics
-- [x] Overall Accuracy calculation
-- [x] Overall Error Rate calculation
-- [x] Total Audits count
-- [x] Sample Coverage percentage
-- [x] Dynamic narrative generation
+### First Time Setup
 
-### ✅ Visualizations
-- [x] Monthly Accuracy vs Error Rate (combo chart)
-- [x] Stage-wise Audit Scores (horizontal bar)
-- [x] Parameter Error Hotspots (horizontal bar with color gradient)
-- [x] Weekly Accuracy and Volume (line + bar combo)
-- [x] Opportunities Funnel (horizontal bar)
-- [x] Stage x Parameter Heatmap (table with color coding)
-- [x] Recruiter Scatter Plot (bubble chart)
-- [x] Recruiter Bar Chart (top 10)
-- [x] FY Comparison Line Chart (multi-year)
-- [x] Weekly FY Trends (line chart)
+1. **Setup Cloudflare API Key**
+   ```bash
+   # Tool will guide you through setup
+   ```
 
-### ✅ Analysis Views
-- [x] Overview tab with key charts
-- [x] Stage & Parameter comparison with heatmap
-- [x] Recruiter performance view
-- [x] Trends and FY comparison
-- [x] Insights and recommendations
+2. **Build Project**
+   ```bash
+   npm run build
+   ```
 
-### ✅ UI/UX
-- [x] M&M brand color theme (red and white)
-- [x] Responsive card-based layout
-- [x] Sticky navigation and filters
-- [x] Hover effects and transitions
-- [x] Loading states
-- [x] Success/error toast notifications
-- [x] Icon integration (Font Awesome)
+3. **Create Cloudflare Pages Project**
+   ```bash
+   npx wrangler pages project create webapp \
+     --production-branch main \
+     --compatibility-date 2024-01-01
+   ```
 
-### ✅ Insights Generation
-- [x] Dynamic narrative based on filters
-- [x] AI-powered insight generation
-- [x] Automated recommendations
-- [x] Critical error pattern identification
-- [x] Best practices identification
+4. **Deploy**
+   ```bash
+   npm run deploy:prod
+   ```
 
-## 🔮 Future Enhancements
+### Production URLs
+After deployment, you'll receive:
+- **Production URL**: `https://webapp.pages.dev`
+- **Branch URL**: `https://main.webapp.pages.dev`
 
-### Short-term
-- [ ] PDF export functionality (jsPDF integration)
-- [ ] Excel export of filtered data
-- [ ] User preferences (dark mode toggle)
-- [ ] Chart download as images
+### Environment Variables
+No environment variables required for current implementation.
 
-### Medium-term
-- [ ] Cloudflare D1 database integration
-- [ ] User authentication (Cloudflare Access)
-- [ ] Historical data comparison
-- [ ] Custom alert thresholds
-- [ ] Email notifications for critical errors
+## 📈 Current Status
 
-### Long-term
-- [ ] Predictive analytics (trend forecasting)
-- [ ] Machine learning for anomaly detection
-- [ ] Multi-client support with role-based access
-- [ ] Real-time data streaming
-- [ ] Mobile app (React Native)
+**Deployment Status**: ✅ Active (Development)
 
-## 🎯 Recommended Next Steps
+**Tech Stack**: Hono + TypeScript + TailwindCSS + Chart.js
 
-1. **Data Persistence**: Migrate from in-memory to Cloudflare D1 database
-2. **Authentication**: Add user login with Cloudflare Access
-3. **PDF Export**: Complete the PDF generation feature
-4. **Testing**: Add comprehensive unit and integration tests
-5. **Performance**: Optimize chart rendering for large datasets
-6. **Documentation**: Add inline code documentation and API docs
+**Features Completed**:
+- ✅ Excel upload and validation
+- ✅ Data model and parsing
+- ✅ All 5 dashboard views
+- ✅ Interactive charts and visualizations
+- ✅ Global filtering system
+- ✅ Dynamic insights generation
+- ✅ PDF export functionality
+- ✅ M&M branding and styling
+- ✅ Responsive design
+- ✅ Sample data generator
 
-## 📊 Sample Data
+**Last Updated**: December 26, 2024
 
-A sample Excel file (`sample-data.xlsx`) is included in the project root. This file contains:
-- 4+ MB of real audit data
-- Multiple recruitment stages
-- Various parameters and error types
-- FY23 and FY24 weekly data
-- Recruiter-wise performance data
+## 🔧 Customization
 
-Use this file to explore all dashboard features.
+### Adding New Parameters
+Edit `dashboard.js` line ~150 to add parameters to sample data:
+```javascript
+const parameters = [
+  'Your New Parameter Name',
+  // ... existing parameters
+];
+```
 
-## 🤝 Support
+### Modifying Color Scheme
+Edit CSS variables in `index.tsx` line ~29:
+```css
+:root {
+  --mm-red: #C8102E;        /* Primary red */
+  --mm-dark-red: #A00D25;   /* Dark red for emphasis */
+  --mm-light-red: #FFE5E9;  /* Light red for backgrounds */
+}
+```
 
-For issues, questions, or feature requests:
-1. Upload the Excel file and verify the required sheets exist
-2. Check browser console for error messages
-3. Ensure all required columns are present in the data
-4. Review the validation error messages in the UI
+### Adding Custom Charts
+1. Add canvas element in HTML
+2. Implement chart function in `dashboard.js`
+3. Call from `updateAllViews()` function
 
-## 📝 Deployment Status
+## 🐛 Troubleshooting
 
-- **Platform**: Cloudflare Pages
-- **Status**: ✅ Development Server Active
-- **Tech Stack**: Hono + TypeScript + Chart.js + TailwindCSS
-- **Last Updated**: 2025-12-26
+### Excel Upload Fails
+- Ensure file has required sheets: "Audit Count", "FY23", "Recruiter Wise Data"
+- Check column names match exactly
+- Verify data types (numbers for metrics, text for dimensions)
 
-## 🏆 Project Highlights
+### Charts Not Displaying
+- Check browser console for errors
+- Ensure Chart.js library loaded (check network tab)
+- Verify data structure in `dashboardData` object
 
-- **2000+ lines** of frontend JavaScript
-- **28000+ characters** of backend TypeScript
-- **10+ interactive charts** with Chart.js
-- **5 specialized views** for comprehensive analysis
-- **AI-powered insights** with dynamic recommendations
-- **Real-time filtering** across 6 dimensions
-- **Professional M&M branding** throughout
+### Filter Not Working
+- Clear browser cache
+- Check filter values in console
+- Verify data has values for selected filter
+
+### Performance Issues
+- Large datasets (>10,000 rows) may cause slowness
+- Consider pagination for recruiter table
+- Implement data aggregation for better performance
+
+## 📚 Future Enhancements
+
+**Potential Additions**:
+- [ ] Real-time data refresh from API
+- [ ] User authentication and role-based access
+- [ ] Drill-down capabilities for detailed analysis
+- [ ] Custom date range selection
+- [ ] Export to Excel functionality
+- [ ] Comparative benchmarking across clients
+- [ ] Mobile app version
+- [ ] Email report scheduling
+- [ ] Integration with ATS systems
+- [ ] Machine learning predictions
+
+## 📝 License
+
+Internal use only - M&M Recruitment Team
+
+## 👥 Support
+
+For issues or feature requests, contact the development team.
 
 ---
 
-**Built with ❤️ using Hono, Vite, and Cloudflare Pages**
+**Built with ❤️ using Hono + Cloudflare Pages**
