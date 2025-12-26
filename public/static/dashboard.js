@@ -557,7 +557,16 @@ function updateOverviewCharts() {
 
 function updateMonthlyAccuracyChart() {
   const canvas = document.getElementById('monthly-accuracy-chart');
-  if (!canvas || !filteredData) return;
+  if (!canvas) {
+    console.error('Monthly accuracy chart canvas not found');
+    return;
+  }
+  if (!filteredData || filteredData.length === 0) {
+    console.warn('No filtered data available for monthly accuracy chart');
+    return;
+  }
+  
+  console.log('Updating monthly accuracy chart with', filteredData.length, 'records');
   
   // Destroy existing chart
   if (charts.monthlyAccuracy) {
@@ -592,6 +601,13 @@ function updateMonthlyAccuracyChart() {
   });
   
   const months = Object.keys(monthlyData);
+  console.log('Months found:', months);
+  
+  if (months.length === 0) {
+    console.warn('No monthly data to display');
+    return;
+  }
+  
   const fy23Accuracy = months.map(m => {
     const d = monthlyData[m].fy23;
     return d.total > 0 ? (d.pass / d.total * 100) : null;
@@ -604,6 +620,10 @@ function updateMonthlyAccuracyChart() {
     const d = monthlyData[m].fy25;
     return d.total > 0 ? (d.pass / d.total * 100) : null;
   });
+  
+  console.log('FY23 Accuracy:', fy23Accuracy);
+  console.log('FY24 Accuracy:', fy24Accuracy);
+  console.log('FY25 Accuracy:', fy25Accuracy);
   
   const ctx = canvas.getContext('2d');
   charts.monthlyAccuracy = new Chart(ctx, {
@@ -665,7 +685,16 @@ function updateMonthlyAccuracyChart() {
 
 function updateStageAuditChart() {
   const canvas = document.getElementById('stage-audit-chart');
-  if (!canvas || !filteredData) return;
+  if (!canvas) {
+    console.error('Stage audit chart canvas not found');
+    return;
+  }
+  if (!filteredData || filteredData.length === 0) {
+    console.warn('No filtered data available for stage audit chart');
+    return;
+  }
+  
+  console.log('Updating stage audit chart with', filteredData.length, 'records');
   
   if (charts.stageAudit) {
     charts.stageAudit.destroy();
@@ -688,6 +717,13 @@ function updateStageAuditChart() {
   });
   
   const stages = Object.keys(stageData);
+  console.log('Stages found:', stages);
+  
+  if (stages.length === 0) {
+    console.warn('No stage data to display');
+    return;
+  }
+  
   const accuracy = stages.map(s => {
     const d = stageData[s];
     return d.total > 0 ? (d.pass / d.total * 100) : 0;
@@ -696,6 +732,9 @@ function updateStageAuditChart() {
     const d = stageData[s];
     return d.total > 0 ? (d.fail / d.total * 100) : 0;
   });
+  
+  console.log('Stage accuracy:', accuracy);
+  console.log('Stage error rates:', errorRate);
   
   const ctx = canvas.getContext('2d');
   charts.stageAudit = new Chart(ctx, {
