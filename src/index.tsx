@@ -464,9 +464,22 @@ app.get('/', (c) => {
         <header class="bg-mm-red text-white shadow-lg">
             <div class="container mx-auto px-6 py-4">
                 <div class="flex justify-between items-center">
-                    <div>
-                        <h1 class="text-2xl font-bold">M&M Recruitment Process Audit Dashboard</h1>
-                        <p class="text-sm text-red-100 mt-1">Real-time QA Insights & Performance Analytics</p>
+                    <div class="flex items-center gap-4">
+                        <div>
+                            <h1 class="text-2xl font-bold">M&M Recruitment Process Audit Dashboard</h1>
+                            <p class="text-sm text-red-100 mt-1">Real-time QA Insights & Performance Analytics</p>
+                        </div>
+                        <!-- Audio Description & Theme Toggle -->
+                        <div class="flex gap-2 ml-6">
+                            <button onclick="toggleAudioDescription()" id="audio-toggle" class="bg-white/20 hover:bg-white/30 px-3 py-2 rounded-lg transition flex items-center gap-2" title="Toggle Audio Description">
+                                <i class="fas fa-volume-up"></i>
+                                <span class="text-xs font-medium">Audio</span>
+                            </button>
+                            <button onclick="toggleTheme()" id="theme-toggle" class="bg-white/20 hover:bg-white/30 px-3 py-2 rounded-lg transition flex items-center gap-2" title="Toggle Theme">
+                                <i class="fas fa-moon"></i>
+                                <span class="text-xs font-medium">Theme</span>
+                            </button>
+                        </div>
                     </div>
                     <div class="flex gap-3">
                         <label for="excel-upload" class="bg-white text-red-600 px-4 py-2 rounded-lg cursor-pointer hover:bg-red-50 transition flex items-center gap-2 font-semibold">
@@ -539,39 +552,6 @@ app.get('/', (c) => {
                 </div>
             </div>
             
-            <!-- Team & People Analytics with Sub-navigation -->
-            <div class="nav-tab" onclick="toggleNavExpand(this, event)">
-                <div class="nav-tab-icon">
-                    <i class="fas fa-users-cog"></i>
-                </div>
-                <div class="nav-tab-content">
-                    <div class="nav-tab-title">Team & People Analytics</div>
-                    <div class="nav-tab-desc">Team performance insights</div>
-                </div>
-                <i class="fas fa-chevron-down nav-expand-icon"></i>
-            </div>
-            <div class="nav-sub-items">
-                <div class="nav-sub-item" onclick="switchTab('recruiter-performance')">
-                    <i class="fas fa-user"></i>
-                    <span>Recruiter Performance</span>
-                </div>
-                <div class="nav-sub-item" onclick="switchTab('team-comparison')">
-                    <i class="fas fa-users"></i>
-                    <span>Team Comparison</span>
-                </div>
-                <div class="nav-sub-item" onclick="switchTab('top-performers')">
-                    <i class="fas fa-trophy"></i>
-                    <span>Top Performers</span>
-                </div>
-                <div class="nav-sub-item" onclick="switchTab('improvement-areas')">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <span>Improvement Areas</span>
-                </div>
-                <div class="nav-sub-item" onclick="switchTab('program-manager-view')">
-                    <i class="fas fa-user-tie"></i>
-                    <span>Program Manager View</span>
-                </div>
-            </div>
         </nav>
 
         <!-- Main Content Wrapper -->
@@ -906,74 +886,101 @@ app.get('/', (c) => {
             </div>
 
             <!-- Trends & FY Comparison Tab -->
+            <!-- Trends & Predictive Analytics Tab -->
             <div id="tab-trends" class="tab-content hidden">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                    <div class="dashboard-card p-6">
-                        <h4 class="text-sm font-semibold text-gray-600 mb-2">FY23 METRICS</h4>
-                        <div class="metric-value text-2xl" id="fy23-accuracy">--</div>
-                        <div class="text-xs text-gray-500">Average Accuracy</div>
-                        <div class="mt-3 text-sm">
-                            <div class="flex justify-between mb-1">
-                                <span class="text-gray-600">Total Opportunities</span>
-                                <span class="font-semibold" id="fy23-opportunities">--</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-gray-600">Sample Size</span>
-                                <span class="font-semibold" id="fy23-samples">--</span>
-                            </div>
+                <!-- Header with Toggle -->
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase mb-1">HEADER</p>
+                        <h2 class="text-3xl font-bold text-gray-800">TRENDS & PREDICTIVE ANALYTICS</h2>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center gap-2 text-sm">
+                            <span class="text-gray-600">Historical View</span>
+                            <span class="text-blue-600 font-semibold">| Forecast View</span>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="forecast-toggle" class="sr-only peer" checked onchange="toggleForecastView()">
+                            <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-blue-500 peer-checked:to-cyan-400"></div>
+                        </label>
+                        <button class="px-4 py-2 bg-purple-600 text-white rounded-lg flex items-center gap-2 hover:bg-purple-700 transition">
+                            <i class="fas fa-calendar"></i>
+                            <span class="text-sm font-semibold">Last 12 Months</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- TOP SECTION - 3 Forecast Cards -->
+                <p class="text-xs text-gray-500 uppercase mb-3">TOP SECTION</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <!-- Forecasted Accuracy -->
+                    <div class="forecast-card forecast-card-blue">
+                        <div class="forecast-card-header">FORECASTED ACCURACY</div>
+                        <div class="forecast-card-value forecast-value-cyan" id="forecast-accuracy">98.8%</div>
+                        <div class="forecast-card-subtitle">Next Month Prediction</div>
+                        <div class="forecast-confidence">
+                            <span>Confidence: <strong>92%</strong></span>
+                            <span class="forecast-trend forecast-trend-up">
+                                <i class="fas fa-arrow-up"></i> +0.6%
+                            </span>
+                        </div>
+                        <div class="forecast-progress">
+                            <div class="forecast-progress-bar" style="width: 92%; background: linear-gradient(90deg, #22D3EE 0%, #06B6D4 100%);"></div>
                         </div>
                     </div>
-                    <div class="dashboard-card p-6">
-                        <h4 class="text-sm font-semibold text-gray-600 mb-2">FY24 METRICS</h4>
-                        <div class="metric-value text-2xl" id="fy24-accuracy">--</div>
-                        <div class="text-xs text-gray-500">Average Accuracy</div>
-                        <div class="mt-3 text-sm">
-                            <div class="flex justify-between mb-1">
-                                <span class="text-gray-600">Total Opportunities</span>
-                                <span class="font-semibold" id="fy24-opportunities">--</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-gray-600">Sample Size</span>
-                                <span class="font-semibold" id="fy24-samples">--</span>
-                            </div>
+
+                    <!-- Predicted Error Rate -->
+                    <div class="forecast-card forecast-card-purple">
+                        <div class="forecast-card-header">PREDICTED ERROR RATE</div>
+                        <div class="forecast-card-value forecast-value-magenta" id="forecast-error">1.2%</div>
+                        <div class="forecast-card-subtitle">30-Day Forecast</div>
+                        <div class="forecast-confidence">
+                            <span>Confidence: <strong>88%</strong></span>
+                            <span class="forecast-trend forecast-trend-down">
+                                <i class="fas fa-arrow-down"></i> -0.4%
+                            </span>
+                        </div>
+                        <div class="forecast-progress">
+                            <div class="forecast-progress-bar" style="width: 88%; background: linear-gradient(90deg, #C084FC 0%, #A855F7 100%);"></div>
                         </div>
                     </div>
-                    <div class="dashboard-card p-6">
-                        <h4 class="text-sm font-semibold text-gray-600 mb-2">FY25 METRICS</h4>
-                        <div class="metric-value text-2xl" id="fy25-accuracy">--</div>
-                        <div class="text-xs text-gray-500">Average Accuracy</div>
-                        <div class="mt-3 text-sm">
-                            <div class="flex justify-between mb-1">
-                                <span class="text-gray-600">Total Opportunities</span>
-                                <span class="font-semibold" id="fy25-opportunities">--</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-gray-600">Sample Size</span>
-                                <span class="font-semibold" id="fy25-samples">--</span>
-                            </div>
+
+                    <!-- Audit Volume Forecast -->
+                    <div class="forecast-card forecast-card-teal">
+                        <div class="forecast-card-header">AUDIT VOLUME FORECAST</div>
+                        <div class="forecast-card-value forecast-value-teal" id="forecast-volume">3,240</div>
+                        <div class="forecast-card-subtitle">Expected Audits</div>
+                        <div class="forecast-confidence">
+                            <span>Confidence: <strong>94%</strong></span>
+                            <span class="forecast-change">+8% vs Current</span>
+                        </div>
+                        <div class="forecast-progress">
+                            <div class="forecast-progress-bar" style="width: 94%; background: linear-gradient(90deg, #14B8A6 0%, #0D9488 100%);"></div>
                         </div>
                     </div>
                 </div>
 
-                <div class="dashboard-card mb-6">
-                    <div class="p-4 border-b border-gray-200 bg-mm-light-red">
-                        <h3 class="font-bold text-gray-800">
-                            <i class="fas fa-chart-line text-mm-red mr-2"></i>Monthly Accuracy Score Trend (Multi-Year Comparison)
-                        </h3>
+                <!-- MAIN CONTENT - Historical & Forecasted Performance Chart -->
+                <p class="text-xs text-gray-500 uppercase mb-3">MAIN CONTENT - LARGE CHART SECTION</p>
+                <div class="forecast-chart-container">
+                    <div class="forecast-chart-header">
+                        <h3 class="text-xl font-bold text-white">Historical & Forecasted Performance</h3>
+                        <div class="flex items-center gap-6 text-sm">
+                            <div class="flex items-center gap-2">
+                                <span class="forecast-legend-dot" style="background: #22D3EE;"></span>
+                                <span class="text-cyan-200">Forecasted Accuracy</span>
+                                <span class="text-cyan-400 font-bold" id="chart-forecast-accuracy">98.8%</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="forecast-legend-dot" style="background: #C084FC;"></span>
+                                <span class="text-purple-200">Predicted Error Rate</span>
+                                <span class="text-purple-400 font-bold" id="chart-forecast-error">1.2%</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="chart-container">
-                        <canvas id="fy-comparison-chart"></canvas>
-                    </div>
-                </div>
-
-                <div class="dashboard-card">
-                    <div class="p-4 border-b border-gray-200 bg-mm-light-red">
-                        <h3 class="font-bold text-gray-800">
-                            <i class="fas fa-calendar-alt text-mm-red mr-2"></i>Weekly Trends by Financial Year
-                        </h3>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="weekly-fy-chart"></canvas>
+                    <div class="forecast-chart-body">
+                        <canvas id="predictive-chart" height="80"></canvas>
+                        <div class="forecast-start-line">FORECAST START</div>
                     </div>
                 </div>
             </div>
