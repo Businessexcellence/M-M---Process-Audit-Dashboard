@@ -144,23 +144,87 @@ app.get('/', (c) => {
             100% { transform: rotate(360deg); }
           }
           
+          /* Vertical Sidebar Navigation */
+          .sidebar-nav {
+            position: fixed;
+            left: 0;
+            top: 96px; /* Below header */
+            width: 280px;
+            height: calc(100vh - 96px);
+            background: white;
+            border-right: 2px solid var(--mm-border-grey);
+            overflow-y: auto;
+            z-index: 50;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+          }
+          
           .nav-tab {
-            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
             cursor: pointer;
-            border-bottom: 3px solid transparent;
+            border-left: 4px solid transparent;
             transition: all 0.3s ease;
             color: var(--mm-grey);
+            margin: 4px 0;
           }
           
           .nav-tab:hover {
             color: var(--mm-red);
             background: var(--mm-light-red);
+            border-left-color: var(--mm-light-red);
           }
           
           .nav-tab.active {
             color: var(--mm-red);
-            border-bottom-color: var(--mm-red);
+            background: var(--mm-light-red);
+            border-left-color: var(--mm-red);
             font-weight: 600;
+          }
+          
+          .nav-tab-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--mm-light-red);
+            border-radius: 12px;
+            margin-right: 16px;
+            font-size: 24px;
+            color: var(--mm-red);
+            flex-shrink: 0;
+          }
+          
+          .nav-tab.active .nav-tab-icon {
+            background: var(--mm-red);
+            color: white;
+          }
+          
+          .nav-tab-content {
+            flex: 1;
+          }
+          
+          .nav-tab-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+          }
+          
+          .nav-tab-desc {
+            font-size: 0.75rem;
+            color: var(--mm-grey);
+            line-height: 1.3;
+          }
+          
+          .nav-tab.active .nav-tab-desc {
+            color: var(--mm-red);
+          }
+          
+          /* Main content with sidebar offset */
+          .main-content-wrapper {
+            margin-left: 280px;
+            padding-top: 96px;
           }
           
           .filter-pill {
@@ -371,32 +435,65 @@ app.get('/', (c) => {
             </div>
         </header>
 
-        <!-- Navigation Tabs -->
-        <nav class="bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm">
-            <div class="container mx-auto px-6">
-                <div class="flex gap-1">
-                    <div class="nav-tab active" onclick="switchTab('overview')">
-                        <i class="fas fa-chart-line mr-2"></i>Overview
-                    </div>
-                    <div class="nav-tab" onclick="switchTab('stage-parameter')">
-                        <i class="fas fa-table mr-2"></i>Stage & Parameter
-                    </div>
-                    <div class="nav-tab" onclick="switchTab('recruiter')">
-                        <i class="fas fa-users mr-2"></i>Recruiter View
-                    </div>
-                    <div class="nav-tab" onclick="switchTab('trends')">
-                        <i class="fas fa-chart-area mr-2"></i>Trends & FY Comparison
-                    </div>
-                    <div class="nav-tab" onclick="switchTab('insights')">
-                        <i class="fas fa-lightbulb mr-2"></i>Insights & Recommendations
-                    </div>
+        <!-- Vertical Sidebar Navigation -->
+        <nav class="sidebar-nav">
+            <div class="nav-tab active" onclick="switchTab('overview')">
+                <div class="nav-tab-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="nav-tab-content">
+                    <div class="nav-tab-title">Overview</div>
+                    <div class="nav-tab-desc">Key metrics and performance summary</div>
+                </div>
+            </div>
+            
+            <div class="nav-tab" onclick="switchTab('stage-parameter')">
+                <div class="nav-tab-icon">
+                    <i class="fas fa-table"></i>
+                </div>
+                <div class="nav-tab-content">
+                    <div class="nav-tab-title">Stage & Parameter</div>
+                    <div class="nav-tab-desc">Heatmap and parameter analysis</div>
+                </div>
+            </div>
+            
+            <div class="nav-tab" onclick="switchTab('recruiter')">
+                <div class="nav-tab-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="nav-tab-content">
+                    <div class="nav-tab-title">Recruiter View</div>
+                    <div class="nav-tab-desc">Individual recruiter performance</div>
+                </div>
+            </div>
+            
+            <div class="nav-tab" onclick="switchTab('trends')">
+                <div class="nav-tab-icon">
+                    <i class="fas fa-chart-area"></i>
+                </div>
+                <div class="nav-tab-content">
+                    <div class="nav-tab-title">Trends & FY Comparison</div>
+                    <div class="nav-tab-desc">Historical trends and FY analysis</div>
+                </div>
+            </div>
+            
+            <div class="nav-tab" onclick="switchTab('insights')">
+                <div class="nav-tab-icon">
+                    <i class="fas fa-lightbulb"></i>
+                </div>
+                <div class="nav-tab-content">
+                    <div class="nav-tab-title">Insights & Recommendations</div>
+                    <div class="nav-tab-desc">AI-powered insights and actions</div>
                 </div>
             </div>
         </nav>
 
+        <!-- Main Content Wrapper -->
+        <div class="main-content-wrapper">
+        
         <!-- Global Filters -->
-        <div class="bg-white border-b border-gray-200 py-4 sticky top-12 z-30 shadow-sm">
-            <div class="container mx-auto px-6">
+        <div class="bg-white border-b border-gray-200 py-4 sticky top-0 z-30 shadow-sm">
+            <div class="px-6">
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 mb-2">FINANCIAL YEAR</label>
@@ -440,7 +537,7 @@ app.get('/', (c) => {
         </div>
 
         <!-- Main Content -->
-        <main class="container mx-auto px-6 py-6">
+        <main class="px-6 py-6">
             <!-- Loading State -->
             <div id="loading-state" class="text-center py-20">
                 <div class="loading-spinner mx-auto mb-4"></div>
@@ -729,6 +826,9 @@ app.get('/', (c) => {
                 </div>
             </div>
         </main>
+        
+        </div>
+        <!-- End Main Content Wrapper -->
 
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
