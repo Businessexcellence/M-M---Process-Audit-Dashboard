@@ -10,7 +10,7 @@ A comprehensive, real-time QA insights dashboard for monitoring and analyzing th
 ✅ **Smart Column Detection** - Financial Year automatically extracted from Column B of Audit Count sheet  
 ✅ **Real-time Metrics** - Track accuracy, error rates, audit counts, and sample coverage  
 ✅ **Interactive Visualizations** - Multiple chart types including line, bar, heatmap, scatter, and funnel charts  
-✅ **Multi-dimensional Filtering** - Filter by year, month, week, stage, parameter, and recruiter  
+✅ **Multi-dimensional Filtering** - Filter by year, month, week, stage, and parameter  
 ✅ **Stage & Parameter Analysis** - Heatmap view with top/worst parameter identification  
 ✅ **Recruiter Performance** - Individual recruiter metrics with quadrant analysis  
 ✅ **FY Trend Comparison** - Compare performance across financial years  
@@ -75,12 +75,27 @@ The dashboard expects Excel files with the following structure:
 
 ### Calculated Measures
 
+**✅ CORRECTED FORMULAS (Applied in Dashboard):**
+
 ```javascript
-Accuracy Score = Opportunity Pass / (Opportunity Count - Opportunity NA) × 100
-Error Rate = Opportunity Fail / (Opportunity Count - Opportunity NA) × 100
-Sample Coverage = Sample Count / Total Population × 100
+// 1. Overall Accuracy - measures % of opportunities that passed audit
+Overall Accuracy = Sum(Opportunity Pass) / [Sum(Opportunity Count) - Sum(Opportunity NA)] × 100
+
+// 2. Error Rate - measures % of opportunities that failed audit
+Error Rate = Sum(Opportunity Fail) / [Sum(Opportunity Count) - Sum(Opportunity NA)] × 100
+
+// 3. Sample Coverage - measures % of total population that was audited
+Sample Coverage = Sum(Opportunity Count) / Sum(Total Population) × 100
+
+// 4. Error Contribution - measures individual recruiter's contribution to total errors
 Error Contribution = Recruiter Errors / Total Errors × 100
 ```
+
+**Key Points:**
+- All formulas use **Sum** aggregation across filtered data
+- Denominator for Accuracy and Error Rate excludes NA opportunities
+- Sample Coverage uses **Opportunity Count** (not Sample Count) as numerator
+- Formulas automatically adjust based on applied filters (Year, Month, Week, Stage, Parameter)
 
 ### Storage Services
 
@@ -115,7 +130,14 @@ Error Contribution = Recruiter Errors / Total Errors × 100
 - **Monthly Comparison**: Line chart comparing accuracy across financial years
 - **Low Sample Indicators**: Markers for months below 20% sample threshold
 
-### 5. Insights & Recommendations
+### 5. Team & People Analytics
+- **Recruiter Performance**: Individual recruiter scorecards with dropdown selection
+- **Team Comparison**: Team-wise performance ranking with leaderboard
+- **Top Performers**: Best performing recruiters with podium visualization
+- **Improvement Areas**: Identifies recruiters with low accuracy (<80%) or high error rate (>15%)
+- **Program Manager View**: PM-wise team performance with team member details
+
+### 6. Insights & Recommendations
 - **Dynamic Recommendations**: Auto-generated based on data patterns
 - **Priority Matrix**: High/Medium priority action items
 - **Training Needs**: Targeted recommendations by parameter
@@ -172,6 +194,8 @@ Error Contribution = Recruiter Errors / Total Errors × 100
 - **Week**: Filter by week number
 - **Recruitment Stage**: Focus on specific stage (Pre-Sourcing, Intake, Screening, etc.)
 - **Parameter**: Analyze specific parameter
+
+**Note**: Recruiter filtering is available in the **Team & People Analytics** section, not in global filters.
 - **Recruiter**: View individual recruiter performance
 
 **Filter Actions**:
