@@ -171,8 +171,20 @@ app.get('/', (c) => {
           
           .nav-tab:hover {
             color: var(--mm-red);
-            background: var(--mm-light-red);
+            background: linear-gradient(90deg, #FFF5F5 0%, #FEE2E2 100%);
             border-left-color: var(--mm-light-red);
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(200, 16, 46, 0.15);
+          }
+          
+          .nav-tab:hover .nav-tab-icon {
+            background: linear-gradient(135deg, #C8102E 0%, #8B0000 100%);
+            color: white;
+            transform: scale(1.1);
+          }
+          
+          .nav-tab:hover .nav-tab-title {
+            color: #C8102E;
           }
           
           .nav-tab.active {
@@ -246,8 +258,13 @@ app.get('/', (c) => {
           }
           
           .nav-sub-item:hover {
-            background: var(--mm-light-red);
+            background: #FEE2E2;
             color: var(--mm-red);
+            padding-left: 60px;
+          }
+          
+          .nav-sub-item:hover i {
+            transform: scale(1.2);
           }
           
           .nav-sub-item.active {

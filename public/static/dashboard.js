@@ -1063,8 +1063,32 @@ function selectStageTab(stage) {
 function updateStageMetrics() {
   if (!filteredData) return;
   
-  // Filter data for selected stage
-  const stageData = filteredData.filter(r => r['Recruitment Stage'] === selectedStage);
+  console.log('Selected stage:', selectedStage);
+  console.log('Available stages:', [...new Set(filteredData.map(r => r['Recruitment Stage']).filter(Boolean))]);
+  
+  // Filter data for selected stage - use flexible matching
+  const stageData = filteredData.filter(r => {
+    const stage = r['Recruitment Stage'];
+    if (!stage) return false;
+    
+    // Try exact match first
+    if (stage === selectedStage) return true;
+    
+    // Try partial match (e.g., "Assessment Interview" matches "Assessment")
+    if (stage.toLowerCase().includes(selectedStage.toLowerCase())) return true;
+    
+    // Try mapping common variations
+    const mappings = {
+      'OfferAPL': ['Offer', 'APL', 'OfferAPL'],
+      'Pre-Onboarding': ['Pre-Onboarding', 'PreOnboarding', 'Pre Onboarding'],
+      'Pre-Sourcing': ['Pre-Sourcing', 'PreSourcing', 'Pre Sourcing'],
+      'Assessment': ['Assessment', 'Assessment Interview'],
+      'Intake': ['Intake', 'Intake Meeting']
+    };
+    
+    const variations = mappings[selectedStage] || [];
+    return variations.some(v => stage.toLowerCase().includes(v.toLowerCase()));
+  });
   
   if (stageData.length === 0) {
     document.getElementById('stage-accuracy').textContent = '--';
@@ -1111,8 +1135,24 @@ function updateParameterBreakdown() {
   const container = document.getElementById('parameter-breakdown-list');
   if (!container || !filteredData) return;
   
-  // Filter data for selected stage
-  const stageData = filteredData.filter(r => r['Recruitment Stage'] === selectedStage);
+  // Filter data for selected stage - use same flexible matching
+  const stageData = filteredData.filter(r => {
+    const stage = r['Recruitment Stage'];
+    if (!stage) return false;
+    if (stage === selectedStage) return true;
+    if (stage.toLowerCase().includes(selectedStage.toLowerCase())) return true;
+    
+    const mappings = {
+      'OfferAPL': ['Offer', 'APL', 'OfferAPL'],
+      'Pre-Onboarding': ['Pre-Onboarding', 'PreOnboarding', 'Pre Onboarding'],
+      'Pre-Sourcing': ['Pre-Sourcing', 'PreSourcing', 'Pre Sourcing'],
+      'Assessment': ['Assessment', 'Assessment Interview'],
+      'Intake': ['Intake', 'Intake Meeting']
+    };
+    
+    const variations = mappings[selectedStage] || [];
+    return variations.some(v => stage.toLowerCase().includes(v.toLowerCase()));
+  });
   
   if (stageData.length === 0) {
     container.innerHTML = '<p class="text-gray-500 text-sm">No data available for this stage.</p>';
@@ -1180,8 +1220,24 @@ function updateParametersList() {
   const container = document.getElementById('parameters-list');
   if (!container || !filteredData) return;
   
-  // Filter data for selected stage
-  const stageData = filteredData.filter(r => r['Recruitment Stage'] === selectedStage);
+  // Filter data for selected stage - use same flexible matching
+  const stageData = filteredData.filter(r => {
+    const stage = r['Recruitment Stage'];
+    if (!stage) return false;
+    if (stage === selectedStage) return true;
+    if (stage.toLowerCase().includes(selectedStage.toLowerCase())) return true;
+    
+    const mappings = {
+      'OfferAPL': ['Offer', 'APL', 'OfferAPL'],
+      'Pre-Onboarding': ['Pre-Onboarding', 'PreOnboarding', 'Pre Onboarding'],
+      'Pre-Sourcing': ['Pre-Sourcing', 'PreSourcing', 'Pre Sourcing'],
+      'Assessment': ['Assessment', 'Assessment Interview'],
+      'Intake': ['Intake', 'Intake Meeting']
+    };
+    
+    const variations = mappings[selectedStage] || [];
+    return variations.some(v => stage.toLowerCase().includes(v.toLowerCase()));
+  });
   
   if (stageData.length === 0) {
     container.innerHTML = '<p class="text-gray-500 text-sm">No data available for this stage.</p>';
