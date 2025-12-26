@@ -9,8 +9,7 @@ let currentFilters = {
   month: 'all',
   week: 'all',
   stage: 'all',
-  parameter: 'all',
-  recruiter: 'all'
+  parameter: 'all'
 };
 
 // M&M Brand Colors
@@ -330,7 +329,10 @@ function populateFilters() {
   populateSelect('filter-week', weeks);
   populateSelect('filter-stage', stages);
   populateSelect('filter-parameter', parameters);
-  populateSelect('filter-recruiter', recruiters);
+  
+  // Populate recruiter dropdowns for Team & People Analytics section
+  populateSelect('team-recruiter-select', recruiters);
+  populateSelect('team-pm-select', [...new Set(data.map(r => r['Program Manager']).filter(Boolean))].sort());
   
   console.log('Filters populated. Years:', years);
 }
@@ -360,7 +362,6 @@ function applyFilters() {
   currentFilters.week = document.getElementById('filter-week').value;
   currentFilters.stage = document.getElementById('filter-stage').value;
   currentFilters.parameter = document.getElementById('filter-parameter').value;
-  currentFilters.recruiter = document.getElementById('filter-recruiter').value;
   
   // Filter data
   filteredData = filterDataByCurrentFilters();
@@ -391,9 +392,6 @@ function filterDataByCurrentFilters() {
   }
   if (currentFilters.parameter !== 'all') {
     filtered = filtered.filter(r => r['Parameter'] === currentFilters.parameter);
-  }
-  if (currentFilters.recruiter !== 'all') {
-    filtered = filtered.filter(r => r['Recruiter Name'] === currentFilters.recruiter);
   }
   
   return filtered;
@@ -439,8 +437,7 @@ function resetFilters() {
     month: 'all',
     week: 'all',
     stage: 'all',
-    parameter: 'all',
-    recruiter: 'all'
+    parameter: 'all'
   };
   
   document.getElementById('filter-year').value = 'all';
@@ -448,7 +445,6 @@ function resetFilters() {
   document.getElementById('filter-week').value = 'all';
   document.getElementById('filter-stage').value = 'all';
   document.getElementById('filter-parameter').value = 'all';
-  document.getElementById('filter-recruiter').value = 'all';
   
   applyFilters();
 }
@@ -474,21 +470,28 @@ function updateKeyMetrics() {
     return;
   }
   
-  // Calculate metrics
+  // Calculate metrics based on correct formulas:
+  // 1. Overall Accuracy = Sum(Opportunity Pass) / (Sum(Opportunity Count) - Sum(Opportunity NA))
+  // 2. Error Rate = Sum(Opportunity Fail) / (Sum(Opportunity Count) - Sum(Opportunity NA))
+  // 3. Sample Coverage = Sum(Opportunity Count) / Sum(Total Population)
+  
   const totalPass = filteredData.reduce((sum, r) => sum + (parseFloat(r['Opportunity Pass']) || 0), 0);
   const totalFail = filteredData.reduce((sum, r) => sum + (parseFloat(r['Opportunity Fail']) || 0), 0);
-  const totalExcludingNA = filteredData.reduce((sum, r) => sum + (parseFloat(r['Opportunity Excluding NA']) || 0), 0);
+  const totalOpportunityCount = filteredData.reduce((sum, r) => sum + (parseFloat(r['Opportunity Count']) || 0), 0);
+  const totalNA = filteredData.reduce((sum, r) => sum + (parseFloat(r['Opportunity NA']) || 0), 0);
   const totalPopulation = filteredData.reduce((sum, r) => sum + (parseFloat(r['Total Population']) || 0), 0);
   const totalSamples = filteredData.reduce((sum, r) => sum + (parseFloat(r['Sample Count']) || 0), 0);
-  const totalOpportunities = filteredData.reduce((sum, r) => sum + (parseFloat(r['Opportunity Count']) || 0), 0);
+  
+  // Calculate denominator (Opportunity Count - Opportunity NA)
+  const totalExcludingNA = totalOpportunityCount - totalNA;
   
   const accuracy = totalExcludingNA > 0 ? (totalPass / totalExcludingNA * 100) : 0;
   const errorRate = totalExcludingNA > 0 ? (totalFail / totalExcludingNA * 100) : 0;
-  const sampleCoverage = totalPopulation > 0 ? (totalSamples / totalPopulation * 100) : 0;
+  const sampleCoverage = totalPopulation > 0 ? (totalOpportunityCount / totalPopulation * 100) : 0;
   
   document.getElementById('metric-accuracy').textContent = accuracy.toFixed(1) + '%';
   document.getElementById('metric-error-rate').textContent = errorRate.toFixed(1) + '%';
-  document.getElementById('metric-total-audits').textContent = totalOpportunities.toLocaleString();
+  document.getElementById('metric-total-audits').textContent = totalOpportunityCount.toLocaleString();
   document.getElementById('metric-sample-coverage').textContent = sampleCoverage.toFixed(1) + '%';
 }
 
@@ -500,15 +503,17 @@ function updateDynamicNarrative() {
     return;
   }
   
-  // Calculate key stats
+  // Calculate key stats using correct formulas
   const totalPass = filteredData.reduce((sum, r) => sum + (parseFloat(r['Opportunity Pass']) || 0), 0);
-  const totalExcludingNA = filteredData.reduce((sum, r) => sum + (parseFloat(r['Opportunity Excluding NA']) || 0), 0);
+  const totalOpportunityCount = filteredData.reduce((sum, r) => sum + (parseFloat(r['Opportunity Count']) || 0), 0);
+  const totalNA = filteredData.reduce((sum, r) => sum + (parseFloat(r['Opportunity NA']) || 0), 0);
   const totalSamples = filteredData.reduce((sum, r) => sum + (parseFloat(r['Sample Count']) || 0), 0);
   const totalPopulation = filteredData.reduce((sum, r) => sum + (parseFloat(r['Total Population']) || 0), 0);
-  const totalOpportunities = filteredData.reduce((sum, r) => sum + (parseFloat(r['Opportunity Count']) || 0), 0);
+  
+  const totalExcludingNA = totalOpportunityCount - totalNA;
   
   const accuracy = totalExcludingNA > 0 ? (totalPass / totalExcludingNA * 100) : 0;
-  const sampleCoverage = totalPopulation > 0 ? (totalSamples / totalPopulation * 100) : 0;
+  const sampleCoverage = totalPopulation > 0 ? (totalOpportunityCount / totalPopulation * 100) : 0;
   
   // Find top error parameters
   const parameterErrors = {};
@@ -525,7 +530,7 @@ function updateDynamicNarrative() {
   
   // Generate narrative
   const narratives = [
-    `Overall accuracy for the selected period is <strong class="text-mm-red">${accuracy.toFixed(1)}%</strong> with a sample coverage of <strong>${sampleCoverage.toFixed(1)}%</strong>, across <strong>${totalOpportunities.toLocaleString()}</strong> audited opportunities.`
+    `Overall accuracy for the selected period is <strong class="text-mm-red">${accuracy.toFixed(1)}%</strong> with a sample coverage of <strong>${sampleCoverage.toFixed(1)}%</strong>, across <strong>${totalOpportunityCount.toLocaleString()}</strong> audited opportunities.`
   ];
   
   if (topErrors.length > 0) {

@@ -611,12 +611,6 @@ app.get('/', (c) => {
                             <option value="all" selected>All Parameters</option>
                         </select>
                     </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-2">RECRUITER</label>
-                        <select id="filter-recruiter" onchange="applyFilters()" class="w-full">
-                            <option value="all" selected>All Recruiters</option>
-                        </select>
-                    </div>
                 </div>
                 <div id="active-filters" class="mt-3 flex flex-wrap gap-2"></div>
             </div>
