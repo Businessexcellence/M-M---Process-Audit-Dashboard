@@ -178,6 +178,8 @@ function readExcelFile(file, progressCallback) {
         const data = new Uint8Array(e.target.result);
         const workbook = XLSX.read(data, { type: 'array' });
         
+        console.log('Excel sheet names found:', workbook.SheetNames);
+        
         const sheets = {};
         workbook.SheetNames.forEach(sheetName => {
           // Get both JSON and raw data for Column B extraction
@@ -185,6 +187,8 @@ function readExcelFile(file, progressCallback) {
           sheets[sheetName] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
           sheets[sheetName + '_parsed'] = XLSX.utils.sheet_to_json(worksheet);
         });
+        
+        console.log('Processed sheet keys:', Object.keys(sheets));
         
         resolve(sheets);
       } catch (error) {
@@ -202,17 +206,37 @@ function readExcelFile(file, progressCallback) {
 
 // Validate data structure
 function validateDataStructure(data) {
+  console.log('Validating data structure. Available keys:', Object.keys(data));
+  
   // Check for Audit Count sheet (required)
-  if (!data['Audit Count_parsed'] || data['Audit Count_parsed'].length === 0) {
-    throw new Error('Missing required sheet: Audit Count. Please ensure your Excel file contains an "Audit Count" sheet with data.');
+  // Try different possible sheet name variations
+  const auditCountKeys = Object.keys(data).filter(key => 
+    key.toLowerCase().includes('audit') && key.toLowerCase().includes('count')
+  );
+  
+  console.log('Found Audit Count related keys:', auditCountKeys);
+  
+  const auditCountParsed = data['Audit Count_parsed'] || 
+                           data['Audit Count _parsed'] ||
+                           data['AuditCount_parsed'] ||
+                           auditCountKeys.find(key => key.endsWith('_parsed'));
+  
+  if (!auditCountParsed || auditCountParsed.length === 0) {
+    throw new Error('Missing required sheet: Audit Count. Please ensure your Excel file contains an "Audit Count" sheet with data. Found sheets: ' + Object.keys(data).filter(k => k.endsWith('_parsed')).map(k => k.replace('_parsed', '')).join(', '));
   }
   
   // FY23 and Recruiter Wise Data are optional but good to have
   const warnings = [];
-  if (!data['FY23_parsed'] || data['FY23_parsed'].length === 0) {
+  
+  const fy23Keys = Object.keys(data).filter(key => key.toLowerCase().includes('fy23') || key.toLowerCase().includes('fy 23'));
+  if (fy23Keys.length === 0) {
     warnings.push('FY23 sheet not found or empty');
   }
-  if (!data['Recruiter Wise Data_parsed'] || data['Recruiter Wise Data_parsed'].length === 0) {
+  
+  const recruiterKeys = Object.keys(data).filter(key => 
+    key.toLowerCase().includes('recruiter') && key.toLowerCase().includes('wise')
+  );
+  if (recruiterKeys.length === 0) {
     warnings.push('Recruiter Wise Data sheet not found or empty');
   }
   
@@ -225,9 +249,21 @@ function validateDataStructure(data) {
 
 // Process and store data
 function processAndStoreData(data) {
-  // Extract Financial Year values from Column B (index 1) of raw Audit Count sheet
-  const auditCountRaw = data['Audit Count'] || [];
-  const auditCountParsed = data['Audit Count_parsed'] || [];
+  console.log('Processing data. Available keys:', Object.keys(data));
+  
+  // Find Audit Count sheets (flexible matching)
+  const auditCountRawKey = Object.keys(data).find(key => 
+    (key.toLowerCase().includes('audit') && key.toLowerCase().includes('count') && !key.includes('_parsed'))
+  );
+  const auditCountParsedKey = Object.keys(data).find(key => 
+    (key.toLowerCase().includes('audit') && key.toLowerCase().includes('count') && key.includes('_parsed'))
+  );
+  
+  const auditCountRaw = data[auditCountRawKey] || [];
+  const auditCountParsed = data[auditCountParsedKey] || [];
+  
+  console.log('Audit Count raw key:', auditCountRawKey, 'rows:', auditCountRaw.length);
+  console.log('Audit Count parsed key:', auditCountParsedKey, 'rows:', auditCountParsed.length);
   
   // Extract unique Financial Years from Column B (skipping header row)
   const financialYears = [];
@@ -241,14 +277,31 @@ function processAndStoreData(data) {
     }
   }
   
+  // Find FY sheets
+  const fy23Key = Object.keys(data).find(key => 
+    (key.toLowerCase().includes('fy23') || key.toLowerCase().includes('fy 23')) && key.includes('_parsed')
+  );
+  const fy24Key = Object.keys(data).find(key => 
+    (key.toLowerCase().includes('fy24') || key.toLowerCase().includes('fy 24')) && key.includes('_parsed')
+  );
+  
+  // Find Recruiter Wise Data sheet
+  const recruiterWiseKey = Object.keys(data).find(key => 
+    key.toLowerCase().includes('recruiter') && key.toLowerCase().includes('wise') && key.includes('_parsed')
+  );
+  
+  // Find error sheets
+  const sheet3Key = Object.keys(data).find(key => key.toLowerCase() === 'sheet3_parsed');
+  const sheet5Key = Object.keys(data).find(key => key.toLowerCase() === 'sheet5_parsed');
+  
   rawData = {
     auditCount: auditCountParsed,
     auditCountRaw: auditCountRaw,
     financialYears: financialYears.sort(),
-    fy23: data['FY23_parsed'] || [],
-    fy24: data['FY24_parsed'] || [],
-    recruiterWise: data['Recruiter Wise Data_parsed'] || [],
-    parameterErrors: data['Sheet3_parsed'] || data['Sheet5_parsed'] || [],
+    fy23: data[fy23Key] || [],
+    fy24: data[fy24Key] || [],
+    recruiterWise: data[recruiterWiseKey] || [],
+    parameterErrors: data[sheet3Key] || data[sheet5Key] || [],
     allSheets: data
   };
   
