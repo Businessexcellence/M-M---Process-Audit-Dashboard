@@ -1600,12 +1600,7 @@ function updateRecruiterTable() {
   }).join('');
 }
 
-// Update Trends view
-function updateTrendsView() {
-  updateFYMetrics();
-  updateFYComparisonChart();
-  updateWeeklyFYChart();
-}
+// Update Trends view - REMOVED (duplicate, see line 2693)
 
 function updateFYMetrics() {
   const fyData = { fy23: [], fy24: [], fy25: [] };
@@ -2691,8 +2686,16 @@ function updatePredictiveChart() {
 
 // Update Trends View to include predictive chart
 function updateTrendsView() {
+  if (!rawData || !rawData.auditCount) return;
   updateFYMetrics();
   updatePredictiveChart();
+  // Also update old charts if they exist in DOM
+  if (document.getElementById('fy-comparison-chart')) {
+    updateFYComparisonChart();
+  }
+  if (document.getElementById('weekly-fy-chart')) {
+    updateWeeklyFYChart();
+  }
 }
 
 // Expose functions globally for onclick handlers

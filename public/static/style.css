@@ -329,3 +329,137 @@ h1 { font-family: Arial, Helvetica, sans-serif; }
 .nav-sub-item:hover i {
   transform: scale(1.2);
 }
+
+/* Dark Theme (Black & White) */
+body.dark-theme {
+  background: #000000;
+  color: #FFFFFF;
+}
+
+body.dark-theme header {
+  background: #000000;
+  border-bottom: 1px solid #333333;
+}
+
+body.dark-theme .sidebar-nav {
+  background: #1a1a1a;
+  border-right: 1px solid #333333;
+}
+
+body.dark-theme .nav-tab {
+  background: #1a1a1a;
+  color: #FFFFFF;
+}
+
+body.dark-theme .nav-tab:hover {
+  background: #2a2a2a;
+}
+
+body.dark-theme .nav-tab.active {
+  background: #333333;
+  border-left-color: #FFFFFF;
+}
+
+body.dark-theme .nav-tab-icon {
+  background: #2a2a2a;
+  color: #FFFFFF;
+}
+
+body.dark-theme .nav-tab.active .nav-tab-icon {
+  background: #FFFFFF;
+  color: #000000;
+}
+
+body.dark-theme .main-content-wrapper {
+  background: #000000;
+}
+
+body.dark-theme .dashboard-card {
+  background: #1a1a1a;
+  border-color: #333333;
+  color: #FFFFFF;
+}
+
+body.dark-theme .metric-card {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+  border-color: #333333;
+}
+
+body.dark-theme .metric-value {
+  color: #FFFFFF;
+}
+
+body.dark-theme .metric-label,
+body.dark-theme .text-gray-600,
+body.dark-theme .text-gray-700,
+body.dark-theme .text-gray-800 {
+  color: #CCCCCC;
+}
+
+body.dark-theme .text-gray-500 {
+  color: #999999;
+}
+
+body.dark-theme select,
+body.dark-theme input {
+  background: #2a2a2a;
+  border-color: #333333;
+  color: #FFFFFF;
+}
+
+body.dark-theme .bg-mm-light-red {
+  background: #2a2a2a;
+}
+
+body.dark-theme .stage-tab-btn {
+  background: #2a2a2a;
+  border-color: #333333;
+  color: #FFFFFF;
+}
+
+body.dark-theme .stage-tab-btn:hover {
+  background: #333333;
+  border-color: #666666;
+}
+
+body.dark-theme .stage-tab-btn.active {
+  background: #FFFFFF;
+  border-color: #FFFFFF;
+  color: #000000;
+}
+
+body.dark-theme .parameter-progress {
+  background: #2a2a2a;
+}
+
+body.dark-theme .forecast-card {
+  background: #1a1a1a;
+  border-color: #333333;
+}
+
+body.dark-theme .forecast-card-header,
+body.dark-theme .forecast-card-subtitle,
+body.dark-theme .forecast-confidence {
+  color: #CCCCCC;
+}
+
+body.dark-theme table thead {
+  background: #2a2a2a;
+}
+
+body.dark-theme table td,
+body.dark-theme table th {
+  border-color: #333333;
+  color: #FFFFFF;
+}
+
+body.dark-theme .filter-pill {
+  background: #2a2a2a;
+  border-color: #333333;
+  color: #FFFFFF;
+}
+
+body.dark-theme .loading-spinner {
+  border-color: #333333;
+  border-top-color: #FFFFFF;
+}
