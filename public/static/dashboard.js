@@ -57,7 +57,7 @@ async function handleFileUpload(event) {
     // Step 2: Parsing sheets (20-40%)
     updateProgress(20, 'parsing', 'Parsing Excel sheets...');
     await sleep(300);
-    updateProgress(40, 'parsing', 'Parsing Excel sheets...');
+    updateProgress(40, 'parsing', 'Excel sheets parsed successfully!');
     
     // Step 3: Validating (40-60%)
     updateProgress(40, 'validating', 'Validating data structure...');
@@ -86,9 +86,9 @@ async function handleFileUpload(event) {
     showSuccessMessage('Data loaded successfully! Dashboard is ready.');
   } catch (error) {
     console.error('Error processing file:', error);
-    hideUploadModal();
+    hideUploadModal(); // Hide modal on error
     showErrorMessage('Error: ' + error.message);
-    hideLoadingState();
+    showLoadingState(); // Keep showing loading state message
   }
 }
 
@@ -202,12 +202,22 @@ function readExcelFile(file, progressCallback) {
 
 // Validate data structure
 function validateDataStructure(data) {
-  const requiredSheets = ['Audit Count_parsed', 'FY23_parsed', 'Recruiter Wise Data_parsed'];
-  const missingSheets = requiredSheets.filter(sheet => !data[sheet]);
+  // Check for Audit Count sheet (required)
+  if (!data['Audit Count_parsed'] || data['Audit Count_parsed'].length === 0) {
+    throw new Error('Missing required sheet: Audit Count. Please ensure your Excel file contains an "Audit Count" sheet with data.');
+  }
   
-  if (missingSheets.length > 0) {
-    const originalNames = missingSheets.map(s => s.replace('_parsed', ''));
-    throw new Error(`Missing required sheets: ${originalNames.join(', ')}`);
+  // FY23 and Recruiter Wise Data are optional but good to have
+  const warnings = [];
+  if (!data['FY23_parsed'] || data['FY23_parsed'].length === 0) {
+    warnings.push('FY23 sheet not found or empty');
+  }
+  if (!data['Recruiter Wise Data_parsed'] || data['Recruiter Wise Data_parsed'].length === 0) {
+    warnings.push('Recruiter Wise Data sheet not found or empty');
+  }
+  
+  if (warnings.length > 0) {
+    console.warn('Optional sheets missing:', warnings.join(', '));
   }
   
   return true;

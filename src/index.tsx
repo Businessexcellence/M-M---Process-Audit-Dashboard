@@ -443,7 +443,7 @@ app.get('/', (c) => {
                 </div>
                 <div class="nav-tab-content">
                     <div class="nav-tab-title">Overview</div>
-                    <div class="nav-tab-desc">Key metrics and performance summary</div>
+                    <div class="nav-tab-desc">Key metrics & summary</div>
                 </div>
             </div>
             
@@ -453,7 +453,7 @@ app.get('/', (c) => {
                 </div>
                 <div class="nav-tab-content">
                     <div class="nav-tab-title">Stage & Parameter</div>
-                    <div class="nav-tab-desc">Heatmap and parameter analysis</div>
+                    <div class="nav-tab-desc">Heatmap analysis</div>
                 </div>
             </div>
             
@@ -463,7 +463,7 @@ app.get('/', (c) => {
                 </div>
                 <div class="nav-tab-content">
                     <div class="nav-tab-title">Recruiter View</div>
-                    <div class="nav-tab-desc">Individual recruiter performance</div>
+                    <div class="nav-tab-desc">Performance metrics</div>
                 </div>
             </div>
             
@@ -472,8 +472,8 @@ app.get('/', (c) => {
                     <i class="fas fa-chart-area"></i>
                 </div>
                 <div class="nav-tab-content">
-                    <div class="nav-tab-title">Trends & FY Comparison</div>
-                    <div class="nav-tab-desc">Historical trends and FY analysis</div>
+                    <div class="nav-tab-title">Trends & FY</div>
+                    <div class="nav-tab-desc">Historical analysis</div>
                 </div>
             </div>
             
@@ -482,8 +482,8 @@ app.get('/', (c) => {
                     <i class="fas fa-lightbulb"></i>
                 </div>
                 <div class="nav-tab-content">
-                    <div class="nav-tab-title">Insights & Recommendations</div>
-                    <div class="nav-tab-desc">AI-powered insights and actions</div>
+                    <div class="nav-tab-title">Insights</div>
+                    <div class="nav-tab-desc">AI recommendations</div>
                 </div>
             </div>
         </nav>
