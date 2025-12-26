@@ -6,7 +6,8 @@ A comprehensive, real-time QA insights dashboard for monitoring and analyzing th
 
 ### Key Features
 
-✅ **Excel Data Import** - Upload and validate Excel files with automatic data parsing  
+✅ **Excel Data Import with Progress Tracking** - Upload and validate Excel files with real-time progress bar  
+✅ **Smart Column Detection** - Financial Year automatically extracted from Column B of Audit Count sheet  
 ✅ **Real-time Metrics** - Track accuracy, error rates, audit counts, and sample coverage  
 ✅ **Interactive Visualizations** - Multiple chart types including line, bar, heatmap, scatter, and funnel charts  
 ✅ **Multi-dimensional Filtering** - Filter by year, month, week, stage, parameter, and recruiter  
@@ -146,17 +147,30 @@ Error Contribution = Recruiter Errors / Total Errors × 100
 
 1. **Open Dashboard**: Navigate to the dashboard URL
 2. **Upload Data**: Click "Upload Excel" button in top-right corner
-3. **Select File**: Choose your Excel file (must match required format)
-4. **Validation**: System validates required sheets automatically
-5. **View Insights**: Dashboard populates with your data
+3. **Select File**: Choose your "Power BI Data.xlsx" file (must contain Audit Count sheet)
+4. **Watch Progress**: Real-time progress modal shows:
+   - ⏳ Reading file (0-20%)
+   - 📊 Parsing Excel sheets (20-40%)
+   - ✓ Validating data structure (40-60%)
+   - 🔄 Processing data (60-80%)
+   - 🎨 Rendering dashboard (80-100%)
+5. **View Insights**: Dashboard populates automatically with your data
+
+### Financial Year Detection
+
+**Important**: The dashboard **automatically extracts Financial Year values from Column B** of the "Audit Count" sheet:
+- ✅ Column B should contain Financial Year values (e.g., "FY23", "FY24", "FY25")
+- ✅ System reads directly from Column B (column index 1), not from header names
+- ✅ All unique values from Column B are extracted and populate the filter dropdown
+- ✅ No manual configuration required - fully automatic detection
 
 ### Using Filters
 
 **Global Filters** (top band):
-- **Financial Year**: Multi-select FY23, FY24, FY25
+- **Financial Year**: Auto-populated from Column B - select specific FY or view all
 - **Month**: Select specific month or view all
 - **Week**: Filter by week number
-- **Recruitment Stage**: Focus on specific stage
+- **Recruitment Stage**: Focus on specific stage (Pre-Sourcing, Intake, Screening, etc.)
 - **Parameter**: Analyze specific parameter
 - **Recruiter**: View individual recruiter performance
 
@@ -164,6 +178,7 @@ Error Contribution = Recruiter Errors / Total Errors × 100
 - **Apply**: Filters apply automatically on selection
 - **Reset**: Click "Reset" button to clear all filters
 - **Active Filters**: View applied filters as pills below filter bar
+- **Remove Individual**: Click X icon on any filter pill to remove that specific filter
 
 ### Navigation
 
@@ -315,16 +330,22 @@ No environment variables required for current implementation.
 **Tech Stack**: Hono + TypeScript + TailwindCSS + Chart.js
 
 **Features Completed**:
-- ✅ Excel upload and validation
-- ✅ Data model and parsing
+- ✅ Excel upload with real-time progress tracking
+- ✅ Smart Column B detection for Financial Year
+- ✅ Data model and parsing with validation
 - ✅ All 5 dashboard views
-- ✅ Interactive charts and visualizations
-- ✅ Global filtering system
+- ✅ Interactive charts and visualizations (10+ chart types)
+- ✅ Global filtering system (6 dimensions)
 - ✅ Dynamic insights generation
 - ✅ PDF export functionality
 - ✅ M&M branding and styling
 - ✅ Responsive design
-- ✅ Sample data generator
+- ✅ Upload progress modal with step-by-step tracking
+
+**Recent Updates**:
+- 🆕 Added upload progress bar with 5-step tracking (Dec 26, 2024)
+- 🆕 Financial Year now auto-extracted from Column B (Dec 26, 2024)
+- 🆕 Enhanced file validation with detailed error messages
 
 **Last Updated**: December 26, 2024
 
@@ -357,9 +378,12 @@ Edit CSS variables in `index.tsx` line ~29:
 ## 🐛 Troubleshooting
 
 ### Excel Upload Fails
-- Ensure file has required sheets: "Audit Count", "FY23", "Recruiter Wise Data"
-- Check column names match exactly
-- Verify data types (numbers for metrics, text for dimensions)
+- **Required Sheets**: "Audit Count", "FY23", "Recruiter Wise Data"
+- **Financial Year Column**: Must be in Column B of "Audit Count" sheet
+- **Column Names**: Check names match exactly (case-sensitive)
+- **Data Types**: Numbers for metrics, text for dimensions
+- **File Format**: .xlsx or .xls only
+- **Progress Modal**: If modal shows error at specific step, check that step's requirements
 
 ### Charts Not Displaying
 - Check browser console for errors
