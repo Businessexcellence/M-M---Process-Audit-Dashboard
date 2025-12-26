@@ -1,0 +1,636 @@
+import { Hono } from 'hono'
+import { cors } from 'hono/cors'
+import { serveStatic } from 'hono/cloudflare-workers'
+
+const app = new Hono()
+
+// Enable CORS for API routes
+app.use('/api/*', cors())
+
+// Serve static files from public directory
+app.use('/static/*', serveStatic({ root: './public' }))
+
+// In-memory data store (in production, use Cloudflare D1 or KV)
+let dashboardData: any = null
+
+// API route to upload and parse Excel data
+app.post('/api/upload', async (c) => {
+  try {
+    const formData = await c.req.formData()
+    const file = formData.get('file')
+    
+    if (!file || !(file instanceof File)) {
+      return c.json({ error: 'No file uploaded' }, 400)
+    }
+
+    // Return success - parsing will be done on client side
+    return c.json({ 
+      success: true, 
+      message: 'File uploaded successfully',
+      filename: file.name,
+      size: file.size
+    })
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500)
+  }
+})
+
+// API route to get dashboard data
+app.get('/api/data', (c) => {
+  if (!dashboardData) {
+    return c.json({ error: 'No data available' }, 404)
+  }
+  return c.json(dashboardData)
+})
+
+// API route to save parsed data
+app.post('/api/data', async (c) => {
+  try {
+    const data = await c.req.json()
+    dashboardData = data
+    return c.json({ success: true, message: 'Data saved successfully' })
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500)
+  }
+})
+
+// Main dashboard route
+app.get('/', (c) => {
+  return c.html(`
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>M&M Recruitment Process Audit Dashboard</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+        <style>
+          :root {
+            --mm-red: #C8102E;
+            --mm-dark-red: #8B0000;
+            --mm-light-red: #FFE5E5;
+            --mm-white: #FFFFFF;
+            --mm-grey: #6B7280;
+            --mm-light-grey: #F3F4F6;
+            --mm-border-grey: #E5E7EB;
+          }
+          
+          body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--mm-white);
+          }
+          
+          .mm-red { color: var(--mm-red); }
+          .bg-mm-red { background-color: var(--mm-red); }
+          .bg-mm-dark-red { background-color: var(--mm-dark-red); }
+          .bg-mm-light-red { background-color: var(--mm-light-red); }
+          .border-mm-red { border-color: var(--mm-red); }
+          .hover\\:bg-mm-dark-red:hover { background-color: var(--mm-dark-red); }
+          
+          .dashboard-card {
+            background: var(--mm-white);
+            border: 1px solid var(--mm-border-grey);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: box-shadow 0.3s ease;
+          }
+          
+          .dashboard-card:hover {
+            box-shadow: 0 4px 12px rgba(200, 16, 46, 0.1);
+          }
+          
+          .stage-icon {
+            width: 32px;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--mm-light-red);
+            color: var(--mm-red);
+            border-radius: 50%;
+            margin-right: 8px;
+          }
+          
+          .insight-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            font-weight: 600;
+          }
+          
+          .insight-negative {
+            background: var(--mm-light-red);
+            color: var(--mm-dark-red);
+          }
+          
+          .insight-positive {
+            background: #D1FAE5;
+            color: #065F46;
+          }
+          
+          .loading-spinner {
+            border: 3px solid var(--mm-light-red);
+            border-top: 3px solid var(--mm-red);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+          }
+          
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+          
+          .nav-tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            color: var(--mm-grey);
+          }
+          
+          .nav-tab:hover {
+            color: var(--mm-red);
+            background: var(--mm-light-red);
+          }
+          
+          .nav-tab.active {
+            color: var(--mm-red);
+            border-bottom-color: var(--mm-red);
+            font-weight: 600;
+          }
+          
+          .filter-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: var(--mm-light-red);
+            color: var(--mm-red);
+            border-radius: 16px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+          }
+          
+          .filter-pill:hover {
+            background: var(--mm-red);
+            color: white;
+          }
+          
+          select, input[type="file"] {
+            border: 1px solid var(--mm-border-grey);
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 0.875rem;
+            transition: border-color 0.2s ease;
+          }
+          
+          select:focus, input[type="file"]:focus {
+            outline: none;
+            border-color: var(--mm-red);
+            box-shadow: 0 0 0 3px rgba(200, 16, 46, 0.1);
+          }
+          
+          .metric-card {
+            text-align: center;
+            padding: 24px;
+            background: linear-gradient(135deg, var(--mm-white) 0%, var(--mm-light-red) 100%);
+          }
+          
+          .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--mm-red);
+            line-height: 1;
+          }
+          
+          .metric-label {
+            font-size: 0.875rem;
+            color: var(--mm-grey);
+            margin-top: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          }
+          
+          .chart-container {
+            position: relative;
+            height: 400px;
+            padding: 20px;
+          }
+          
+          .heatmap-cell {
+            padding: 12px;
+            text-align: center;
+            font-weight: 600;
+            border: 1px solid var(--mm-border-grey);
+            transition: transform 0.2s ease;
+          }
+          
+          .heatmap-cell:hover {
+            transform: scale(1.05);
+            z-index: 10;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+          }
+        </style>
+    </head>
+    <body class="bg-gray-50">
+        <!-- Header -->
+        <header class="bg-mm-red text-white shadow-lg">
+            <div class="container mx-auto px-6 py-4">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-2xl font-bold">M&M Recruitment Process Audit Dashboard</h1>
+                        <p class="text-sm text-red-100 mt-1">Real-time QA Insights & Performance Analytics</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <label for="excel-upload" class="bg-white text-red-600 px-4 py-2 rounded-lg cursor-pointer hover:bg-red-50 transition flex items-center gap-2 font-semibold">
+                            <i class="fas fa-upload"></i>
+                            <span>Upload Excel</span>
+                            <input type="file" id="excel-upload" accept=".xlsx,.xls" class="hidden" onchange="handleFileUpload(event)">
+                        </label>
+                        <button onclick="exportToPDF()" class="bg-white text-red-600 px-4 py-2 rounded-lg hover:bg-red-50 transition flex items-center gap-2 font-semibold">
+                            <i class="fas fa-file-pdf"></i>
+                            <span>Export PDF</span>
+                        </button>
+                        <button onclick="resetFilters()" class="bg-white text-red-600 px-4 py-2 rounded-lg hover:bg-red-50 transition flex items-center gap-2 font-semibold">
+                            <i class="fas fa-redo"></i>
+                            <span>Reset</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm">
+            <div class="container mx-auto px-6">
+                <div class="flex gap-1">
+                    <div class="nav-tab active" onclick="switchTab('overview')">
+                        <i class="fas fa-chart-line mr-2"></i>Overview
+                    </div>
+                    <div class="nav-tab" onclick="switchTab('stage-parameter')">
+                        <i class="fas fa-table mr-2"></i>Stage & Parameter
+                    </div>
+                    <div class="nav-tab" onclick="switchTab('recruiter')">
+                        <i class="fas fa-users mr-2"></i>Recruiter View
+                    </div>
+                    <div class="nav-tab" onclick="switchTab('trends')">
+                        <i class="fas fa-chart-area mr-2"></i>Trends & FY Comparison
+                    </div>
+                    <div class="nav-tab" onclick="switchTab('insights')">
+                        <i class="fas fa-lightbulb mr-2"></i>Insights & Recommendations
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Global Filters -->
+        <div class="bg-white border-b border-gray-200 py-4 sticky top-12 z-30 shadow-sm">
+            <div class="container mx-auto px-6">
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-2">FINANCIAL YEAR</label>
+                        <select id="filter-year" onchange="applyFilters()" class="w-full" multiple size="1">
+                            <option value="all" selected>All Years</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-2">MONTH</label>
+                        <select id="filter-month" onchange="applyFilters()" class="w-full">
+                            <option value="all" selected>All Months</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-2">WEEK</label>
+                        <select id="filter-week" onchange="applyFilters()" class="w-full">
+                            <option value="all" selected>All Weeks</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-2">RECRUITMENT STAGE</label>
+                        <select id="filter-stage" onchange="applyFilters()" class="w-full">
+                            <option value="all" selected>All Stages</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-2">PARAMETER</label>
+                        <select id="filter-parameter" onchange="applyFilters()" class="w-full">
+                            <option value="all" selected>All Parameters</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-2">RECRUITER</label>
+                        <select id="filter-recruiter" onchange="applyFilters()" class="w-full">
+                            <option value="all" selected>All Recruiters</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="active-filters" class="mt-3 flex flex-wrap gap-2"></div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <main class="container mx-auto px-6 py-6">
+            <!-- Loading State -->
+            <div id="loading-state" class="text-center py-20">
+                <div class="loading-spinner mx-auto mb-4"></div>
+                <p class="text-gray-600">Please upload the Excel file to begin...</p>
+            </div>
+
+            <!-- Overview Tab -->
+            <div id="tab-overview" class="tab-content hidden">
+                <!-- Key Metrics -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                    <div class="dashboard-card metric-card">
+                        <div class="metric-value" id="metric-accuracy">--</div>
+                        <div class="metric-label">Overall Accuracy</div>
+                        <div class="text-xs text-gray-500 mt-2">Weighted by Opportunity Count</div>
+                    </div>
+                    <div class="dashboard-card metric-card">
+                        <div class="metric-value" id="metric-error-rate">--</div>
+                        <div class="metric-label">Overall Error Rate</div>
+                        <div class="text-xs text-gray-500 mt-2">Opportunities Failed / Total</div>
+                    </div>
+                    <div class="dashboard-card metric-card">
+                        <div class="metric-value" id="metric-total-audits">--</div>
+                        <div class="metric-label">Total Audits</div>
+                        <div class="text-xs text-gray-500 mt-2">Opportunity Count</div>
+                    </div>
+                    <div class="dashboard-card metric-card">
+                        <div class="metric-value" id="metric-sample-coverage">--</div>
+                        <div class="metric-label">Sample Coverage</div>
+                        <div class="text-xs text-gray-500 mt-2">Sample / Population</div>
+                    </div>
+                </div>
+
+                <!-- Dynamic Narrative -->
+                <div class="dashboard-card p-6 mb-6 bg-blue-50 border-blue-200">
+                    <h3 class="text-lg font-bold text-gray-800 mb-3">
+                        <i class="fas fa-info-circle text-blue-600 mr-2"></i>Key Insights
+                    </h3>
+                    <div id="dynamic-narrative" class="text-gray-700 space-y-2">
+                        <p>Upload data to see insights...</p>
+                    </div>
+                </div>
+
+                <!-- Charts Row 1 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <div class="dashboard-card">
+                        <div class="p-4 border-b border-gray-200 bg-mm-light-red">
+                            <h3 class="font-bold text-gray-800">
+                                <i class="fas fa-chart-bar text-mm-red mr-2"></i>Monthly Accuracy vs Error Rate (FY Comparison)
+                            </h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="monthly-accuracy-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="p-4 border-b border-gray-200 bg-mm-light-red">
+                            <h3 class="font-bold text-gray-800">
+                                <i class="fas fa-layer-group text-mm-red mr-2"></i>Recruitment Stage-wise Audit Scores
+                            </h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="stage-audit-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row 2 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <div class="dashboard-card">
+                        <div class="p-4 border-b border-gray-200 bg-mm-light-red">
+                            <h3 class="font-bold text-gray-800">
+                                <i class="fas fa-exclamation-triangle text-mm-red mr-2"></i>Parameter-wise Error Hotspots
+                            </h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="parameter-error-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="p-4 border-b border-gray-200 bg-mm-light-red">
+                            <h3 class="font-bold text-gray-800">
+                                <i class="fas fa-calendar-week text-mm-red mr-2"></i>Weekly Accuracy and Volume Trend
+                            </h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="weekly-trend-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Funnel Chart -->
+                <div class="dashboard-card mb-6">
+                    <div class="p-4 border-b border-gray-200 bg-mm-light-red">
+                        <h3 class="font-bold text-gray-800">
+                            <i class="fas fa-filter text-mm-red mr-2"></i>Opportunities Funnel
+                        </h3>
+                    </div>
+                    <div class="chart-container" style="height: 300px;">
+                        <canvas id="funnel-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stage & Parameter Tab -->
+            <div id="tab-stage-parameter" class="tab-content hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                    <div class="dashboard-card p-6 bg-green-50 border-green-200">
+                        <h4 class="text-sm font-semibold text-gray-600 mb-2">TOP 3 BEST PARAMETERS</h4>
+                        <div id="top-best-parameters" class="space-y-2"></div>
+                    </div>
+                    <div class="dashboard-card p-6 bg-red-50 border-red-200">
+                        <h4 class="text-sm font-semibold text-gray-600 mb-2">TOP 3 WORST PARAMETERS</h4>
+                        <div id="top-worst-parameters" class="space-y-2"></div>
+                    </div>
+                    <div class="dashboard-card p-6 bg-blue-50 border-blue-200">
+                        <h4 class="text-sm font-semibold text-gray-600 mb-2">PARAMETER DISTRIBUTION</h4>
+                        <div id="parameter-distribution" class="space-y-2"></div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="p-4 border-b border-gray-200 bg-mm-light-red">
+                        <h3 class="font-bold text-gray-800">
+                            <i class="fas fa-th text-mm-red mr-2"></i>Stage & Parameter Heatmap (Accuracy Score %)
+                        </h3>
+                    </div>
+                    <div class="p-6 overflow-x-auto">
+                        <div id="heatmap-container"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recruiter View Tab -->
+            <div id="tab-recruiter" class="tab-content hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <div class="dashboard-card">
+                        <div class="p-4 border-b border-gray-200 bg-mm-light-red">
+                            <h3 class="font-bold text-gray-800">
+                                <i class="fas fa-chart-scatter text-mm-red mr-2"></i>Recruiter Performance Quadrant
+                            </h3>
+                            <p class="text-xs text-gray-600 mt-1">Sample Count vs Accuracy Score</p>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="recruiter-scatter-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="p-4 border-b border-gray-200 bg-mm-light-red">
+                            <h3 class="font-bold text-gray-800">
+                                <i class="fas fa-user-chart text-mm-red mr-2"></i>Top 10 Recruiters by Accuracy
+                            </h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="recruiter-bar-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="p-4 border-b border-gray-200 bg-mm-light-red">
+                        <h3 class="font-bold text-gray-800">
+                            <i class="fas fa-table text-mm-red mr-2"></i>Recruiter Performance Table
+                        </h3>
+                    </div>
+                    <div class="p-6 overflow-x-auto">
+                        <table id="recruiter-table" class="w-full text-sm">
+                            <thead class="bg-gray-100 text-gray-700">
+                                <tr>
+                                    <th class="px-4 py-3 text-left">Recruiter Name</th>
+                                    <th class="px-4 py-3 text-center">Accuracy Score</th>
+                                    <th class="px-4 py-3 text-center">Error Count</th>
+                                    <th class="px-4 py-3 text-center">Sample Count</th>
+                                    <th class="px-4 py-3 text-center">Program Manager</th>
+                                    <th class="px-4 py-3 text-center">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recruiter-table-body">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trends & FY Comparison Tab -->
+            <div id="tab-trends" class="tab-content hidden">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div class="dashboard-card p-6">
+                        <h4 class="text-sm font-semibold text-gray-600 mb-2">FY23 METRICS</h4>
+                        <div class="metric-value text-2xl" id="fy23-accuracy">--</div>
+                        <div class="text-xs text-gray-500">Average Accuracy</div>
+                        <div class="mt-3 text-sm">
+                            <div class="flex justify-between mb-1">
+                                <span class="text-gray-600">Total Opportunities</span>
+                                <span class="font-semibold" id="fy23-opportunities">--</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Sample Size</span>
+                                <span class="font-semibold" id="fy23-samples">--</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dashboard-card p-6">
+                        <h4 class="text-sm font-semibold text-gray-600 mb-2">FY24 METRICS</h4>
+                        <div class="metric-value text-2xl" id="fy24-accuracy">--</div>
+                        <div class="text-xs text-gray-500">Average Accuracy</div>
+                        <div class="mt-3 text-sm">
+                            <div class="flex justify-between mb-1">
+                                <span class="text-gray-600">Total Opportunities</span>
+                                <span class="font-semibold" id="fy24-opportunities">--</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Sample Size</span>
+                                <span class="font-semibold" id="fy24-samples">--</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dashboard-card p-6">
+                        <h4 class="text-sm font-semibold text-gray-600 mb-2">FY25 METRICS</h4>
+                        <div class="metric-value text-2xl" id="fy25-accuracy">--</div>
+                        <div class="text-xs text-gray-500">Average Accuracy</div>
+                        <div class="mt-3 text-sm">
+                            <div class="flex justify-between mb-1">
+                                <span class="text-gray-600">Total Opportunities</span>
+                                <span class="font-semibold" id="fy25-opportunities">--</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Sample Size</span>
+                                <span class="font-semibold" id="fy25-samples">--</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card mb-6">
+                    <div class="p-4 border-b border-gray-200 bg-mm-light-red">
+                        <h3 class="font-bold text-gray-800">
+                            <i class="fas fa-chart-line text-mm-red mr-2"></i>Monthly Accuracy Score Trend (Multi-Year Comparison)
+                        </h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="fy-comparison-chart"></canvas>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="p-4 border-b border-gray-200 bg-mm-light-red">
+                        <h3 class="font-bold text-gray-800">
+                            <i class="fas fa-calendar-alt text-mm-red mr-2"></i>Weekly Trends by Financial Year
+                        </h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="weekly-fy-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Insights & Recommendations Tab -->
+            <div id="tab-insights" class="tab-content hidden">
+                <div class="dashboard-card p-6 mb-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>AI-Powered Insights
+                    </h3>
+                    <div id="ai-insights" class="space-y-3"></div>
+                </div>
+
+                <div class="dashboard-card p-6 mb-6 bg-mm-light-red">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-check-circle text-mm-red mr-2"></i>Recommended Actions
+                    </h3>
+                    <div id="recommendations" class="space-y-3"></div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="dashboard-card p-6">
+                        <h4 class="font-bold text-gray-800 mb-4">
+                            <i class="fas fa-fire text-red-500 mr-2"></i>Critical Error Patterns
+                        </h4>
+                        <div id="critical-errors" class="space-y-2"></div>
+                    </div>
+                    <div class="dashboard-card p-6">
+                        <h4 class="font-bold text-gray-800 mb-4">
+                            <i class="fas fa-star text-yellow-500 mr-2"></i>Best Practices Identified
+                        </h4>
+                        <div id="best-practices" class="space-y-2"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+        <script src="/static/dashboard.js"></script>
+    </body>
+    </html>
+  `)
+})
+
+export default app

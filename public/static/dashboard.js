@@ -1,0 +1,1778 @@
+// M&M Recruitment Process Audit Dashboard - Main JavaScript
+
+// Global state
+let rawData = null;
+let filteredData = null;
+let charts = {};
+let currentFilters = {
+  year: 'all',
+  month: 'all',
+  week: 'all',
+  stage: 'all',
+  parameter: 'all',
+  recruiter: 'all'
+};
+
+// M&M Brand Colors
+const MM_COLORS = {
+  red: '#C8102E',
+  darkRed: '#8B0000',
+  lightRed: '#FFE5E5',
+  white: '#FFFFFF',
+  grey: '#6B7280',
+  lightGrey: '#F3F4F6'
+};
+
+// Chart color schemes
+const chartColors = {
+  primary: [MM_COLORS.red, MM_COLORS.darkRed, '#E63946', '#FF6B6B', '#C1121F'],
+  gradient: ['#FFE5E5', '#FFC0CB', '#FF9AA2', '#FF6B6B', '#E63946', '#C8102E', '#8B0000'],
+  error: ['#8B0000', '#C8102E', '#E63946'],
+  success: ['#10B981', '#34D399', '#6EE7B7']
+};
+
+// Initialize dashboard
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('M&M Dashboard initialized');
+  showLoadingState();
+});
+
+// File upload handler
+async function handleFileUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  showLoadingState();
+  
+  try {
+    const data = await readExcelFile(file);
+    validateDataStructure(data);
+    processAndStoreData(data);
+    populateFilters();
+    applyFilters();
+    hideLoadingState();
+    showSuccessMessage('Data loaded successfully!');
+  } catch (error) {
+    console.error('Error processing file:', error);
+    showErrorMessage('Error: ' + error.message);
+    hideLoadingState();
+  }
+}
+
+// Read Excel file using SheetJS
+function readExcelFile(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    
+    reader.onload = function(e) {
+      try {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        
+        const sheets = {};
+        workbook.SheetNames.forEach(sheetName => {
+          sheets[sheetName] = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+        });
+        
+        resolve(sheets);
+      } catch (error) {
+        reject(error);
+      }
+    };
+    
+    reader.onerror = function(error) {
+      reject(error);
+    };
+    
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+// Validate data structure
+function validateDataStructure(data) {
+  const requiredSheets = ['Audit Count', 'FY23', 'Recruiter Wise Data'];
+  const missingSheets = requiredSheets.filter(sheet => !data[sheet]);
+  
+  if (missingSheets.length > 0) {
+    throw new Error(`Missing required sheets: ${missingSheets.join(', ')}`);
+  }
+  
+  return true;
+}
+
+// Process and store data
+function processAndStoreData(data) {
+  rawData = {
+    auditCount: data['Audit Count'] || [],
+    fy23: data['FY23'] || [],
+    fy24: data['FY24'] || [],
+    recruiterWise: data['Recruiter Wise Data'] || [],
+    parameterErrors: data['Sheet3'] || data['Sheet5'] || [],
+    allSheets: data
+  };
+  
+  console.log('Processed data:', rawData);
+}
+
+// Populate filter dropdowns
+function populateFilters() {
+  if (!rawData || !rawData.auditCount) return;
+  
+  const data = rawData.auditCount;
+  
+  // Extract unique values
+  const years = [...new Set(data.map(r => r['Financial Year']).filter(Boolean))].sort();
+  const months = [...new Set(data.map(r => r['Month']).filter(Boolean))];
+  const weeks = [...new Set(data.map(r => r['Week']).filter(Boolean))].sort((a, b) => a - b);
+  const stages = [...new Set(data.map(r => r['Recruitment Stage']).filter(Boolean))];
+  const parameters = [...new Set(data.map(r => r['Parameter']).filter(Boolean))];
+  const recruiters = [...new Set(data.map(r => r['Recruiter Name']).filter(Boolean))].sort();
+  
+  // Populate dropdowns
+  populateSelect('filter-year', years);
+  populateSelect('filter-month', months);
+  populateSelect('filter-week', weeks);
+  populateSelect('filter-stage', stages);
+  populateSelect('filter-parameter', parameters);
+  populateSelect('filter-recruiter', recruiters);
+}
+
+function populateSelect(id, values) {
+  const select = document.getElementById(id);
+  if (!select) return;
+  
+  // Keep "All" option
+  const allOption = select.querySelector('option[value="all"]');
+  select.innerHTML = '';
+  if (allOption) select.appendChild(allOption);
+  
+  values.forEach(value => {
+    const option = document.createElement('option');
+    option.value = value;
+    option.textContent = value;
+    select.appendChild(option);
+  });
+}
+
+// Apply filters
+function applyFilters() {
+  // Update filter state
+  currentFilters.year = document.getElementById('filter-year').value;
+  currentFilters.month = document.getElementById('filter-month').value;
+  currentFilters.week = document.getElementById('filter-week').value;
+  currentFilters.stage = document.getElementById('filter-stage').value;
+  currentFilters.parameter = document.getElementById('filter-parameter').value;
+  currentFilters.recruiter = document.getElementById('filter-recruiter').value;
+  
+  // Filter data
+  filteredData = filterDataByCurrentFilters();
+  
+  // Update active filter pills
+  updateActiveFilterPills();
+  
+  // Update all visualizations
+  updateDashboard();
+}
+
+function filterDataByCurrentFilters() {
+  if (!rawData || !rawData.auditCount) return null;
+  
+  let filtered = [...rawData.auditCount];
+  
+  if (currentFilters.year !== 'all') {
+    filtered = filtered.filter(r => r['Financial Year'] === currentFilters.year);
+  }
+  if (currentFilters.month !== 'all') {
+    filtered = filtered.filter(r => r['Month'] === currentFilters.month);
+  }
+  if (currentFilters.week !== 'all') {
+    filtered = filtered.filter(r => r['Week'] == currentFilters.week);
+  }
+  if (currentFilters.stage !== 'all') {
+    filtered = filtered.filter(r => r['Recruitment Stage'] === currentFilters.stage);
+  }
+  if (currentFilters.parameter !== 'all') {
+    filtered = filtered.filter(r => r['Parameter'] === currentFilters.parameter);
+  }
+  if (currentFilters.recruiter !== 'all') {
+    filtered = filtered.filter(r => r['Recruiter Name'] === currentFilters.recruiter);
+  }
+  
+  return filtered;
+}
+
+function updateActiveFilterPills() {
+  const container = document.getElementById('active-filters');
+  if (!container) return;
+  
+  const activeFilters = [];
+  
+  Object.entries(currentFilters).forEach(([key, value]) => {
+    if (value !== 'all') {
+      activeFilters.push({ key, value });
+    }
+  });
+  
+  if (activeFilters.length === 0) {
+    container.innerHTML = '<span class="text-sm text-gray-500">No filters applied</span>';
+    return;
+  }
+  
+  container.innerHTML = activeFilters.map(f => `
+    <span class="filter-pill">
+      <span>${f.key}: ${f.value}</span>
+      <i class="fas fa-times text-xs" onclick="removeFilter('${f.key}')"></i>
+    </span>
+  `).join('');
+}
+
+function removeFilter(key) {
+  const select = document.getElementById(`filter-${key}`);
+  if (select) {
+    select.value = 'all';
+    applyFilters();
+  }
+}
+
+// Reset filters
+function resetFilters() {
+  currentFilters = {
+    year: 'all',
+    month: 'all',
+    week: 'all',
+    stage: 'all',
+    parameter: 'all',
+    recruiter: 'all'
+  };
+  
+  document.getElementById('filter-year').value = 'all';
+  document.getElementById('filter-month').value = 'all';
+  document.getElementById('filter-week').value = 'all';
+  document.getElementById('filter-stage').value = 'all';
+  document.getElementById('filter-parameter').value = 'all';
+  document.getElementById('filter-recruiter').value = 'all';
+  
+  applyFilters();
+}
+
+// Update dashboard with filtered data
+function updateDashboard() {
+  updateKeyMetrics();
+  updateDynamicNarrative();
+  updateOverviewCharts();
+  updateStageParameterView();
+  updateRecruiterView();
+  updateTrendsView();
+  updateInsightsView();
+}
+
+// Update key metrics
+function updateKeyMetrics() {
+  if (!filteredData || filteredData.length === 0) {
+    document.getElementById('metric-accuracy').textContent = '--';
+    document.getElementById('metric-error-rate').textContent = '--';
+    document.getElementById('metric-total-audits').textContent = '--';
+    document.getElementById('metric-sample-coverage').textContent = '--';
+    return;
+  }
+  
+  // Calculate metrics
+  const totalPass = filteredData.reduce((sum, r) => sum + (parseFloat(r['Opportunity Pass']) || 0), 0);
+  const totalFail = filteredData.reduce((sum, r) => sum + (parseFloat(r['Opportunity Fail']) || 0), 0);
+  const totalExcludingNA = filteredData.reduce((sum, r) => sum + (parseFloat(r['Opportunity Excluding NA']) || 0), 0);
+  const totalPopulation = filteredData.reduce((sum, r) => sum + (parseFloat(r['Total Population']) || 0), 0);
+  const totalSamples = filteredData.reduce((sum, r) => sum + (parseFloat(r['Sample Count']) || 0), 0);
+  const totalOpportunities = filteredData.reduce((sum, r) => sum + (parseFloat(r['Opportunity Count']) || 0), 0);
+  
+  const accuracy = totalExcludingNA > 0 ? (totalPass / totalExcludingNA * 100) : 0;
+  const errorRate = totalExcludingNA > 0 ? (totalFail / totalExcludingNA * 100) : 0;
+  const sampleCoverage = totalPopulation > 0 ? (totalSamples / totalPopulation * 100) : 0;
+  
+  document.getElementById('metric-accuracy').textContent = accuracy.toFixed(1) + '%';
+  document.getElementById('metric-error-rate').textContent = errorRate.toFixed(1) + '%';
+  document.getElementById('metric-total-audits').textContent = totalOpportunities.toLocaleString();
+  document.getElementById('metric-sample-coverage').textContent = sampleCoverage.toFixed(1) + '%';
+}
+
+// Update dynamic narrative
+function updateDynamicNarrative() {
+  const container = document.getElementById('dynamic-narrative');
+  if (!container || !filteredData || filteredData.length === 0) {
+    container.innerHTML = '<p class="text-gray-500">No data available for selected filters.</p>';
+    return;
+  }
+  
+  // Calculate key stats
+  const totalPass = filteredData.reduce((sum, r) => sum + (parseFloat(r['Opportunity Pass']) || 0), 0);
+  const totalExcludingNA = filteredData.reduce((sum, r) => sum + (parseFloat(r['Opportunity Excluding NA']) || 0), 0);
+  const totalSamples = filteredData.reduce((sum, r) => sum + (parseFloat(r['Sample Count']) || 0), 0);
+  const totalPopulation = filteredData.reduce((sum, r) => sum + (parseFloat(r['Total Population']) || 0), 0);
+  const totalOpportunities = filteredData.reduce((sum, r) => sum + (parseFloat(r['Opportunity Count']) || 0), 0);
+  
+  const accuracy = totalExcludingNA > 0 ? (totalPass / totalExcludingNA * 100) : 0;
+  const sampleCoverage = totalPopulation > 0 ? (totalSamples / totalPopulation * 100) : 0;
+  
+  // Find top error parameters
+  const parameterErrors = {};
+  filteredData.forEach(r => {
+    const param = r['Parameter'];
+    const errors = parseFloat(r['Opportunity Fail']) || 0;
+    parameterErrors[param] = (parameterErrors[param] || 0) + errors;
+  });
+  
+  const topErrors = Object.entries(parameterErrors)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(e => e[0]);
+  
+  // Generate narrative
+  const narratives = [
+    `Overall accuracy for the selected period is <strong class="text-mm-red">${accuracy.toFixed(1)}%</strong> with a sample coverage of <strong>${sampleCoverage.toFixed(1)}%</strong>, across <strong>${totalOpportunities.toLocaleString()}</strong> audited opportunities.`
+  ];
+  
+  if (topErrors.length > 0) {
+    narratives.push(`Top error-heavy parameters are <strong class="text-mm-dark-red">${topErrors.join(', ')}</strong>.`);
+  }
+  
+  if (accuracy < 90) {
+    narratives.push(`<span class="insight-badge insight-negative">⚠️ Accuracy below target (90%)</span> - Immediate intervention recommended.`);
+  } else if (accuracy >= 95) {
+    narratives.push(`<span class="insight-badge insight-positive">✓ Excellent performance</span> - Accuracy exceeds target!`);
+  }
+  
+  container.innerHTML = narratives.map(n => `<p>${n}</p>`).join('');
+}
+
+// Update overview charts
+function updateOverviewCharts() {
+  updateMonthlyAccuracyChart();
+  updateStageAuditChart();
+  updateParameterErrorChart();
+  updateWeeklyTrendChart();
+  updateFunnelChart();
+}
+
+function updateMonthlyAccuracyChart() {
+  const canvas = document.getElementById('monthly-accuracy-chart');
+  if (!canvas || !filteredData) return;
+  
+  // Destroy existing chart
+  if (charts.monthlyAccuracy) {
+    charts.monthlyAccuracy.destroy();
+  }
+  
+  // Group by Month and Financial Year
+  const monthlyData = {};
+  filteredData.forEach(r => {
+    const month = r['Month'];
+    const fy = r['Financial Year'];
+    if (!month || !fy) return;
+    
+    const key = `${month}`;
+    if (!monthlyData[key]) {
+      monthlyData[key] = { month, fy23: { pass: 0, total: 0 }, fy24: { pass: 0, total: 0 }, fy25: { pass: 0, total: 0 } };
+    }
+    
+    const pass = parseFloat(r['Opportunity Pass']) || 0;
+    const total = parseFloat(r['Opportunity Excluding NA']) || 0;
+    
+    if (fy.includes('23')) {
+      monthlyData[key].fy23.pass += pass;
+      monthlyData[key].fy23.total += total;
+    } else if (fy.includes('24')) {
+      monthlyData[key].fy24.pass += pass;
+      monthlyData[key].fy24.total += total;
+    } else if (fy.includes('25')) {
+      monthlyData[key].fy25.pass += pass;
+      monthlyData[key].fy25.total += total;
+    }
+  });
+  
+  const months = Object.keys(monthlyData);
+  const fy23Accuracy = months.map(m => {
+    const d = monthlyData[m].fy23;
+    return d.total > 0 ? (d.pass / d.total * 100) : null;
+  });
+  const fy24Accuracy = months.map(m => {
+    const d = monthlyData[m].fy24;
+    return d.total > 0 ? (d.pass / d.total * 100) : null;
+  });
+  const fy25Accuracy = months.map(m => {
+    const d = monthlyData[m].fy25;
+    return d.total > 0 ? (d.pass / d.total * 100) : null;
+  });
+  
+  const ctx = canvas.getContext('2d');
+  charts.monthlyAccuracy = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: months,
+      datasets: [
+        {
+          label: 'FY23 Accuracy',
+          data: fy23Accuracy,
+          backgroundColor: chartColors.primary[2],
+          borderColor: chartColors.primary[2],
+          borderWidth: 1
+        },
+        {
+          label: 'FY24 Accuracy',
+          data: fy24Accuracy,
+          backgroundColor: MM_COLORS.red,
+          borderColor: MM_COLORS.red,
+          borderWidth: 1
+        },
+        {
+          label: 'FY25 Accuracy',
+          data: fy25Accuracy,
+          backgroundColor: MM_COLORS.darkRed,
+          borderColor: MM_COLORS.darkRed,
+          borderWidth: 1
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'top',
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return context.dataset.label + ': ' + (context.parsed.y ? context.parsed.y.toFixed(1) : '0') + '%';
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100,
+          title: {
+            display: true,
+            text: 'Accuracy Score (%)'
+          }
+        }
+      }
+    }
+  });
+}
+
+function updateStageAuditChart() {
+  const canvas = document.getElementById('stage-audit-chart');
+  if (!canvas || !filteredData) return;
+  
+  if (charts.stageAudit) {
+    charts.stageAudit.destroy();
+  }
+  
+  // Group by Recruitment Stage
+  const stageData = {};
+  filteredData.forEach(r => {
+    const stage = r['Recruitment Stage'];
+    if (!stage) return;
+    
+    if (!stageData[stage]) {
+      stageData[stage] = { pass: 0, fail: 0, total: 0, samples: 0 };
+    }
+    
+    stageData[stage].pass += parseFloat(r['Opportunity Pass']) || 0;
+    stageData[stage].fail += parseFloat(r['Opportunity Fail']) || 0;
+    stageData[stage].total += parseFloat(r['Opportunity Excluding NA']) || 0;
+    stageData[stage].samples += parseFloat(r['Sample Count']) || 0;
+  });
+  
+  const stages = Object.keys(stageData);
+  const accuracy = stages.map(s => {
+    const d = stageData[s];
+    return d.total > 0 ? (d.pass / d.total * 100) : 0;
+  });
+  const errorRate = stages.map(s => {
+    const d = stageData[s];
+    return d.total > 0 ? (d.fail / d.total * 100) : 0;
+  });
+  
+  const ctx = canvas.getContext('2d');
+  charts.stageAudit = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: stages,
+      datasets: [
+        {
+          label: 'Accuracy Score',
+          data: accuracy,
+          backgroundColor: MM_COLORS.red,
+          borderColor: MM_COLORS.red,
+          borderWidth: 1
+        },
+        {
+          label: 'Error Rate',
+          data: errorRate,
+          backgroundColor: MM_COLORS.darkRed,
+          borderColor: MM_COLORS.darkRed,
+          borderWidth: 1
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      indexAxis: 'y',
+      plugins: {
+        legend: {
+          position: 'top',
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return context.dataset.label + ': ' + context.parsed.x.toFixed(1) + '%';
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          beginAtZero: true,
+          max: 100,
+          title: {
+            display: true,
+            text: 'Percentage (%)'
+          }
+        }
+      }
+    }
+  });
+}
+
+function updateParameterErrorChart() {
+  const canvas = document.getElementById('parameter-error-chart');
+  if (!canvas || !filteredData) return;
+  
+  if (charts.parameterError) {
+    charts.parameterError.destroy();
+  }
+  
+  // Group by Parameter
+  const paramData = {};
+  filteredData.forEach(r => {
+    const param = r['Parameter'];
+    if (!param) return;
+    
+    if (!paramData[param]) {
+      paramData[param] = { fail: 0, total: 0 };
+    }
+    
+    paramData[param].fail += parseFloat(r['Opportunity Fail']) || 0;
+    paramData[param].total += parseFloat(r['Opportunity Excluding NA']) || 0;
+  });
+  
+  // Calculate error rate and sort
+  const paramArray = Object.entries(paramData)
+    .map(([param, data]) => ({
+      param,
+      errorRate: data.total > 0 ? (data.fail / data.total * 100) : 0,
+      errors: data.fail
+    }))
+    .sort((a, b) => b.errorRate - a.errorRate)
+    .slice(0, 10);
+  
+  const params = paramArray.map(p => p.param.length > 30 ? p.param.substring(0, 30) + '...' : p.param);
+  const errorRates = paramArray.map(p => p.errorRate);
+  
+  // Color gradient based on error rate
+  const colors = errorRates.map(rate => {
+    if (rate > 15) return MM_COLORS.darkRed;
+    if (rate > 10) return MM_COLORS.red;
+    return chartColors.primary[3];
+  });
+  
+  const ctx = canvas.getContext('2d');
+  charts.parameterError = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: params,
+      datasets: [{
+        label: 'Error Rate',
+        data: errorRates,
+        backgroundColor: colors,
+        borderColor: colors,
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      indexAxis: 'y',
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const original = paramArray[context.dataIndex];
+              return [
+                `Parameter: ${original.param}`,
+                `Error Rate: ${context.parsed.x.toFixed(1)}%`,
+                `Total Errors: ${original.errors}`
+              ];
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Error Rate (%)'
+          }
+        }
+      }
+    }
+  });
+}
+
+function updateWeeklyTrendChart() {
+  const canvas = document.getElementById('weekly-trend-chart');
+  if (!canvas || !rawData) return;
+  
+  if (charts.weeklyTrend) {
+    charts.weeklyTrend.destroy();
+  }
+  
+  // Use FY23 and FY24 sheets if available
+  let weeklyData = [];
+  
+  if (rawData.fy23 && rawData.fy23.length > 0) {
+    weeklyData = [...rawData.fy23];
+  }
+  
+  if (rawData.fy24 && rawData.fy24.length > 0) {
+    weeklyData = [...weeklyData, ...rawData.fy24];
+  }
+  
+  if (weeklyData.length === 0) {
+    // Fallback to audit count data grouped by week
+    const weekData = {};
+    filteredData.forEach(r => {
+      const week = r['Week'];
+      if (!week) return;
+      
+      if (!weekData[week]) {
+        weekData[week] = { pass: 0, total: 0, opportunities: 0 };
+      }
+      
+      weekData[week].pass += parseFloat(r['Opportunity Pass']) || 0;
+      weekData[week].total += parseFloat(r['Opportunity Excluding NA']) || 0;
+      weekData[week].opportunities += parseFloat(r['Opportunity Count']) || 0;
+    });
+    
+    weeklyData = Object.entries(weekData)
+      .map(([week, data]) => ({
+        Week: week,
+        'Accuracy Score': data.total > 0 ? (data.pass / data.total * 100) : 0,
+        'Total Opportunities': data.opportunities
+      }))
+      .sort((a, b) => parseInt(a.Week) - parseInt(b.Week));
+  }
+  
+  const weeks = weeklyData.map(w => w['Week'] || w['Week Number'] || '');
+  const accuracy = weeklyData.map(w => parseFloat(w['Accuracy Score']) || 0);
+  const opportunities = weeklyData.map(w => parseFloat(w['Total Opportunities']) || parseFloat(w['Audit Samples']) || 0);
+  
+  const ctx = canvas.getContext('2d');
+  charts.weeklyTrend = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: weeks,
+      datasets: [
+        {
+          label: 'Accuracy Score',
+          data: accuracy,
+          borderColor: MM_COLORS.red,
+          backgroundColor: 'rgba(200, 16, 46, 0.1)',
+          yAxisID: 'y',
+          tension: 0.4,
+          fill: true
+        },
+        {
+          label: 'Total Opportunities',
+          data: opportunities,
+          type: 'bar',
+          backgroundColor: MM_COLORS.lightRed,
+          borderColor: MM_COLORS.red,
+          borderWidth: 1,
+          yAxisID: 'y1'
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        mode: 'index',
+        intersect: false,
+      },
+      plugins: {
+        legend: {
+          position: 'top',
+        }
+      },
+      scales: {
+        y: {
+          type: 'linear',
+          display: true,
+          position: 'left',
+          beginAtZero: true,
+          max: 100,
+          title: {
+            display: true,
+            text: 'Accuracy Score (%)'
+          }
+        },
+        y1: {
+          type: 'linear',
+          display: true,
+          position: 'right',
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Opportunities'
+          },
+          grid: {
+            drawOnChartArea: false,
+          },
+        }
+      }
+    }
+  });
+}
+
+function updateFunnelChart() {
+  const canvas = document.getElementById('funnel-chart');
+  if (!canvas || !filteredData) return;
+  
+  if (charts.funnel) {
+    charts.funnel.destroy();
+  }
+  
+  // Calculate funnel stages
+  const totalPopulation = filteredData.reduce((sum, r) => sum + (parseFloat(r['Total Population']) || 0), 0);
+  const opportunityCount = filteredData.reduce((sum, r) => sum + (parseFloat(r['Opportunity Count']) || 0), 0);
+  const excludingNA = filteredData.reduce((sum, r) => sum + (parseFloat(r['Opportunity Excluding NA']) || 0), 0);
+  const passed = filteredData.reduce((sum, r) => sum + (parseFloat(r['Opportunity Pass']) || 0), 0);
+  const failed = filteredData.reduce((sum, r) => sum + (parseFloat(r['Opportunity Fail']) || 0), 0);
+  
+  const stages = ['Total Population', 'Opportunity Count', 'Excluding NA', 'Passed', 'Failed'];
+  const values = [totalPopulation, opportunityCount, excludingNA, passed, failed];
+  
+  const ctx = canvas.getContext('2d');
+  charts.funnel = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: stages,
+      datasets: [{
+        label: 'Count',
+        data: values,
+        backgroundColor: [
+          chartColors.gradient[1],
+          chartColors.gradient[3],
+          chartColors.gradient[4],
+          chartColors.success[1],
+          MM_COLORS.darkRed
+        ],
+        borderColor: [
+          chartColors.gradient[1],
+          chartColors.gradient[3],
+          chartColors.gradient[4],
+          chartColors.success[1],
+          MM_COLORS.darkRed
+        ],
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      indexAxis: 'y',
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const value = context.parsed.x;
+              const percentage = totalPopulation > 0 ? (value / totalPopulation * 100).toFixed(1) : 0;
+              return `Count: ${value.toLocaleString()} (${percentage}%)`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Count'
+          }
+        }
+      }
+    }
+  });
+}
+
+// Update Stage & Parameter view
+function updateStageParameterView() {
+  updateTopParameters();
+  updateHeatmap();
+}
+
+function updateTopParameters() {
+  if (!filteredData) return;
+  
+  // Calculate parameter scores
+  const paramData = {};
+  filteredData.forEach(r => {
+    const param = r['Parameter'];
+    if (!param) return;
+    
+    if (!paramData[param]) {
+      paramData[param] = { pass: 0, total: 0 };
+    }
+    
+    paramData[param].pass += parseFloat(r['Opportunity Pass']) || 0;
+    paramData[param].total += parseFloat(r['Opportunity Excluding NA']) || 0;
+  });
+  
+  // Calculate accuracy and sort
+  const paramArray = Object.entries(paramData)
+    .map(([param, data]) => ({
+      param,
+      accuracy: data.total > 0 ? (data.pass / data.total * 100) : 0
+    }))
+    .sort((a, b) => b.accuracy - a.accuracy);
+  
+  const best = paramArray.slice(0, 3);
+  const worst = paramArray.slice(-3).reverse();
+  
+  // Display best parameters
+  const bestContainer = document.getElementById('top-best-parameters');
+  if (bestContainer) {
+    bestContainer.innerHTML = best.map((p, i) => `
+      <div class="flex items-center justify-between p-2 bg-white rounded">
+        <span class="text-sm font-medium">${i + 1}. ${p.param.substring(0, 40)}${p.param.length > 40 ? '...' : ''}</span>
+        <span class="text-green-600 font-bold">${p.accuracy.toFixed(1)}%</span>
+      </div>
+    `).join('');
+  }
+  
+  // Display worst parameters
+  const worstContainer = document.getElementById('top-worst-parameters');
+  if (worstContainer) {
+    worstContainer.innerHTML = worst.map((p, i) => `
+      <div class="flex items-center justify-between p-2 bg-white rounded">
+        <span class="text-sm font-medium">${i + 1}. ${p.param.substring(0, 40)}${p.param.length > 40 ? '...' : ''}</span>
+        <span class="text-red-600 font-bold">${p.accuracy.toFixed(1)}%</span>
+      </div>
+    `).join('');
+  }
+  
+  // Distribution
+  const distribution = {
+    excellent: paramArray.filter(p => p.accuracy >= 95).length,
+    good: paramArray.filter(p => p.accuracy >= 90 && p.accuracy < 95).length,
+    needsImprovement: paramArray.filter(p => p.accuracy < 90).length
+  };
+  
+  const distContainer = document.getElementById('parameter-distribution');
+  if (distContainer) {
+    distContainer.innerHTML = `
+      <div class="flex items-center justify-between p-2 bg-white rounded">
+        <span class="text-sm">Excellent (≥95%)</span>
+        <span class="font-bold text-green-600">${distribution.excellent}</span>
+      </div>
+      <div class="flex items-center justify-between p-2 bg-white rounded">
+        <span class="text-sm">Good (90-95%)</span>
+        <span class="font-bold text-blue-600">${distribution.good}</span>
+      </div>
+      <div class="flex items-center justify-between p-2 bg-white rounded">
+        <span class="text-sm">Needs Improvement (<90%)</span>
+        <span class="font-bold text-red-600">${distribution.needsImprovement}</span>
+      </div>
+    `;
+  }
+}
+
+function updateHeatmap() {
+  const container = document.getElementById('heatmap-container');
+  if (!container || !filteredData) return;
+  
+  // Create stage x parameter matrix
+  const matrix = {};
+  filteredData.forEach(r => {
+    const stage = r['Recruitment Stage'];
+    const param = r['Parameter'];
+    if (!stage || !param) return;
+    
+    if (!matrix[stage]) matrix[stage] = {};
+    if (!matrix[stage][param]) {
+      matrix[stage][param] = { pass: 0, total: 0 };
+    }
+    
+    matrix[stage][param].pass += parseFloat(r['Opportunity Pass']) || 0;
+    matrix[stage][param].total += parseFloat(r['Opportunity Excluding NA']) || 0;
+  });
+  
+  const stages = Object.keys(matrix);
+  const allParams = [...new Set(filteredData.map(r => r['Parameter']).filter(Boolean))];
+  
+  if (stages.length === 0 || allParams.length === 0) {
+    container.innerHTML = '<p class="text-gray-500 p-4">No data available for heatmap.</p>';
+    return;
+  }
+  
+  // Build heatmap HTML
+  let html = '<table class="w-full border-collapse text-xs"><thead><tr><th class="p-2 border bg-gray-100"></th>';
+  
+  allParams.forEach(param => {
+    const shortParam = param.length > 20 ? param.substring(0, 20) + '...' : param;
+    html += `<th class="p-2 border bg-gray-100 text-left" title="${param}">${shortParam}</th>`;
+  });
+  html += '</tr></thead><tbody>';
+  
+  stages.forEach(stage => {
+    html += `<tr><td class="p-2 border bg-gray-100 font-semibold">${stage}</td>`;
+    
+    allParams.forEach(param => {
+      const data = matrix[stage] && matrix[stage][param];
+      const accuracy = data && data.total > 0 ? (data.pass / data.total * 100) : 0;
+      
+      let bgColor = '#FFFFFF';
+      if (accuracy > 0) {
+        if (accuracy >= 95) bgColor = '#D1FAE5';
+        else if (accuracy >= 90) bgColor = '#FEF3C7';
+        else if (accuracy >= 80) bgColor = '#FED7AA';
+        else if (accuracy >= 70) bgColor = '#FECACA';
+        else bgColor = '#FCA5A5';
+      }
+      
+      html += `<td class="heatmap-cell" style="background-color: ${bgColor}" title="${stage} - ${param}: ${accuracy.toFixed(1)}%">
+        ${accuracy > 0 ? accuracy.toFixed(1) + '%' : '-'}
+      </td>`;
+    });
+    
+    html += '</tr>';
+  });
+  
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
+// Update Recruiter view
+function updateRecruiterView() {
+  updateRecruiterScatterChart();
+  updateRecruiterBarChart();
+  updateRecruiterTable();
+}
+
+function updateRecruiterScatterChart() {
+  const canvas = document.getElementById('recruiter-scatter-chart');
+  if (!canvas || !filteredData) return;
+  
+  if (charts.recruiterScatter) {
+    charts.recruiterScatter.destroy();
+  }
+  
+  // Group by recruiter
+  const recruiterData = {};
+  filteredData.forEach(r => {
+    const recruiter = r['Recruiter Name'];
+    if (!recruiter) return;
+    
+    if (!recruiterData[recruiter]) {
+      recruiterData[recruiter] = { pass: 0, total: 0, samples: 0, errors: 0, pm: r['Program Manager'] || '' };
+    }
+    
+    recruiterData[recruiter].pass += parseFloat(r['Opportunity Pass']) || 0;
+    recruiterData[recruiter].total += parseFloat(r['Opportunity Excluding NA']) || 0;
+    recruiterData[recruiter].samples += parseFloat(r['Sample Count']) || 0;
+    recruiterData[recruiter].errors += parseFloat(r['Opportunity Fail']) || 0;
+  });
+  
+  const scatterData = Object.entries(recruiterData).map(([name, data]) => ({
+    x: data.samples,
+    y: data.total > 0 ? (data.pass / data.total * 100) : 0,
+    r: Math.max(5, Math.min(20, data.errors)),
+    name,
+    pm: data.pm
+  }));
+  
+  const ctx = canvas.getContext('2d');
+  charts.recruiterScatter = new Chart(ctx, {
+    type: 'scatter',
+    data: {
+      datasets: [{
+        label: 'Recruiters',
+        data: scatterData,
+        backgroundColor: 'rgba(200, 16, 46, 0.6)',
+        borderColor: MM_COLORS.red,
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const point = context.raw;
+              return [
+                `Recruiter: ${point.name}`,
+                `Sample Count: ${point.x}`,
+                `Accuracy: ${point.y.toFixed(1)}%`,
+                `Errors: ${point.r}`,
+                `PM: ${point.pm}`
+              ];
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          title: {
+            display: true,
+            text: 'Sample Count'
+          }
+        },
+        y: {
+          beginAtZero: true,
+          max: 100,
+          title: {
+            display: true,
+            text: 'Accuracy Score (%)'
+          }
+        }
+      }
+    }
+  });
+}
+
+function updateRecruiterBarChart() {
+  const canvas = document.getElementById('recruiter-bar-chart');
+  if (!canvas || !filteredData) return;
+  
+  if (charts.recruiterBar) {
+    charts.recruiterBar.destroy();
+  }
+  
+  // Group by recruiter
+  const recruiterData = {};
+  filteredData.forEach(r => {
+    const recruiter = r['Recruiter Name'];
+    if (!recruiter) return;
+    
+    if (!recruiterData[recruiter]) {
+      recruiterData[recruiter] = { pass: 0, total: 0 };
+    }
+    
+    recruiterData[recruiter].pass += parseFloat(r['Opportunity Pass']) || 0;
+    recruiterData[recruiter].total += parseFloat(r['Opportunity Excluding NA']) || 0;
+  });
+  
+  const recruiterArray = Object.entries(recruiterData)
+    .map(([name, data]) => ({
+      name,
+      accuracy: data.total > 0 ? (data.pass / data.total * 100) : 0
+    }))
+    .sort((a, b) => b.accuracy - a.accuracy)
+    .slice(0, 10);
+  
+  const names = recruiterArray.map(r => r.name.length > 20 ? r.name.substring(0, 20) + '...' : r.name);
+  const accuracy = recruiterArray.map(r => r.accuracy);
+  
+  const ctx = canvas.getContext('2d');
+  charts.recruiterBar = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: names,
+      datasets: [{
+        label: 'Accuracy Score',
+        data: accuracy,
+        backgroundColor: MM_COLORS.red,
+        borderColor: MM_COLORS.red,
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      indexAxis: 'y',
+      plugins: {
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        x: {
+          beginAtZero: true,
+          max: 100,
+          title: {
+            display: true,
+            text: 'Accuracy Score (%)'
+          }
+        }
+      }
+    }
+  });
+}
+
+function updateRecruiterTable() {
+  const tbody = document.getElementById('recruiter-table-body');
+  if (!tbody || !filteredData) return;
+  
+  // Group by recruiter
+  const recruiterData = {};
+  filteredData.forEach(r => {
+    const recruiter = r['Recruiter Name'];
+    if (!recruiter) return;
+    
+    if (!recruiterData[recruiter]) {
+      recruiterData[recruiter] = { pass: 0, total: 0, errors: 0, samples: 0, pm: r['Program Manager'] || '' };
+    }
+    
+    recruiterData[recruiter].pass += parseFloat(r['Opportunity Pass']) || 0;
+    recruiterData[recruiter].total += parseFloat(r['Opportunity Excluding NA']) || 0;
+    recruiterData[recruiter].errors += parseFloat(r['Opportunity Fail']) || 0;
+    recruiterData[recruiter].samples += parseFloat(r['Sample Count']) || 0;
+  });
+  
+  const recruiterArray = Object.entries(recruiterData)
+    .map(([name, data]) => ({
+      name,
+      accuracy: data.total > 0 ? (data.pass / data.total * 100) : 0,
+      errors: data.errors,
+      samples: data.samples,
+      pm: data.pm
+    }))
+    .sort((a, b) => b.accuracy - a.accuracy);
+  
+  tbody.innerHTML = recruiterArray.map(r => {
+    const statusClass = r.accuracy >= 95 ? 'bg-green-100 text-green-800' : 
+                       r.accuracy >= 90 ? 'bg-blue-100 text-blue-800' :
+                       r.accuracy >= 80 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800';
+    const statusText = r.accuracy >= 95 ? 'Excellent' :
+                      r.accuracy >= 90 ? 'Good' :
+                      r.accuracy >= 80 ? 'Fair' : 'Needs Improvement';
+    
+    return `
+      <tr class="border-b hover:bg-gray-50">
+        <td class="px-4 py-3">${r.name}</td>
+        <td class="px-4 py-3 text-center font-bold" style="color: ${MM_COLORS.red}">${r.accuracy.toFixed(1)}%</td>
+        <td class="px-4 py-3 text-center">${r.errors}</td>
+        <td class="px-4 py-3 text-center">${r.samples}</td>
+        <td class="px-4 py-3 text-center">${r.pm}</td>
+        <td class="px-4 py-3 text-center">
+          <span class="px-2 py-1 rounded text-xs font-semibold ${statusClass}">${statusText}</span>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// Update Trends view
+function updateTrendsView() {
+  updateFYMetrics();
+  updateFYComparisonChart();
+  updateWeeklyFYChart();
+}
+
+function updateFYMetrics() {
+  const fyData = { fy23: [], fy24: [], fy25: [] };
+  
+  rawData.auditCount.forEach(r => {
+    const fy = r['Financial Year'];
+    if (fy && fy.includes('23')) fyData.fy23.push(r);
+    else if (fy && fy.includes('24')) fyData.fy24.push(r);
+    else if (fy && fy.includes('25')) fyData.fy25.push(r);
+  });
+  
+  ['fy23', 'fy24', 'fy25'].forEach(fy => {
+    const data = fyData[fy];
+    const pass = data.reduce((sum, r) => sum + (parseFloat(r['Opportunity Pass']) || 0), 0);
+    const total = data.reduce((sum, r) => sum + (parseFloat(r['Opportunity Excluding NA']) || 0), 0);
+    const opportunities = data.reduce((sum, r) => sum + (parseFloat(r['Opportunity Count']) || 0), 0);
+    const samples = data.reduce((sum, r) => sum + (parseFloat(r['Sample Count']) || 0), 0);
+    
+    const accuracy = total > 0 ? (pass / total * 100) : 0;
+    
+    document.getElementById(`${fy}-accuracy`).textContent = accuracy.toFixed(1) + '%';
+    document.getElementById(`${fy}-opportunities`).textContent = opportunities.toLocaleString();
+    document.getElementById(`${fy}-samples`).textContent = samples.toLocaleString();
+  });
+}
+
+function updateFYComparisonChart() {
+  const canvas = document.getElementById('fy-comparison-chart');
+  if (!canvas || !rawData) return;
+  
+  if (charts.fyComparison) {
+    charts.fyComparison.destroy();
+  }
+  
+  // Group by month and FY
+  const monthlyData = {};
+  rawData.auditCount.forEach(r => {
+    const month = r['Month'];
+    const fy = r['Financial Year'];
+    if (!month || !fy) return;
+    
+    if (!monthlyData[month]) {
+      monthlyData[month] = { fy23: { pass: 0, total: 0 }, fy24: { pass: 0, total: 0 }, fy25: { pass: 0, total: 0 } };
+    }
+    
+    const pass = parseFloat(r['Opportunity Pass']) || 0;
+    const total = parseFloat(r['Opportunity Excluding NA']) || 0;
+    
+    if (fy.includes('23')) {
+      monthlyData[month].fy23.pass += pass;
+      monthlyData[month].fy23.total += total;
+    } else if (fy.includes('24')) {
+      monthlyData[month].fy24.pass += pass;
+      monthlyData[month].fy24.total += total;
+    } else if (fy.includes('25')) {
+      monthlyData[month].fy25.pass += pass;
+      monthlyData[month].fy25.total += total;
+    }
+  });
+  
+  const months = Object.keys(monthlyData);
+  const fy23 = months.map(m => {
+    const d = monthlyData[m].fy23;
+    return d.total > 0 ? (d.pass / d.total * 100) : null;
+  });
+  const fy24 = months.map(m => {
+    const d = monthlyData[m].fy24;
+    return d.total > 0 ? (d.pass / d.total * 100) : null;
+  });
+  const fy25 = months.map(m => {
+    const d = monthlyData[m].fy25;
+    return d.total > 0 ? (d.pass / d.total * 100) : null;
+  });
+  
+  const ctx = canvas.getContext('2d');
+  charts.fyComparison = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: months,
+      datasets: [
+        {
+          label: 'FY23',
+          data: fy23,
+          borderColor: chartColors.primary[2],
+          backgroundColor: 'rgba(255, 107, 107, 0.1)',
+          tension: 0.4,
+          fill: false
+        },
+        {
+          label: 'FY24',
+          data: fy24,
+          borderColor: MM_COLORS.red,
+          backgroundColor: 'rgba(200, 16, 46, 0.1)',
+          tension: 0.4,
+          fill: false
+        },
+        {
+          label: 'FY25',
+          data: fy25,
+          borderColor: MM_COLORS.darkRed,
+          backgroundColor: 'rgba(139, 0, 0, 0.1)',
+          tension: 0.4,
+          fill: false
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'top',
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100,
+          title: {
+            display: true,
+            text: 'Accuracy Score (%)'
+          }
+        }
+      }
+    }
+  });
+}
+
+function updateWeeklyFYChart() {
+  const canvas = document.getElementById('weekly-fy-chart');
+  if (!canvas || !rawData) return;
+  
+  if (charts.weeklyFY) {
+    charts.weeklyFY.destroy();
+  }
+  
+  // Use weekly data from FY sheets
+  const fy23Data = rawData.fy23 || [];
+  const fy24Data = rawData.fy24 || [];
+  
+  const allWeeks = [...new Set([
+    ...fy23Data.map(r => r['Week'] || r['Week Number']),
+    ...fy24Data.map(r => r['Week'] || r['Week Number'])
+  ])].filter(Boolean).sort((a, b) => a - b);
+  
+  const fy23Accuracy = allWeeks.map(week => {
+    const record = fy23Data.find(r => (r['Week'] || r['Week Number']) == week);
+    return record ? parseFloat(record['Accuracy Score']) || 0 : null;
+  });
+  
+  const fy24Accuracy = allWeeks.map(week => {
+    const record = fy24Data.find(r => (r['Week'] || r['Week Number']) == week);
+    return record ? parseFloat(record['Accuracy Score']) || 0 : null;
+  });
+  
+  const ctx = canvas.getContext('2d');
+  charts.weeklyFY = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: allWeeks,
+      datasets: [
+        {
+          label: 'FY23 Weekly',
+          data: fy23Accuracy,
+          borderColor: chartColors.primary[2],
+          backgroundColor: 'rgba(255, 107, 107, 0.1)',
+          tension: 0.4,
+          pointRadius: 4,
+          pointHoverRadius: 6
+        },
+        {
+          label: 'FY24 Weekly',
+          data: fy24Accuracy,
+          borderColor: MM_COLORS.red,
+          backgroundColor: 'rgba(200, 16, 46, 0.1)',
+          tension: 0.4,
+          pointRadius: 4,
+          pointHoverRadius: 6
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'top',
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100,
+          title: {
+            display: true,
+            text: 'Accuracy Score (%)'
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'Week Number'
+          }
+        }
+      }
+    }
+  });
+}
+
+// Update Insights view
+function updateInsightsView() {
+  generateAIInsights();
+  generateRecommendations();
+  identifyCriticalErrors();
+  identifyBestPractices();
+}
+
+function generateAIInsights() {
+  const container = document.getElementById('ai-insights');
+  if (!container || !filteredData) return;
+  
+  const insights = [];
+  
+  // Overall performance
+  const totalPass = filteredData.reduce((sum, r) => sum + (parseFloat(r['Opportunity Pass']) || 0), 0);
+  const totalExcludingNA = filteredData.reduce((sum, r) => sum + (parseFloat(r['Opportunity Excluding NA']) || 0), 0);
+  const accuracy = totalExcludingNA > 0 ? (totalPass / totalExcludingNA * 100) : 0;
+  
+  if (accuracy >= 95) {
+    insights.push({
+      type: 'positive',
+      icon: 'fa-check-circle',
+      text: `Outstanding performance with ${accuracy.toFixed(1)}% accuracy! The team is consistently meeting quality standards.`
+    });
+  } else if (accuracy < 85) {
+    insights.push({
+      type: 'negative',
+      icon: 'fa-exclamation-triangle',
+      text: `Current accuracy of ${accuracy.toFixed(1)}% is below target. Immediate attention required to improve quality standards.`
+    });
+  }
+  
+  // Stage analysis
+  const stageData = {};
+  filteredData.forEach(r => {
+    const stage = r['Recruitment Stage'];
+    if (!stage) return;
+    
+    if (!stageData[stage]) {
+      stageData[stage] = { pass: 0, total: 0 };
+    }
+    
+    stageData[stage].pass += parseFloat(r['Opportunity Pass']) || 0;
+    stageData[stage].total += parseFloat(r['Opportunity Excluding NA']) || 0;
+  });
+  
+  const worstStage = Object.entries(stageData)
+    .map(([stage, data]) => ({
+      stage,
+      accuracy: data.total > 0 ? (data.pass / data.total * 100) : 0
+    }))
+    .sort((a, b) => a.accuracy - b.accuracy)[0];
+  
+  if (worstStage && worstStage.accuracy < 90) {
+    insights.push({
+      type: 'warning',
+      icon: 'fa-layer-group',
+      text: `<strong>${worstStage.stage}</strong> stage shows lowest accuracy at ${worstStage.accuracy.toFixed(1)}%. Consider focused training and process improvements.`
+    });
+  }
+  
+  // Parameter analysis
+  const paramData = {};
+  filteredData.forEach(r => {
+    const param = r['Parameter'];
+    if (!param) return;
+    
+    if (!paramData[param]) {
+      paramData[param] = { fail: 0, total: 0 };
+    }
+    
+    paramData[param].fail += parseFloat(r['Opportunity Fail']) || 0;
+    paramData[param].total += parseFloat(r['Opportunity Excluding NA']) || 0;
+  });
+  
+  const highErrorParams = Object.entries(paramData)
+    .map(([param, data]) => ({
+      param,
+      errorRate: data.total > 0 ? (data.fail / data.total * 100) : 0,
+      errors: data.fail
+    }))
+    .filter(p => p.errorRate > 10)
+    .sort((a, b) => b.errorRate - a.errorRate);
+  
+  if (highErrorParams.length > 0) {
+    insights.push({
+      type: 'info',
+      icon: 'fa-exclamation-circle',
+      text: `${highErrorParams.length} parameters have error rates exceeding 10%. Top issue: <strong>${highErrorParams[0].param}</strong> at ${highErrorParams[0].errorRate.toFixed(1)}% error rate.`
+    });
+  }
+  
+  // Recruiter performance spread
+  const recruiterData = {};
+  filteredData.forEach(r => {
+    const recruiter = r['Recruiter Name'];
+    if (!recruiter) return;
+    
+    if (!recruiterData[recruiter]) {
+      recruiterData[recruiter] = { pass: 0, total: 0 };
+    }
+    
+    recruiterData[recruiter].pass += parseFloat(r['Opportunity Pass']) || 0;
+    recruiterData[recruiter].total += parseFloat(r['Opportunity Excluding NA']) || 0;
+  });
+  
+  const recruiterAccuracies = Object.values(recruiterData)
+    .map(d => d.total > 0 ? (d.pass / d.total * 100) : 0)
+    .filter(a => a > 0);
+  
+  if (recruiterAccuracies.length > 0) {
+    const avgAccuracy = recruiterAccuracies.reduce((a, b) => a + b, 0) / recruiterAccuracies.length;
+    const stdDev = Math.sqrt(recruiterAccuracies.reduce((sq, n) => sq + Math.pow(n - avgAccuracy, 2), 0) / recruiterAccuracies.length);
+    
+    if (stdDev > 10) {
+      insights.push({
+        type: 'warning',
+        icon: 'fa-users',
+        text: `High performance variance detected among recruiters (σ=${stdDev.toFixed(1)}%). Consider peer learning sessions and standardized best practices.`
+      });
+    }
+  }
+  
+  container.innerHTML = insights.map(i => {
+    const colors = {
+      positive: 'bg-green-50 border-green-200 text-green-800',
+      negative: 'bg-red-50 border-red-200 text-red-800',
+      warning: 'bg-yellow-50 border-yellow-200 text-yellow-800',
+      info: 'bg-blue-50 border-blue-200 text-blue-800'
+    };
+    
+    return `
+      <div class="p-4 rounded-lg border-2 ${colors[i.type]}">
+        <i class="fas ${i.icon} mr-2"></i>
+        <span>${i.text}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+function generateRecommendations() {
+  const container = document.getElementById('recommendations');
+  if (!container || !filteredData) return;
+  
+  const recommendations = [];
+  
+  // Analyze parameters for errors
+  const paramData = {};
+  filteredData.forEach(r => {
+    const param = r['Parameter'];
+    if (!param) return;
+    
+    if (!paramData[param]) {
+      paramData[param] = { fail: 0, total: 0 };
+    }
+    
+    paramData[param].fail += parseFloat(r['Opportunity Fail']) || 0;
+    paramData[param].total += parseFloat(r['Opportunity Excluding NA']) || 0;
+  });
+  
+  const highErrorParams = Object.entries(paramData)
+    .map(([param, data]) => ({
+      param,
+      errorRate: data.total > 0 ? (data.fail / data.total * 100) : 0
+    }))
+    .filter(p => p.errorRate > 8)
+    .sort((a, b) => b.errorRate - a.errorRate)
+    .slice(0, 3);
+  
+  if (highErrorParams.some(p => p.param.toLowerCase().includes('intake'))) {
+    recommendations.push('Standardize <strong>Intake Meeting form Completeness & Correctness</strong> and launch refresher training for recruiters with persistent errors.');
+  }
+  
+  if (highErrorParams.some(p => p.param.toLowerCase().includes('assessment') || p.param.toLowerCase().includes('ces'))) {
+    recommendations.push('Automate checks for <strong>Candidate Assessment Sheet submission</strong> and <strong>CES completeness</strong> using mandatory fields in the ATS.');
+  }
+  
+  if (highErrorParams.some(p => p.param.toLowerCase().includes('bgv') || p.param.toLowerCase().includes('medical') || p.param.toLowerCase().includes('bonus'))) {
+    recommendations.push('Introduce checklists for <strong>BGV Initiation, Medical Test, and Joining Bonus / Notice Buyout approvals</strong> to reduce misses in Pre-Onboarding.');
+  }
+  
+  // Recruiter-specific recommendations
+  const recruiterData = {};
+  filteredData.forEach(r => {
+    const recruiter = r['Recruiter Name'];
+    if (!recruiter) return;
+    
+    if (!recruiterData[recruiter]) {
+      recruiterData[recruiter] = { fail: 0, total: 0 };
+    }
+    
+    recruiterData[recruiter].fail += parseFloat(r['Opportunity Fail']) || 0;
+    recruiterData[recruiter].total += parseFloat(r['Opportunity Excluding NA']) || 0;
+  });
+  
+  const totalErrors = Object.values(recruiterData).reduce((sum, d) => sum + d.fail, 0);
+  const highErrorRecruiters = Object.entries(recruiterData)
+    .map(([name, data]) => ({
+      name,
+      errorContribution: totalErrors > 0 ? (data.fail / totalErrors * 100) : 0
+    }))
+    .filter(r => r.errorContribution > 5)
+    .sort((a, b) => b.errorContribution - a.errorContribution);
+  
+  if (highErrorRecruiters.length > 0) {
+    recommendations.push(`Run targeted capability-building for ${highErrorRecruiters.length} recruiter(s) whose error contribution exceeds 5% of total errors.`);
+  }
+  
+  // Sample coverage recommendation
+  const totalPopulation = filteredData.reduce((sum, r) => sum + (parseFloat(r['Total Population']) || 0), 0);
+  const totalSamples = filteredData.reduce((sum, r) => sum + (parseFloat(r['Sample Count']) || 0), 0);
+  const coverage = totalPopulation > 0 ? (totalSamples / totalPopulation * 100) : 0;
+  
+  if (coverage < 30) {
+    recommendations.push('Increase <strong>audit sample coverage</strong> to at least 30% of total population for more statistically significant insights.');
+  }
+  
+  // Generic best practices
+  recommendations.push('Conduct monthly <strong>quality calibration sessions</strong> to ensure consistent audit standards across all recruitment stages.');
+  recommendations.push('Implement a <strong>peer review system</strong> where top-performing recruiters mentor those needing improvement.');
+  
+  container.innerHTML = recommendations.map((rec, i) => `
+    <div class="flex items-start gap-3 p-3 bg-white rounded-lg border border-gray-200">
+      <span class="flex-shrink-0 w-6 h-6 rounded-full bg-mm-red text-white flex items-center justify-center text-xs font-bold">${i + 1}</span>
+      <span class="text-sm">${rec}</span>
+    </div>
+  `).join('');
+}
+
+function identifyCriticalErrors() {
+  const container = document.getElementById('critical-errors');
+  if (!container || !filteredData) return;
+  
+  // Find parameters with highest error counts
+  const paramData = {};
+  filteredData.forEach(r => {
+    const param = r['Parameter'];
+    if (!param) return;
+    
+    if (!paramData[param]) {
+      paramData[param] = { fail: 0, total: 0 };
+    }
+    
+    paramData[param].fail += parseFloat(r['Opportunity Fail']) || 0;
+    paramData[param].total += parseFloat(r['Opportunity Excluding NA']) || 0;
+  });
+  
+  const criticalErrors = Object.entries(paramData)
+    .map(([param, data]) => ({
+      param,
+      errors: data.fail,
+      errorRate: data.total > 0 ? (data.fail / data.total * 100) : 0
+    }))
+    .filter(p => p.errorRate > 10 || p.errors > 5)
+    .sort((a, b) => b.errors - a.errors)
+    .slice(0, 5);
+  
+  if (criticalErrors.length === 0) {
+    container.innerHTML = '<p class="text-green-600 text-sm">✓ No critical error patterns detected. Keep up the good work!</p>';
+    return;
+  }
+  
+  container.innerHTML = criticalErrors.map(e => `
+    <div class="flex items-center justify-between p-2 bg-red-50 rounded border border-red-200">
+      <span class="text-sm flex-1">${e.param.substring(0, 50)}${e.param.length > 50 ? '...' : ''}</span>
+      <span class="text-red-700 font-bold text-sm ml-2">${e.errors} errors (${e.errorRate.toFixed(1)}%)</span>
+    </div>
+  `).join('');
+}
+
+function identifyBestPractices() {
+  const container = document.getElementById('best-practices');
+  if (!container || !filteredData) return;
+  
+  // Find parameters with highest accuracy
+  const paramData = {};
+  filteredData.forEach(r => {
+    const param = r['Parameter'];
+    if (!param) return;
+    
+    if (!paramData[param]) {
+      paramData[param] = { pass: 0, total: 0 };
+    }
+    
+    paramData[param].pass += parseFloat(r['Opportunity Pass']) || 0;
+    paramData[param].total += parseFloat(r['Opportunity Excluding NA']) || 0;
+  });
+  
+  const bestPractices = Object.entries(paramData)
+    .map(([param, data]) => ({
+      param,
+      accuracy: data.total > 0 ? (data.pass / data.total * 100) : 0,
+      count: data.total
+    }))
+    .filter(p => p.accuracy >= 95 && p.count >= 5)
+    .sort((a, b) => b.accuracy - a.accuracy)
+    .slice(0, 5);
+  
+  if (bestPractices.length === 0) {
+    container.innerHTML = '<p class="text-gray-500 text-sm">Upload more data to identify best practices.</p>';
+    return;
+  }
+  
+  container.innerHTML = bestPractices.map(p => `
+    <div class="flex items-center justify-between p-2 bg-yellow-50 rounded border border-yellow-200">
+      <span class="text-sm flex-1">${p.param.substring(0, 50)}${p.param.length > 50 ? '...' : ''}</span>
+      <span class="text-yellow-700 font-bold text-sm ml-2">${p.accuracy.toFixed(1)}% ⭐</span>
+    </div>
+  `).join('');
+}
+
+// Tab switching
+function switchTab(tabName) {
+  // Update tab buttons
+  document.querySelectorAll('.nav-tab').forEach(tab => {
+    tab.classList.remove('active');
+  });
+  event.target.closest('.nav-tab').classList.add('active');
+  
+  // Hide all tab contents
+  document.querySelectorAll('.tab-content').forEach(content => {
+    content.classList.add('hidden');
+  });
+  
+  // Show selected tab
+  const selectedTab = document.getElementById(`tab-${tabName}`);
+  if (selectedTab) {
+    selectedTab.classList.remove('hidden');
+  }
+}
+
+// Export to PDF
+function exportToPDF() {
+  alert('PDF export functionality would integrate with a library like jsPDF or html2pdf. Generating comprehensive report...');
+  // TODO: Implement actual PDF generation
+}
+
+// UI helpers
+function showLoadingState() {
+  document.getElementById('loading-state').classList.remove('hidden');
+  document.querySelectorAll('.tab-content').forEach(content => {
+    content.classList.add('hidden');
+  });
+}
+
+function hideLoadingState() {
+  document.getElementById('loading-state').classList.add('hidden');
+  document.getElementById('tab-overview').classList.remove('hidden');
+}
+
+function showSuccessMessage(message) {
+  const toast = document.createElement('div');
+  toast.className = 'fixed top-20 right-6 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in';
+  toast.innerHTML = `<i class="fas fa-check-circle mr-2"></i>${message}`;
+  document.body.appendChild(toast);
+  
+  setTimeout(() => {
+    toast.remove();
+  }, 3000);
+}
+
+function showErrorMessage(message) {
+  const toast = document.createElement('div');
+  toast.className = 'fixed top-20 right-6 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in';
+  toast.innerHTML = `<i class="fas fa-exclamation-circle mr-2"></i>${message}`;
+  document.body.appendChild(toast);
+  
+  setTimeout(() => {
+    toast.remove();
+  }, 5000);
+}
+
+console.log('M&M Dashboard JavaScript loaded successfully');
