@@ -221,6 +221,58 @@ app.get('/', (c) => {
             color: var(--mm-red);
           }
           
+          /* Sub-navigation */
+          .nav-sub-items {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background: #F9FAFB;
+            margin-left: 0;
+          }
+          
+          .nav-sub-items.expanded {
+            max-height: 500px;
+          }
+          
+          .nav-sub-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px 12px 48px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--mm-grey);
+            font-size: 0.875rem;
+            border-left: 4px solid transparent;
+          }
+          
+          .nav-sub-item:hover {
+            background: var(--mm-light-red);
+            color: var(--mm-red);
+          }
+          
+          .nav-sub-item.active {
+            background: var(--mm-light-red);
+            color: var(--mm-red);
+            border-left-color: var(--mm-red);
+            font-weight: 600;
+          }
+          
+          .nav-sub-item i {
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+          }
+          
+          .nav-expand-icon {
+            margin-left: auto;
+            transition: transform 0.3s ease;
+            font-size: 0.875rem;
+          }
+          
+          .nav-tab.expanded .nav-expand-icon {
+            transform: rotate(180deg);
+          }
+          
           /* Main content with sidebar offset */
           .main-content-wrapper {
             margin-left: 280px;
@@ -484,6 +536,40 @@ app.get('/', (c) => {
                 <div class="nav-tab-content">
                     <div class="nav-tab-title">Insights</div>
                     <div class="nav-tab-desc">AI recommendations</div>
+                </div>
+            </div>
+            
+            <!-- Team & People Analytics with Sub-navigation -->
+            <div class="nav-tab" onclick="toggleNavExpand(this, event)">
+                <div class="nav-tab-icon">
+                    <i class="fas fa-users-cog"></i>
+                </div>
+                <div class="nav-tab-content">
+                    <div class="nav-tab-title">Team & People Analytics</div>
+                    <div class="nav-tab-desc">Team performance insights</div>
+                </div>
+                <i class="fas fa-chevron-down nav-expand-icon"></i>
+            </div>
+            <div class="nav-sub-items">
+                <div class="nav-sub-item" onclick="switchTab('recruiter-performance')">
+                    <i class="fas fa-user"></i>
+                    <span>Recruiter Performance</span>
+                </div>
+                <div class="nav-sub-item" onclick="switchTab('team-comparison')">
+                    <i class="fas fa-users"></i>
+                    <span>Team Comparison</span>
+                </div>
+                <div class="nav-sub-item" onclick="switchTab('top-performers')">
+                    <i class="fas fa-trophy"></i>
+                    <span>Top Performers</span>
+                </div>
+                <div class="nav-sub-item" onclick="switchTab('improvement-areas')">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Improvement Areas</span>
+                </div>
+                <div class="nav-sub-item" onclick="switchTab('program-manager-view')">
+                    <i class="fas fa-user-tie"></i>
+                    <span>Program Manager View</span>
                 </div>
             </div>
         </nav>
@@ -822,6 +908,213 @@ app.get('/', (c) => {
                             <i class="fas fa-star text-yellow-500 mr-2"></i>Best Practices Identified
                         </h4>
                         <div id="best-practices" class="space-y-2"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team & People Analytics - Recruiter Performance Tab -->
+            <div id="tab-recruiter-performance" class="tab-content hidden">
+                <div class="dashboard-card p-6 mb-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-user text-mm-red mr-2"></i>Individual Recruiter Scorecards
+                    </h3>
+                    <p class="text-gray-600 mb-4">Detailed performance metrics for each recruiter</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                    <div class="dashboard-card p-6">
+                        <h4 class="text-sm font-semibold text-gray-600 mb-2">SELECT RECRUITER</h4>
+                        <select id="recruiter-select" class="w-full border rounded p-2" onchange="loadRecruiterScorecard()">
+                            <option value="">Choose a recruiter...</option>
+                        </select>
+                    </div>
+                    <div class="dashboard-card p-6 bg-green-50">
+                        <h4 class="text-sm font-semibold text-gray-600 mb-2">ACCURACY SCORE</h4>
+                        <div class="text-3xl font-bold text-green-600" id="recruiter-accuracy">--</div>
+                    </div>
+                    <div class="dashboard-card p-6 bg-blue-50">
+                        <h4 class="text-sm font-semibold text-gray-600 mb-2">TOTAL AUDITS</h4>
+                        <div class="text-3xl font-bold text-blue-600" id="recruiter-audits">--</div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="p-4 border-b border-gray-200 bg-mm-light-red">
+                        <h3 class="font-bold text-gray-800">
+                            <i class="fas fa-chart-bar text-mm-red mr-2"></i>Recruiter Performance Breakdown
+                        </h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="recruiter-scorecard-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Comparison Tab -->
+            <div id="tab-team-comparison" class="tab-content hidden">
+                <div class="dashboard-card p-6 mb-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-users text-mm-red mr-2"></i>Team-wise Performance Ranking
+                    </h3>
+                    <p class="text-gray-600">Compare performance across different teams and program managers</p>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="p-4 border-b border-gray-200 bg-mm-light-red">
+                        <h3 class="font-bold text-gray-800">
+                            <i class="fas fa-ranking-star text-mm-red mr-2"></i>Team Performance Leaderboard
+                        </h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="team-comparison-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Performers Tab -->
+            <div id="tab-top-performers" class="tab-content hidden">
+                <div class="dashboard-card p-6 mb-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-trophy text-yellow-500 mr-2"></i>Best Performing Recruiters
+                    </h3>
+                    <p class="text-gray-600">Recognition and analysis of top performers</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div class="dashboard-card p-6 bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-300">
+                        <div class="text-center">
+                            <i class="fas fa-trophy text-6xl text-yellow-500 mb-3"></i>
+                            <h4 class="text-lg font-bold text-gray-800 mb-2">🥇 Top Performer</h4>
+                            <div class="text-2xl font-bold text-yellow-600" id="top-1-name">--</div>
+                            <div class="text-sm text-gray-600" id="top-1-score">--</div>
+                        </div>
+                    </div>
+                    <div class="dashboard-card p-6 bg-gradient-to-br from-gray-50 to-gray-100 border-gray-300">
+                        <div class="text-center">
+                            <i class="fas fa-medal text-6xl text-gray-500 mb-3"></i>
+                            <h4 class="text-lg font-bold text-gray-800 mb-2">🥈 Second Place</h4>
+                            <div class="text-2xl font-bold text-gray-600" id="top-2-name">--</div>
+                            <div class="text-sm text-gray-600" id="top-2-score">--</div>
+                        </div>
+                    </div>
+                    <div class="dashboard-card p-6 bg-gradient-to-br from-orange-50 to-orange-100 border-orange-300">
+                        <div class="text-center">
+                            <i class="fas fa-award text-6xl text-orange-500 mb-3"></i>
+                            <h4 class="text-lg font-bold text-gray-800 mb-2">🥉 Third Place</h4>
+                            <div class="text-2xl font-bold text-orange-600" id="top-3-name">--</div>
+                            <div class="text-sm text-gray-600" id="top-3-score">--</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="p-4 border-b border-gray-200 bg-mm-light-red">
+                        <h3 class="font-bold text-gray-800">
+                            <i class="fas fa-chart-bar text-mm-red mr-2"></i>Top 10 Performers
+                        </h3>
+                    </div>
+                    <div class="p-6">
+                        <div id="top-performers-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Improvement Areas Tab -->
+            <div id="tab-improvement-areas" class="tab-content hidden">
+                <div class="dashboard-card p-6 mb-6 bg-red-50 border-red-200">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-exclamation-triangle text-red-600 mr-2"></i>Recruiters Needing Coaching
+                    </h3>
+                    <p class="text-gray-600">Identify areas requiring intervention and support</p>
+                </div>
+
+                <div class="dashboard-card p-6 mb-6">
+                    <h4 class="font-bold text-gray-800 mb-4">Improvement Focus Areas</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="p-4 border-l-4 border-red-500 bg-red-50">
+                            <h5 class="font-semibold text-red-800 mb-2">Low Accuracy (&lt;80%)</h5>
+                            <div id="low-accuracy-list" class="space-y-2"></div>
+                        </div>
+                        <div class="p-4 border-l-4 border-orange-500 bg-orange-50">
+                            <h5 class="font-semibold text-orange-800 mb-2">High Error Rate (&gt;15%)</h5>
+                            <div id="high-error-list" class="space-y-2"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="p-4 border-b border-gray-200 bg-mm-light-red">
+                        <h3 class="font-bold text-gray-800">
+                            <i class="fas fa-chart-line text-mm-red mr-2"></i>Performance Trend Analysis
+                        </h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="improvement-trend-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Program Manager View Tab -->
+            <div id="tab-program-manager-view" class="tab-content hidden">
+                <div class="dashboard-card p-6 mb-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-user-tie text-mm-red mr-2"></i>Program Manager Team Performance
+                    </h3>
+                    <p class="text-gray-600">PM-wise team analytics and performance metrics</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                    <div class="dashboard-card p-6">
+                        <h4 class="text-sm font-semibold text-gray-600 mb-2">SELECT PM</h4>
+                        <select id="pm-select" class="w-full border rounded p-2" onchange="loadPMView()">
+                            <option value="">Choose a PM...</option>
+                        </select>
+                    </div>
+                    <div class="dashboard-card p-6 bg-blue-50">
+                        <h4 class="text-sm font-semibold text-gray-600 mb-2">TEAM SIZE</h4>
+                        <div class="text-3xl font-bold text-blue-600" id="pm-team-size">--</div>
+                    </div>
+                    <div class="dashboard-card p-6 bg-green-50">
+                        <h4 class="text-sm font-semibold text-gray-600 mb-2">AVG ACCURACY</h4>
+                        <div class="text-3xl font-bold text-green-600" id="pm-accuracy">--</div>
+                    </div>
+                    <div class="dashboard-card p-6 bg-purple-50">
+                        <h4 class="text-sm font-semibold text-gray-600 mb-2">TOTAL AUDITS</h4>
+                        <div class="text-3xl font-bold text-purple-600" id="pm-audits">--</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <div class="dashboard-card">
+                        <div class="p-4 border-b border-gray-200 bg-mm-light-red">
+                            <h3 class="font-bold text-gray-800">
+                                <i class="fas fa-users text-mm-red mr-2"></i>Team Member Performance
+                            </h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="pm-team-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="p-4 border-b border-gray-200 bg-mm-light-red">
+                            <h3 class="font-bold text-gray-800">
+                                <i class="fas fa-chart-pie text-mm-red mr-2"></i>Team Accuracy Distribution
+                            </h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="pm-distribution-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="p-4 border-b border-gray-200 bg-mm-light-red">
+                        <h3 class="font-bold text-gray-800">
+                            <i class="fas fa-table text-mm-red mr-2"></i>Team Members Details
+                        </h3>
+                    </div>
+                    <div class="p-6">
+                        <div id="pm-team-table"></div>
                     </div>
                 </div>
             </div>

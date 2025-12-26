@@ -1914,11 +1914,33 @@ function identifyBestPractices() {
 
 // Tab switching
 function switchTab(tabName) {
-  // Update tab buttons
+  // Update main nav tab buttons
   document.querySelectorAll('.nav-tab').forEach(tab => {
     tab.classList.remove('active');
   });
-  event.target.closest('.nav-tab').classList.add('active');
+  
+  // Update sub-nav items
+  document.querySelectorAll('.nav-sub-item').forEach(item => {
+    item.classList.remove('active');
+  });
+  
+  // If clicking a sub-item, activate both the sub-item and parent
+  if (event && event.target) {
+    const subItem = event.target.closest('.nav-sub-item');
+    if (subItem) {
+      subItem.classList.add('active');
+      // Also activate the parent nav-tab
+      const parentNavTab = subItem.closest('.nav-sub-items').previousElementSibling;
+      if (parentNavTab) {
+        parentNavTab.classList.add('active');
+      }
+    } else {
+      const navTab = event.target.closest('.nav-tab');
+      if (navTab) {
+        navTab.classList.add('active');
+      }
+    }
+  }
   
   // Hide all tab contents
   document.querySelectorAll('.tab-content').forEach(content => {
@@ -1929,6 +1951,175 @@ function switchTab(tabName) {
   const selectedTab = document.getElementById(`tab-${tabName}`);
   if (selectedTab) {
     selectedTab.classList.remove('hidden');
+  }
+  
+  // Populate dropdowns for new tabs
+  if (tabName === 'recruiter-performance') {
+    populateRecruiterSelect();
+  } else if (tabName === 'program-manager-view') {
+    populatePMSelect();
+  } else if (tabName === 'top-performers') {
+    updateTopPerformers();
+  } else if (tabName === 'team-comparison') {
+    updateTeamComparison();
+  } else if (tabName === 'improvement-areas') {
+    updateImprovementAreas();
+  }
+}
+
+// Populate recruiter select dropdown
+function populateRecruiterSelect() {
+  if (!rawData || !rawData.auditCount) return;
+  
+  const recruiters = [...new Set(rawData.auditCount.map(r => r['Recruiter Name']).filter(Boolean))].sort();
+  const select = document.getElementById('recruiter-select');
+  
+  if (select) {
+    select.innerHTML = '<option value="">Choose a recruiter...</option>';
+    recruiters.forEach(name => {
+      const option = document.createElement('option');
+      option.value = name;
+      option.textContent = name;
+      select.appendChild(option);
+    });
+  }
+}
+
+// Populate PM select dropdown
+function populatePMSelect() {
+  if (!rawData || !rawData.auditCount) return;
+  
+  const pms = [...new Set(rawData.auditCount.map(r => r['Program Manager']).filter(Boolean))].sort();
+  const select = document.getElementById('pm-select');
+  
+  if (select) {
+    select.innerHTML = '<option value="">Choose a PM...</option>';
+    pms.forEach(name => {
+      const option = document.createElement('option');
+      option.value = name;
+      option.textContent = name;
+      select.appendChild(option);
+    });
+  }
+}
+
+// Update top performers
+function updateTopPerformers() {
+  if (!filteredData) return;
+  
+  const recruiterData = {};
+  filteredData.forEach(r => {
+    const name = r['Recruiter Name'];
+    if (!name) return;
+    
+    if (!recruiterData[name]) {
+      recruiterData[name] = { pass: 0, total: 0 };
+    }
+    
+    recruiterData[name].pass += parseFloat(r['Opportunity Pass']) || 0;
+    recruiterData[name].total += parseFloat(r['Opportunity Excluding NA']) || 0;
+  });
+  
+  const topPerformers = Object.entries(recruiterData)
+    .map(([name, data]) => ({
+      name,
+      accuracy: data.total > 0 ? (data.pass / data.total * 100) : 0
+    }))
+    .sort((a, b) => b.accuracy - a.accuracy)
+    .slice(0, 10);
+  
+  // Update top 3
+  if (topPerformers[0]) {
+    document.getElementById('top-1-name').textContent = topPerformers[0].name;
+    document.getElementById('top-1-score').textContent = topPerformers[0].accuracy.toFixed(1) + '% Accuracy';
+  }
+  if (topPerformers[1]) {
+    document.getElementById('top-2-name').textContent = topPerformers[1].name;
+    document.getElementById('top-2-score').textContent = topPerformers[1].accuracy.toFixed(1) + '% Accuracy';
+  }
+  if (topPerformers[2]) {
+    document.getElementById('top-3-name').textContent = topPerformers[2].name;
+    document.getElementById('top-3-score').textContent = topPerformers[2].accuracy.toFixed(1) + '% Accuracy';
+  }
+  
+  // Update top 10 list
+  const listContainer = document.getElementById('top-performers-list');
+  if (listContainer) {
+    listContainer.innerHTML = topPerformers.map((p, i) => `
+      <div class="flex items-center justify-between p-3 border-b">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl font-bold text-gray-400">#${i + 1}</span>
+          <span class="font-semibold">${p.name}</span>
+        </div>
+        <span class="text-xl font-bold text-mm-red">${p.accuracy.toFixed(1)}%</span>
+      </div>
+    `).join('');
+  }
+}
+
+// Update team comparison
+function updateTeamComparison() {
+  console.log('Updating team comparison view');
+  // Implementation for team comparison charts
+}
+
+// Update improvement areas
+function updateImprovementAreas() {
+  if (!filteredData) return;
+  
+  const recruiterData = {};
+  filteredData.forEach(r => {
+    const name = r['Recruiter Name'];
+    if (!name) return;
+    
+    if (!recruiterData[name]) {
+      recruiterData[name] = { pass: 0, fail: 0, total: 0 };
+    }
+    
+    recruiterData[name].pass += parseFloat(r['Opportunity Pass']) || 0;
+    recruiterData[name].fail += parseFloat(r['Opportunity Fail']) || 0;
+    recruiterData[name].total += parseFloat(r['Opportunity Excluding NA']) || 0;
+  });
+  
+  const lowAccuracy = Object.entries(recruiterData)
+    .map(([name, data]) => ({
+      name,
+      accuracy: data.total > 0 ? (data.pass / data.total * 100) : 0,
+      errorRate: data.total > 0 ? (data.fail / data.total * 100) : 0
+    }))
+    .filter(r => r.accuracy < 80)
+    .sort((a, b) => a.accuracy - b.accuracy);
+  
+  const highError = Object.entries(recruiterData)
+    .map(([name, data]) => ({
+      name,
+      accuracy: data.total > 0 ? (data.pass / data.total * 100) : 0,
+      errorRate: data.total > 0 ? (data.fail / data.total * 100) : 0
+    }))
+    .filter(r => r.errorRate > 15)
+    .sort((a, b) => b.errorRate - a.errorRate);
+  
+  // Update lists
+  const lowAccuracyList = document.getElementById('low-accuracy-list');
+  if (lowAccuracyList) {
+    lowAccuracyList.innerHTML = lowAccuracy.length > 0 
+      ? lowAccuracy.map(r => `
+          <div class="text-sm">
+            <strong>${r.name}</strong>: ${r.accuracy.toFixed(1)}% accuracy
+          </div>
+        `).join('')
+      : '<div class="text-sm text-gray-500">No recruiters below 80% accuracy</div>';
+  }
+  
+  const highErrorList = document.getElementById('high-error-list');
+  if (highErrorList) {
+    highErrorList.innerHTML = highError.length > 0
+      ? highError.map(r => `
+          <div class="text-sm">
+            <strong>${r.name}</strong>: ${r.errorRate.toFixed(1)}% error rate
+          </div>
+        `).join('')
+      : '<div class="text-sm text-gray-500">No recruiters above 15% error rate</div>';
   }
 }
 
@@ -1971,6 +2162,81 @@ function showErrorMessage(message) {
   setTimeout(() => {
     toast.remove();
   }, 5000);
+}
+
+// Toggle navigation expansion
+function toggleNavExpand(element, event) {
+  event.stopPropagation();
+  const subItems = element.nextElementSibling;
+  const isExpanded = element.classList.contains('expanded');
+  
+  // Close all other expanded items
+  document.querySelectorAll('.nav-tab.expanded').forEach(nav => {
+    if (nav !== element) {
+      nav.classList.remove('expanded');
+      nav.nextElementSibling.classList.remove('expanded');
+    }
+  });
+  
+  // Toggle current item
+  if (isExpanded) {
+    element.classList.remove('expanded');
+    subItems.classList.remove('expanded');
+  } else {
+    element.classList.add('expanded');
+    subItems.classList.add('expanded');
+  }
+}
+
+// Load recruiter scorecard
+function loadRecruiterScorecard() {
+  const recruiterName = document.getElementById('recruiter-select').value;
+  if (!recruiterName || !filteredData) return;
+  
+  const recruiterData = filteredData.filter(r => r['Recruiter Name'] === recruiterName);
+  
+  const pass = recruiterData.reduce((sum, r) => sum + (parseFloat(r['Opportunity Pass']) || 0), 0);
+  const total = recruiterData.reduce((sum, r) => sum + (parseFloat(r['Opportunity Excluding NA']) || 0), 0);
+  const audits = recruiterData.reduce((sum, r) => sum + (parseFloat(r['Opportunity Count']) || 0), 0);
+  
+  const accuracy = total > 0 ? (pass / total * 100) : 0;
+  
+  document.getElementById('recruiter-accuracy').textContent = accuracy.toFixed(1) + '%';
+  document.getElementById('recruiter-audits').textContent = audits.toLocaleString();
+  
+  // Update chart if needed
+  updateRecruiterScorecardChart(recruiterData);
+}
+
+// Load PM view
+function loadPMView() {
+  const pmName = document.getElementById('pm-select').value;
+  if (!pmName || !filteredData) return;
+  
+  const pmData = filteredData.filter(r => r['Program Manager'] === pmName);
+  const recruiters = [...new Set(pmData.map(r => r['Recruiter Name']).filter(Boolean))];
+  
+  const pass = pmData.reduce((sum, r) => sum + (parseFloat(r['Opportunity Pass']) || 0), 0);
+  const total = pmData.reduce((sum, r) => sum + (parseFloat(r['Opportunity Excluding NA']) || 0), 0);
+  const audits = pmData.reduce((sum, r) => sum + (parseFloat(r['Opportunity Count']) || 0), 0);
+  
+  const accuracy = total > 0 ? (pass / total * 100) : 0;
+  
+  document.getElementById('pm-team-size').textContent = recruiters.length;
+  document.getElementById('pm-accuracy').textContent = accuracy.toFixed(1) + '%';
+  document.getElementById('pm-audits').textContent = audits.toLocaleString();
+  
+  // Update charts and table
+  updatePMCharts(pmData, recruiters);
+}
+
+// Placeholder chart update functions
+function updateRecruiterScorecardChart(data) {
+  console.log('Updating recruiter scorecard chart with data:', data);
+}
+
+function updatePMCharts(data, recruiters) {
+  console.log('Updating PM charts with data:', data, 'Recruiters:', recruiters);
 }
 
 console.log('M&M Dashboard JavaScript loaded successfully');
