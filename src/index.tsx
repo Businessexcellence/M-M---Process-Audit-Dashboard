@@ -235,9 +235,115 @@ app.get('/', (c) => {
             z-index: 10;
             box-shadow: 0 4px 8px rgba(0,0,0,0.15);
           }
+          
+          /* Upload Progress Modal */
+          .upload-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.75);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+          }
+          
+          .upload-modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+          }
+          
+          .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background: var(--mm-light-red);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 20px 0;
+          }
+          
+          .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--mm-red) 0%, var(--mm-dark-red) 100%);
+            transition: width 0.3s ease;
+            border-radius: 4px;
+          }
+          
+          .progress-steps {
+            margin-top: 16px;
+          }
+          
+          .progress-step {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            color: var(--mm-grey);
+            font-size: 0.875rem;
+          }
+          
+          .progress-step.active {
+            color: var(--mm-red);
+            font-weight: 600;
+          }
+          
+          .progress-step.completed {
+            color: #10B981;
+          }
+          
+          .progress-step i {
+            margin-right: 8px;
+            width: 20px;
+          }
         </style>
     </head>
     <body class="bg-gray-50">
+        <!-- Upload Progress Modal -->
+        <div id="upload-modal" class="upload-modal hidden">
+            <div class="upload-modal-content">
+                <h3 class="text-xl font-bold text-gray-800 mb-2">
+                    <i class="fas fa-file-upload text-mm-red mr-2"></i>
+                    Processing Excel File
+                </h3>
+                <p class="text-sm text-gray-600 mb-4" id="upload-filename">Power BI Data.xlsx</p>
+                
+                <div class="progress-bar-container">
+                    <div id="progress-bar" class="progress-bar" style="width: 0%"></div>
+                </div>
+                
+                <div class="text-center mb-4">
+                    <span id="progress-percentage" class="text-2xl font-bold text-mm-red">0%</span>
+                </div>
+                
+                <div class="progress-steps">
+                    <div id="step-reading" class="progress-step">
+                        <i class="fas fa-circle-notch fa-spin"></i>
+                        <span>Reading file...</span>
+                    </div>
+                    <div id="step-parsing" class="progress-step">
+                        <i class="fas fa-circle"></i>
+                        <span>Parsing Excel sheets...</span>
+                    </div>
+                    <div id="step-validating" class="progress-step">
+                        <i class="fas fa-circle"></i>
+                        <span>Validating data structure...</span>
+                    </div>
+                    <div id="step-processing" class="progress-step">
+                        <i class="fas fa-circle"></i>
+                        <span>Processing data...</span>
+                    </div>
+                    <div id="step-complete" class="progress-step">
+                        <i class="fas fa-circle"></i>
+                        <span>Rendering dashboard...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
         <!-- Header -->
         <header class="bg-mm-red text-white shadow-lg">
             <div class="container mx-auto px-6 py-4">

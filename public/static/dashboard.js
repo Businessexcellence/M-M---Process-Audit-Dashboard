@@ -37,41 +37,153 @@ document.addEventListener('DOMContentLoaded', function() {
   showLoadingState();
 });
 
-// File upload handler
+// File upload handler with progress tracking
 async function handleFileUpload(event) {
   const file = event.target.files[0];
   if (!file) return;
 
-  showLoadingState();
+  // Show upload modal
+  showUploadModal(file.name);
   
   try {
-    const data = await readExcelFile(file);
+    // Step 1: Reading file (0-20%)
+    updateProgress(0, 'reading', 'Reading file...');
+    await sleep(300);
+    
+    const data = await readExcelFile(file, (progress) => {
+      updateProgress(20 * progress, 'reading', 'Reading file...');
+    });
+    
+    // Step 2: Parsing sheets (20-40%)
+    updateProgress(20, 'parsing', 'Parsing Excel sheets...');
+    await sleep(300);
+    updateProgress(40, 'parsing', 'Parsing Excel sheets...');
+    
+    // Step 3: Validating (40-60%)
+    updateProgress(40, 'validating', 'Validating data structure...');
+    await sleep(300);
     validateDataStructure(data);
+    updateProgress(60, 'validating', 'Validation complete!');
+    
+    // Step 4: Processing (60-80%)
+    updateProgress(60, 'processing', 'Processing data...');
+    await sleep(300);
     processAndStoreData(data);
+    updateProgress(80, 'processing', 'Data processed successfully!');
+    
+    // Step 5: Rendering (80-100%)
+    updateProgress(80, 'complete', 'Populating filters...');
+    await sleep(300);
     populateFilters();
+    updateProgress(90, 'complete', 'Applying filters...');
+    await sleep(300);
     applyFilters();
+    updateProgress(100, 'complete', 'Dashboard ready!');
+    await sleep(500);
+    
+    hideUploadModal();
     hideLoadingState();
-    showSuccessMessage('Data loaded successfully!');
+    showSuccessMessage('Data loaded successfully! Dashboard is ready.');
   } catch (error) {
     console.error('Error processing file:', error);
+    hideUploadModal();
     showErrorMessage('Error: ' + error.message);
     hideLoadingState();
   }
 }
 
-// Read Excel file using SheetJS
-function readExcelFile(file) {
+// Helper function for delays
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// Show upload modal
+function showUploadModal(filename) {
+  const modal = document.getElementById('upload-modal');
+  const filenameEl = document.getElementById('upload-filename');
+  if (modal && filenameEl) {
+    filenameEl.textContent = filename;
+    modal.classList.remove('hidden');
+  }
+}
+
+// Hide upload modal
+function hideUploadModal() {
+  const modal = document.getElementById('upload-modal');
+  if (modal) {
+    modal.classList.add('hidden');
+  }
+}
+
+// Update progress
+function updateProgress(percentage, step, message) {
+  // Update progress bar
+  const progressBar = document.getElementById('progress-bar');
+  const progressText = document.getElementById('progress-percentage');
+  
+  if (progressBar) {
+    progressBar.style.width = percentage + '%';
+  }
+  
+  if (progressText) {
+    progressText.textContent = Math.round(percentage) + '%';
+  }
+  
+  // Update step status
+  const steps = ['reading', 'parsing', 'validating', 'processing', 'complete'];
+  const currentStepIndex = steps.indexOf(step);
+  
+  steps.forEach((s, index) => {
+    const stepEl = document.getElementById(`step-${s}`);
+    if (!stepEl) return;
+    
+    const icon = stepEl.querySelector('i');
+    const text = stepEl.querySelector('span');
+    
+    if (index < currentStepIndex) {
+      // Completed step
+      stepEl.className = 'progress-step completed';
+      icon.className = 'fas fa-check-circle';
+    } else if (index === currentStepIndex) {
+      // Active step
+      stepEl.className = 'progress-step active';
+      icon.className = 'fas fa-circle-notch fa-spin';
+      if (text && message) {
+        text.textContent = message;
+      }
+    } else {
+      // Pending step
+      stepEl.className = 'progress-step';
+      icon.className = 'fas fa-circle';
+    }
+  });
+}
+
+// Read Excel file using SheetJS with progress
+function readExcelFile(file, progressCallback) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     
+    reader.onprogress = function(e) {
+      if (e.lengthComputable && progressCallback) {
+        const progress = e.loaded / e.total;
+        progressCallback(progress);
+      }
+    };
+    
     reader.onload = function(e) {
       try {
+        if (progressCallback) progressCallback(1);
+        
         const data = new Uint8Array(e.target.result);
         const workbook = XLSX.read(data, { type: 'array' });
         
         const sheets = {};
         workbook.SheetNames.forEach(sheetName => {
-          sheets[sheetName] = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+          // Get both JSON and raw data for Column B extraction
+          const worksheet = workbook.Sheets[sheetName];
+          sheets[sheetName] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+          sheets[sheetName + '_parsed'] = XLSX.utils.sheet_to_json(worksheet);
         });
         
         resolve(sheets);
@@ -90,11 +202,12 @@ function readExcelFile(file) {
 
 // Validate data structure
 function validateDataStructure(data) {
-  const requiredSheets = ['Audit Count', 'FY23', 'Recruiter Wise Data'];
+  const requiredSheets = ['Audit Count_parsed', 'FY23_parsed', 'Recruiter Wise Data_parsed'];
   const missingSheets = requiredSheets.filter(sheet => !data[sheet]);
   
   if (missingSheets.length > 0) {
-    throw new Error(`Missing required sheets: ${missingSheets.join(', ')}`);
+    const originalNames = missingSheets.map(s => s.replace('_parsed', ''));
+    throw new Error(`Missing required sheets: ${originalNames.join(', ')}`);
   }
   
   return true;
@@ -102,16 +215,35 @@ function validateDataStructure(data) {
 
 // Process and store data
 function processAndStoreData(data) {
+  // Extract Financial Year values from Column B (index 1) of raw Audit Count sheet
+  const auditCountRaw = data['Audit Count'] || [];
+  const auditCountParsed = data['Audit Count_parsed'] || [];
+  
+  // Extract unique Financial Years from Column B (skipping header row)
+  const financialYears = [];
+  for (let i = 1; i < auditCountRaw.length; i++) {
+    const row = auditCountRaw[i];
+    if (row && row[1]) { // Column B is index 1
+      const fy = row[1].toString().trim();
+      if (fy && !financialYears.includes(fy)) {
+        financialYears.push(fy);
+      }
+    }
+  }
+  
   rawData = {
-    auditCount: data['Audit Count'] || [],
-    fy23: data['FY23'] || [],
-    fy24: data['FY24'] || [],
-    recruiterWise: data['Recruiter Wise Data'] || [],
-    parameterErrors: data['Sheet3'] || data['Sheet5'] || [],
+    auditCount: auditCountParsed,
+    auditCountRaw: auditCountRaw,
+    financialYears: financialYears.sort(),
+    fy23: data['FY23_parsed'] || [],
+    fy24: data['FY24_parsed'] || [],
+    recruiterWise: data['Recruiter Wise Data_parsed'] || [],
+    parameterErrors: data['Sheet3_parsed'] || data['Sheet5_parsed'] || [],
     allSheets: data
   };
   
   console.log('Processed data:', rawData);
+  console.log('Financial Years from Column B:', rawData.financialYears);
 }
 
 // Populate filter dropdowns
@@ -121,7 +253,8 @@ function populateFilters() {
   const data = rawData.auditCount;
   
   // Extract unique values
-  const years = [...new Set(data.map(r => r['Financial Year']).filter(Boolean))].sort();
+  // Use Financial Years extracted from Column B
+  const years = rawData.financialYears || [];
   const months = [...new Set(data.map(r => r['Month']).filter(Boolean))];
   const weeks = [...new Set(data.map(r => r['Week']).filter(Boolean))].sort((a, b) => a - b);
   const stages = [...new Set(data.map(r => r['Recruitment Stage']).filter(Boolean))];
@@ -135,6 +268,8 @@ function populateFilters() {
   populateSelect('filter-stage', stages);
   populateSelect('filter-parameter', parameters);
   populateSelect('filter-recruiter', recruiters);
+  
+  console.log('Filters populated. Years:', years);
 }
 
 function populateSelect(id, values) {
