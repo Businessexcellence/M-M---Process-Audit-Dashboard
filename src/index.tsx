@@ -723,29 +723,133 @@ app.get('/', (c) => {
 
             <!-- Stage & Parameter Tab -->
             <div id="tab-stage-parameter" class="tab-content hidden">
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                    <div class="dashboard-card p-6 bg-green-50 border-green-200">
-                        <h4 class="text-sm font-semibold text-gray-600 mb-2">TOP 3 BEST PARAMETERS</h4>
-                        <div id="top-best-parameters" class="space-y-2"></div>
-                    </div>
-                    <div class="dashboard-card p-6 bg-red-50 border-red-200">
-                        <h4 class="text-sm font-semibold text-gray-600 mb-2">TOP 3 WORST PARAMETERS</h4>
-                        <div id="top-worst-parameters" class="space-y-2"></div>
-                    </div>
-                    <div class="dashboard-card p-6 bg-blue-50 border-blue-200">
-                        <h4 class="text-sm font-semibold text-gray-600 mb-2">PARAMETER DISTRIBUTION</h4>
-                        <div id="parameter-distribution" class="space-y-2"></div>
+                <!-- Breadcrumb -->
+                <div class="mb-6">
+                    <div class="flex items-center text-sm text-gray-600">
+                        <a href="#" onclick="switchTab('overview'); return false;" class="hover:text-mm-red">Home</a>
+                        <i class="fas fa-chevron-right mx-2 text-xs"></i>
+                        <span>Stages</span>
+                        <i class="fas fa-chevron-right mx-2 text-xs"></i>
+                        <span class="text-mm-red font-semibold" id="stage-breadcrumb">Deep Dive</span>
                     </div>
                 </div>
 
-                <div class="dashboard-card">
-                    <div class="p-4 border-b border-gray-200 bg-mm-light-red">
-                        <h3 class="font-bold text-gray-800">
-                            <i class="fas fa-th text-mm-red mr-2"></i>Stage & Parameter Heatmap (Accuracy Score %)
-                        </h3>
+                <!-- Stage Tabs -->
+                <div class="mb-6">
+                    <div class="flex flex-wrap gap-3">
+                        <button onclick="selectStageTab('Pre-Sourcing')" class="stage-tab-btn" data-stage="Pre-Sourcing">
+                            <i class="fas fa-search mr-2"></i>Pre-Sourcing
+                        </button>
+                        <button onclick="selectStageTab('Intake')" class="stage-tab-btn active" data-stage="Intake">
+                            <i class="fas fa-clipboard-list mr-2"></i>Intake
+                        </button>
+                        <button onclick="selectStageTab('Screening')" class="stage-tab-btn" data-stage="Screening">
+                            <i class="fas fa-user-check mr-2"></i>Screening
+                        </button>
+                        <button onclick="selectStageTab('Assessment')" class="stage-tab-btn" data-stage="Assessment">
+                            <i class="fas fa-tasks mr-2"></i>Assessment
+                        </button>
+                        <button onclick="selectStageTab('OfferAPL')" class="stage-tab-btn" data-stage="OfferAPL">
+                            <i class="fas fa-file-contract mr-2"></i>Offer/APL
+                        </button>
+                        <button onclick="selectStageTab('Pre-Onboarding')" class="stage-tab-btn" data-stage="Pre-Onboarding">
+                            <i class="fas fa-user-plus mr-2"></i>Pre-Onboarding
+                        </button>
                     </div>
-                    <div class="p-6 overflow-x-auto">
-                        <div id="heatmap-container"></div>
+                </div>
+
+                <!-- Stage Metrics -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                    <!-- Accuracy Metric -->
+                    <div class="dashboard-card p-6 bg-gradient-to-br from-orange-50 to-orange-100 border-orange-300">
+                        <div class="flex items-start justify-between mb-2">
+                            <div class="flex-1">
+                                <div class="text-4xl font-bold text-orange-600 mb-1" id="stage-accuracy">--</div>
+                                <div class="text-sm text-gray-700 font-semibold mb-1" id="stage-accuracy-label">Intake Accuracy</div>
+                                <div class="inline-flex items-center px-2 py-1 bg-white rounded text-xs font-medium" id="stage-accuracy-badge">
+                                    <span class="text-orange-600">fd7e14</span>
+                                </div>
+                            </div>
+                            <div class="text-orange-400">
+                                <i class="fas fa-arrow-trend-down text-3xl"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3 pt-3 border-t border-orange-200">
+                            <span class="inline-flex items-center text-xs text-red-600">
+                                <i class="fas fa-triangle-exclamation mr-1"></i>
+                                <span class="font-semibold">Below Target</span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Total Audits -->
+                    <div class="dashboard-card p-6 bg-white">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <div class="text-4xl font-bold text-blue-600 mb-1" id="stage-audits">--</div>
+                                <div class="text-sm text-gray-600 font-semibold mb-3">Total Audits</div>
+                                <div class="inline-flex items-center text-xs text-green-600">
+                                    <i class="fas fa-arrow-up mr-1"></i>
+                                    <span class="font-semibold" id="stage-trend">+12% vs Last Month</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Error Rate -->
+                    <div class="dashboard-card p-6 bg-white">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <div class="text-4xl font-bold text-red-600 mb-1" id="stage-error-rate">--</div>
+                                <div class="text-sm text-gray-600 font-semibold mb-3">Error Rate</div>
+                                <div class="inline-flex items-center px-2 py-1 bg-red-100 rounded text-xs text-red-700">
+                                    <i class="fas fa-circle-exclamation mr-1"></i>
+                                    <span class="font-semibold">Needs Attention</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Completeness Score -->
+                    <div class="dashboard-card p-6 bg-white">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <div class="text-4xl font-bold text-yellow-600 mb-1" id="stage-completeness">--</div>
+                                <div class="text-sm text-gray-600 font-semibold mb-3">Completeness Score</div>
+                                <div class="text-yellow-600">
+                                    <i class="fas fa-arrow-trend-up text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Parameter Breakdown & Parameters Side by Side -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <!-- Parameter Breakdown -->
+                    <div class="dashboard-card">
+                        <div class="p-4 border-b border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <h3 class="font-bold text-gray-800 flex items-center">
+                                    <span>Parameter Breakdown</span>
+                                    <i class="fas fa-circle-info ml-2 text-gray-400 text-sm"></i>
+                                </h3>
+                                <span class="text-2xl font-bold text-gray-400" id="breakdown-percentage">40%</span>
+                            </div>
+                        </div>
+                        <div class="p-6" id="parameter-breakdown-list">
+                            <!-- Parameter items will be inserted here -->
+                        </div>
+                    </div>
+
+                    <!-- Parameters -->
+                    <div class="dashboard-card">
+                        <div class="p-4 border-b border-gray-200">
+                            <h3 class="font-bold text-gray-800">Parameters</h3>
+                        </div>
+                        <div class="p-6" id="parameters-list">
+                            <!-- Parameter items will be inserted here -->
+                        </div>
                     </div>
                 </div>
             </div>

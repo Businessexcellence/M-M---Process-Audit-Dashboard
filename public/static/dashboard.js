@@ -1029,9 +1029,219 @@ function updateFunnelChart() {
 }
 
 // Update Stage & Parameter view
+// Global variable for selected stage
+let selectedStage = 'Intake';
+
 function updateStageParameterView() {
-  updateTopParameters();
-  updateHeatmap();
+  updateStageMetrics();
+  updateParameterBreakdown();
+  updateParametersList();
+}
+
+// Stage tab selection
+function selectStageTab(stage) {
+  selectedStage = stage;
+  
+  // Update breadcrumb
+  document.getElementById('stage-breadcrumb').textContent = stage + ' Deep Dive';
+  
+  // Update active tab
+  document.querySelectorAll('.stage-tab-btn').forEach(btn => {
+    btn.classList.remove('active');
+    if (btn.dataset.stage === stage) {
+      btn.classList.add('active');
+    }
+  });
+  
+  // Update all stage data
+  updateStageMetrics();
+  updateParameterBreakdown();
+  updateParametersList();
+}
+
+// Update stage metrics cards
+function updateStageMetrics() {
+  if (!filteredData) return;
+  
+  // Filter data for selected stage
+  const stageData = filteredData.filter(r => r['Recruitment Stage'] === selectedStage);
+  
+  if (stageData.length === 0) {
+    document.getElementById('stage-accuracy').textContent = '--';
+    document.getElementById('stage-audits').textContent = '--';
+    document.getElementById('stage-error-rate').textContent = '--';
+    document.getElementById('stage-completeness').textContent = '--';
+    return;
+  }
+  
+  // Calculate metrics
+  const totalPass = stageData.reduce((sum, r) => sum + (parseFloat(r['Opportunity Pass']) || 0), 0);
+  const totalFail = stageData.reduce((sum, r) => sum + (parseFloat(r['Opportunity Fail']) || 0), 0);
+  const totalOpportunityCount = stageData.reduce((sum, r) => sum + (parseFloat(r['Opportunity Count']) || 0), 0);
+  const totalNA = stageData.reduce((sum, r) => sum + (parseFloat(r['Opportunity NA']) || 0), 0);
+  
+  const totalExcludingNA = totalOpportunityCount - totalNA;
+  
+  const accuracy = totalExcludingNA > 0 ? (totalPass / totalExcludingNA * 100) : 0;
+  const errorRate = totalExcludingNA > 0 ? (totalFail / totalExcludingNA * 100) : 0;
+  
+  // Calculate completeness (using Opportunity Pass / Opportunity Count)
+  const completeness = totalOpportunityCount > 0 ? (totalPass / totalOpportunityCount * 100) : 0;
+  
+  // Update display
+  document.getElementById('stage-accuracy').textContent = accuracy.toFixed(1) + '%';
+  document.getElementById('stage-accuracy-label').textContent = selectedStage + ' Accuracy';
+  document.getElementById('stage-audits').textContent = totalOpportunityCount.toLocaleString();
+  document.getElementById('stage-error-rate').textContent = errorRate.toFixed(1) + '%';
+  document.getElementById('stage-completeness').textContent = completeness.toFixed(0) + '%';
+  
+  // Update badge color based on accuracy
+  const badge = document.getElementById('stage-accuracy-badge');
+  if (accuracy >= 90) {
+    badge.innerHTML = '<span class="text-green-600">Above Target</span>';
+  } else if (accuracy >= 80) {
+    badge.innerHTML = '<span class="text-yellow-600">Near Target</span>';
+  } else {
+    badge.innerHTML = '<span class="text-orange-600">fd7e14</span>';
+  }
+}
+
+// Update parameter breakdown list
+function updateParameterBreakdown() {
+  const container = document.getElementById('parameter-breakdown-list');
+  if (!container || !filteredData) return;
+  
+  // Filter data for selected stage
+  const stageData = filteredData.filter(r => r['Recruitment Stage'] === selectedStage);
+  
+  if (stageData.length === 0) {
+    container.innerHTML = '<p class="text-gray-500 text-sm">No data available for this stage.</p>';
+    return;
+  }
+  
+  // Group by parameter
+  const paramData = {};
+  stageData.forEach(r => {
+    const param = r['Parameter'];
+    if (!param) return;
+    
+    if (!paramData[param]) {
+      paramData[param] = { 
+        pass: 0, 
+        fail: 0,
+        total: 0,
+        opportunityCount: 0
+      };
+    }
+    
+    paramData[param].pass += parseFloat(r['Opportunity Pass']) || 0;
+    paramData[param].fail += parseFloat(r['Opportunity Fail']) || 0;
+    paramData[param].total += parseFloat(r['Opportunity Excluding NA']) || 0;
+    paramData[param].opportunityCount += parseFloat(r['Opportunity Count']) || 0;
+  });
+  
+  // Convert to array and sort by total errors
+  const paramArray = Object.entries(paramData)
+    .map(([param, data]) => ({
+      param,
+      accuracy: data.total > 0 ? (data.pass / data.total * 100) : 0,
+      errors: data.fail,
+      total: data.opportunityCount
+    }))
+    .sort((a, b) => b.errors - a.errors)
+    .slice(0, 10); // Top 10
+  
+  // Generate HTML
+  const html = paramArray.map((item, index) => {
+    const barColor = index === 0 ? 'red' : 'blue';
+    
+    return `
+      <div class="parameter-item">
+        <div class="parameter-item-header">
+          <div class="parameter-item-title">${index + 1}. ${item.param.length > 40 ? item.param.substring(0, 40) + '...' : item.param}</div>
+          <div class="parameter-item-percentage">${item.accuracy.toFixed(0)}%</div>
+        </div>
+        <div class="parameter-progress">
+          <div class="parameter-progress-bar ${barColor}" style="width: ${item.accuracy}%"></div>
+        </div>
+        <div class="parameter-item-details">
+          <span class="error-text">${item.errors.toFixed(0)} Errors</span>
+          <span class="total-text">${item.total.toFixed(0)} Total</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+  
+  container.innerHTML = html;
+}
+
+// Update parameters list (right side)
+function updateParametersList() {
+  const container = document.getElementById('parameters-list');
+  if (!container || !filteredData) return;
+  
+  // Filter data for selected stage
+  const stageData = filteredData.filter(r => r['Recruitment Stage'] === selectedStage);
+  
+  if (stageData.length === 0) {
+    container.innerHTML = '<p class="text-gray-500 text-sm">No data available for this stage.</p>';
+    return;
+  }
+  
+  // Group by parameter
+  const paramData = {};
+  stageData.forEach(r => {
+    const param = r['Parameter'];
+    if (!param) return;
+    
+    if (!paramData[param]) {
+      paramData[param] = { 
+        pass: 0, 
+        fail: 0,
+        total: 0,
+        opportunityCount: 0
+      };
+    }
+    
+    paramData[param].pass += parseFloat(r['Opportunity Pass']) || 0;
+    paramData[param].fail += parseFloat(r['Opportunity Fail']) || 0;
+    paramData[param].total += parseFloat(r['Opportunity Excluding NA']) || 0;
+    paramData[param].opportunityCount += parseFloat(r['Opportunity Count']) || 0;
+  });
+  
+  // Convert to array and sort by accuracy (high to low for success parameters)
+  const paramArray = Object.entries(paramData)
+    .map(([param, data]) => ({
+      param,
+      accuracy: data.total > 0 ? (data.pass / data.total * 100) : 0,
+      errors: data.fail,
+      total: data.opportunityCount
+    }))
+    .sort((a, b) => b.accuracy - a.accuracy)
+    .slice(0, 10); // Top 10
+  
+  // Generate HTML
+  const html = paramArray.map((item, index) => {
+    const barColor = item.accuracy >= 90 ? 'green' : item.accuracy >= 70 ? 'blue' : 'red';
+    
+    return `
+      <div class="parameter-item">
+        <div class="parameter-item-header">
+          <div class="parameter-item-title">${index + 1}. ${item.param.length > 40 ? item.param.substring(0, 40) + '...' : item.param}</div>
+          ${index === 2 ? '<span class="genspurt-badge"><i class="fas fa-robot"></i> Genspurt</span>' : ''}
+        </div>
+        <div class="parameter-progress">
+          <div class="parameter-progress-bar ${barColor}" style="width: ${item.accuracy}%"></div>
+        </div>
+        <div class="parameter-item-details">
+          <span class="error-text">${item.errors.toFixed(0)} Errors</span>
+          <span class="total-text">${item.total.toFixed(0)} Total</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+  
+  container.innerHTML = html;
 }
 
 function updateTopParameters() {
@@ -2243,5 +2453,8 @@ function updateRecruiterScorecardChart(data) {
 function updatePMCharts(data, recruiters) {
   console.log('Updating PM charts with data:', data, 'Recruiters:', recruiters);
 }
+
+// Expose functions globally for onclick handlers
+window.selectStageTab = selectStageTab;
 
 console.log('M&M Dashboard JavaScript loaded successfully');

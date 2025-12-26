@@ -1,1 +1,116 @@
 h1 { font-family: Arial, Helvetica, sans-serif; }
+
+/* Stage Tab Buttons */
+.stage-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 24px;
+  background: white;
+  border: 2px solid #E5E7EB;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.stage-tab-btn:hover {
+  background: #FFF5F5;
+  border-color: #FCA5A5;
+  color: #DC2626;
+}
+
+.stage-tab-btn.active {
+  background: #FED7AA;
+  border-color: #FB923C;
+  color: #EA580C;
+}
+
+.stage-tab-btn i {
+  font-size: 14px;
+}
+
+/* Parameter Progress Bars */
+.parameter-progress {
+  position: relative;
+  height: 24px;
+  background: #F3F4F6;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.parameter-progress-bar {
+  height: 100%;
+  transition: width 0.3s ease;
+  border-radius: 4px;
+}
+
+.parameter-progress-bar.red {
+  background: linear-gradient(90deg, #DC2626 0%, #EF4444 100%);
+}
+
+.parameter-progress-bar.blue {
+  background: linear-gradient(90deg, #2563EB 0%, #3B82F6 100%);
+}
+
+.parameter-progress-bar.green {
+  background: linear-gradient(90deg, #059669 0%, #10B981 100%);
+}
+
+.parameter-item {
+  margin-bottom: 16px;
+}
+
+.parameter-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.parameter-item-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1F2937;
+}
+
+.parameter-item-percentage {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1F2937;
+}
+
+.parameter-item-details {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #6B7280;
+  margin-top: 4px;
+}
+
+.error-text {
+  color: #DC2626;
+  font-weight: 600;
+}
+
+.total-text {
+  color: #6B7280;
+}
+
+/* Genspurt Badge */
+.genspurt-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  background: #9CA3AF;
+  color: white;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.genspurt-badge i {
+  margin-right: 4px;
+  font-size: 10px;
+}
