@@ -116,8 +116,17 @@ async function handleFileUpload(event) {
   } catch (error) {
     console.error('Error processing file:', error);
     hideUploadModal(); // Hide modal on error
-    showErrorMessage('Error: ' + error.message);
-    showLoadingState(); // Keep showing loading state message
+    
+    // If some data was processed, still show the dashboard
+    if (rawData && rawData.auditCount && rawData.auditCount.length > 0) {
+      console.log('Partial data available, showing dashboard with available data');
+      hideLoadingState();
+      showErrorMessage('Warning: Some data processing errors occurred, but dashboard is available with partial data.');
+    } else {
+      // Only show loading state if NO data was processed
+      showLoadingState();
+      showErrorMessage('Error: ' + error.message + '. Please check your Excel file and try again.');
+    }
   }
 }
 
@@ -493,14 +502,57 @@ function resetFilters() {
 
 // Update dashboard with filtered data
 function updateDashboard() {
-  updateKeyMetrics();
-  updateDynamicNarrative();
-  updateOverviewCharts();
-  updateStageParameterView();
-  updateRecruiterView();
-  updateTrendsView();
-  updateInsightsView();
-  updateStrategicView();
+  console.log('Updating dashboard with filtered data:', filteredData ? filteredData.length : 0, 'records');
+  
+  try {
+    updateKeyMetrics();
+  } catch (error) {
+    console.error('Error updating key metrics:', error);
+  }
+  
+  try {
+    updateDynamicNarrative();
+  } catch (error) {
+    console.error('Error updating dynamic narrative:', error);
+  }
+  
+  try {
+    updateOverviewCharts();
+  } catch (error) {
+    console.error('Error updating overview charts:', error);
+  }
+  
+  try {
+    updateStageParameterView();
+  } catch (error) {
+    console.error('Error updating stage parameter view:', error);
+  }
+  
+  try {
+    updateRecruiterView();
+  } catch (error) {
+    console.error('Error updating recruiter view:', error);
+  }
+  
+  try {
+    updateTrendsView();
+  } catch (error) {
+    console.error('Error updating trends view:', error);
+  }
+  
+  try {
+    updateInsightsView();
+  } catch (error) {
+    console.error('Error updating insights view:', error);
+  }
+  
+  try {
+    updateStrategicView();
+  } catch (error) {
+    console.error('Error updating strategic view:', error);
+  }
+  
+  console.log('Dashboard update complete');
 }
 
 // Update key metrics
@@ -591,11 +643,35 @@ function updateDynamicNarrative() {
 
 // Update overview charts
 function updateOverviewCharts() {
-  updateMonthlyAccuracyChart();
-  updateStageAuditChart();
-  updateParameterErrorChart();
-  updateWeeklyTrendChart();
-  updateFunnelChart();
+  try {
+    updateMonthlyAccuracyChart();
+  } catch (error) {
+    console.error('Error updating monthly accuracy chart:', error);
+  }
+  
+  try {
+    updateStageAuditChart();
+  } catch (error) {
+    console.error('Error updating stage audit chart:', error);
+  }
+  
+  try {
+    updateParameterErrorChart();
+  } catch (error) {
+    console.error('Error updating parameter error chart:', error);
+  }
+  
+  try {
+    updateWeeklyTrendChart();
+  } catch (error) {
+    console.error('Error updating weekly trend chart:', error);
+  }
+  
+  try {
+    updateFunnelChart();
+  } catch (error) {
+    console.error('Error updating funnel chart:', error);
+  }
 }
 
 function updateMonthlyAccuracyChart() {
@@ -1759,9 +1835,14 @@ function updateFYMetrics() {
     
     const accuracy = total > 0 ? (pass / total * 100) : 0;
     
-    document.getElementById(`${fy}-accuracy`).textContent = accuracy.toFixed(1) + '%';
-    document.getElementById(`${fy}-opportunities`).textContent = opportunities.toLocaleString();
-    document.getElementById(`${fy}-samples`).textContent = samples.toLocaleString();
+    // Add null checks before updating DOM
+    const accuracyEl = document.getElementById(`${fy}-accuracy`);
+    const opportunitiesEl = document.getElementById(`${fy}-opportunities`);
+    const samplesEl = document.getElementById(`${fy}-samples`);
+    
+    if (accuracyEl) accuracyEl.textContent = accuracy.toFixed(1) + '%';
+    if (opportunitiesEl) opportunitiesEl.textContent = opportunities.toLocaleString();
+    if (samplesEl) samplesEl.textContent = samples.toLocaleString();
   });
 }
 
@@ -3023,15 +3104,38 @@ function updatePredictiveChart() {
 
 // Update Trends View to include predictive chart
 function updateTrendsView() {
-  if (!rawData || !rawData.auditCount) return;
-  updateFYMetrics();
-  updatePredictiveChart();
+  if (!rawData || !rawData.auditCount) {
+    console.log('No raw data available for trends view');
+    return;
+  }
+  
+  try {
+    updateFYMetrics();
+  } catch (error) {
+    console.error('Error updating FY metrics:', error);
+  }
+  
+  try {
+    updatePredictiveChart();
+  } catch (error) {
+    console.error('Error updating predictive chart:', error);
+  }
+  
   // Also update old charts if they exist in DOM
   if (document.getElementById('fy-comparison-chart')) {
-    updateFYComparisonChart();
+    try {
+      updateFYComparisonChart();
+    } catch (error) {
+      console.error('Error updating FY comparison chart:', error);
+    }
   }
+  
   if (document.getElementById('weekly-fy-chart')) {
-    updateWeeklyFYChart();
+    try {
+      updateWeeklyFYChart();
+    } catch (error) {
+      console.error('Error updating weekly FY chart:', error);
+    }
   }
 }
 
