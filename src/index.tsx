@@ -141,6 +141,16 @@ app.get('/', (c) => {
             transition: background-color 0.3s ease, color 0.3s ease;
           }
           
+          /* Fixed Header - Always stays at top */
+          header {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            z-index: 10000 !important;
+            width: 100% !important;
+          }
+          
           .mm-red { color: var(--mm-red); }
           .bg-mm-red { background-color: var(--mm-red); }
           .bg-mm-dark-red { background-color: var(--mm-dark-red); }
@@ -207,15 +217,15 @@ app.get('/', (c) => {
           
           /* Vertical Sidebar Navigation */
           .sidebar-nav {
-            position: fixed;
-            left: 0;
-            top: 96px; /* Below header */
+            position: fixed !important;
+            left: 0 !important;
+            top: 96px !important; /* Below header */
             width: 280px;
-            height: calc(100vh - 96px);
+            height: calc(100vh - 96px) !important;
             background: white;
             border-right: 2px solid var(--mm-border-grey);
             overflow-y: auto;
-            z-index: 50;
+            z-index: 9000 !important; /* Below header (10000) but above content */
             box-shadow: 2px 0 8px rgba(0,0,0,0.05);
           }
           
@@ -1661,7 +1671,7 @@ app.get('/', (c) => {
             </div>
         </div>
         <!-- Header -->
-        <header class="bg-mm-red text-white shadow-lg fixed top-0 left-0 right-0 z-50">
+        <header class="bg-mm-red text-white shadow-lg" style="position: fixed; top: 0; left: 0; right: 0; z-index: 10000; width: 100%;">
             <div class="container mx-auto px-6 py-4">
                 <div class="flex justify-between items-center">
                     <div class="flex items-center gap-4">
@@ -1863,7 +1873,7 @@ app.get('/', (c) => {
         </div>
         
         <!-- Global Filters -->
-        <div class="bg-white border-b border-gray-200 py-4 sticky top-0 z-30 shadow-sm">
+        <div class="bg-white border-b border-gray-200 py-4 shadow-sm">
             <div class="px-6">
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                     <div>
