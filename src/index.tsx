@@ -1189,6 +1189,53 @@ app.get('/', (c) => {
             color: var(--mm-red);
           }
           
+          /* Dark Theme - Comprehensive Coverage */
+          body.dark-theme .bg-white {
+            background-color: var(--bg-card) !important;
+          }
+          
+          body.dark-theme .bg-gray-50,
+          body.dark-theme .bg-gray-100,
+          body.dark-theme .bg-gray-200 {
+            background-color: var(--bg-secondary) !important;
+          }
+          
+          body.dark-theme .text-gray-800,
+          body.dark-theme .text-gray-900 {
+            color: var(--text-primary) !important;
+          }
+          
+          body.dark-theme .text-gray-600,
+          body.dark-theme .text-gray-700 {
+            color: var(--text-secondary) !important;
+          }
+          
+          body.dark-theme .text-gray-500 {
+            color: var(--text-tertiary) !important;
+          }
+          
+          body.dark-theme .border-gray-200,
+          body.dark-theme .border-gray-300 {
+            border-color: var(--border-primary) !important;
+          }
+          
+          body.dark-theme .breadcrumb {
+            background: var(--bg-card) !important;
+            border-bottom-color: var(--border-primary) !important;
+          }
+          
+          body.dark-theme select,
+          body.dark-theme input[type="text"] {
+            background-color: var(--bg-secondary) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--border-primary) !important;
+          }
+          
+          body.dark-theme .interactive-card {
+            background-color: var(--bg-card) !important;
+            border-color: var(--border-primary) !important;
+          }
+          
           /* ========== CREATIVE ENHANCEMENTS ========== */
           
           /* Breadcrumb Navigation */
@@ -1724,13 +1771,23 @@ app.get('/', (c) => {
                 </div>
             </div>
             
-            <div class="nav-tab" onclick="switchTab('trends')">
+            <div class="nav-tab" onclick="switchTab('comparison')">
                 <div class="nav-tab-icon">
-                    <i class="fas fa-chart-area"></i>
+                    <i class="fas fa-balance-scale"></i>
                 </div>
                 <div class="nav-tab-content">
-                    <div class="nav-tab-title">Trends & FY</div>
-                    <div class="nav-tab-desc">Historical analysis</div>
+                    <div class="nav-tab-title">Comparison View</div>
+                    <div class="nav-tab-desc">Side-by-side analysis</div>
+                </div>
+            </div>
+            
+            <div class="nav-tab" onclick="switchTab('trendanalysis')">
+                <div class="nav-tab-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="nav-tab-content">
+                    <div class="nav-tab-title">Trend Analysis</div>
+                    <div class="nav-tab-desc">Pattern & forecasting</div>
                 </div>
             </div>
             
@@ -1761,6 +1818,16 @@ app.get('/', (c) => {
                 <div class="nav-tab-content">
                     <div class="nav-tab-title">Best Practices</div>
                     <div class="nav-tab-desc">Industry Benchmarks</div>
+                </div>
+            </div>
+            
+            <div class="nav-tab" onclick="switchTab('usermanual')">
+                <div class="nav-tab-icon">
+                    <i class="fas fa-book"></i>
+                </div>
+                <div class="nav-tab-content">
+                    <div class="nav-tab-title">User Manual</div>
+                    <div class="nav-tab-desc">How I built this</div>
                 </div>
             </div>
             
@@ -3549,6 +3616,431 @@ app.get('/', (c) => {
                                     <span class="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded-full">Culture Change</span>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- User Manual Tab -->
+            <div id="tab-usermanual" class="tab-content hidden page-transition">
+                <div class="dashboard-card p-6 mb-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-3">
+                                <i class="fas fa-book text-blue-600"></i>
+                                User Manual - Dashboard Creation Guide
+                            </h2>
+                            <p class="text-sm text-gray-600 mt-2">Step-by-step explanation of how this dashboard was built</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Dashboard Creation Steps -->
+                <div class="space-y-6">
+                    <!-- Step 1 -->
+                    <div class="dashboard-card p-6 interactive-card">
+                        <div class="flex items-start gap-4">
+                            <div class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-red-500 to-red-700 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+                                1
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-xl font-bold text-gray-800 mb-3">Requirement Analysis & Planning</h3>
+                                <div class="space-y-2 text-sm text-gray-700">
+                                    <p><strong>🎯 Objective:</strong> Create a comprehensive recruitment audit dashboard for Mahindra & Mahindra</p>
+                                    <p><strong>📊 Data Sources:</strong> Excel files with audit counts, recruiter-wise data, Six Sigma projects, RCA/CAPA records</p>
+                                    <p><strong>👥 Target Users:</strong> HR managers, recruitment auditors, quality analysts, senior management</p>
+                                    <p><strong>🔑 Key Metrics:</strong> Accuracy, error rate, sample coverage, recruiter performance, stage-wise analysis</p>
+                                    <div class="mt-3 p-3 bg-blue-50 border-l-4 border-blue-500 rounded">
+                                        <p class="text-blue-900"><strong>Decision:</strong> Build a single-page web app with Cloudflare Workers + Hono framework for serverless deployment</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 2 -->
+                    <div class="dashboard-card p-6 interactive-card">
+                        <div class="flex items-start gap-4">
+                            <div class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-700 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+                                2
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-xl font-bold text-gray-800 mb-3">Technology Stack Selection</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                    <div class="p-4 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border border-gray-200">
+                                        <div class="font-bold text-gray-800 mb-2 flex items-center gap-2">
+                                            <i class="fas fa-server text-red-600"></i> Backend
+                                        </div>
+                                        <ul class="space-y-1 text-gray-700">
+                                            <li>• <strong>Hono Framework:</strong> Lightweight, fast API routes</li>
+                                            <li>• <strong>Cloudflare Workers:</strong> Edge deployment, global CDN</li>
+                                            <li>• <strong>Wrangler CLI:</strong> Build & deployment tool</li>
+                                        </ul>
+                                    </div>
+                                    <div class="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200">
+                                        <div class="font-bold text-gray-800 mb-2 flex items-center gap-2">
+                                            <i class="fas fa-palette text-blue-600"></i> Frontend
+                                        </div>
+                                        <ul class="space-y-1 text-gray-700">
+                                            <li>• <strong>Tailwind CSS:</strong> Utility-first styling (CDN)</li>
+                                            <li>• <strong>Chart.js:</strong> Interactive charts & graphs</li>
+                                            <li>• <strong>FontAwesome:</strong> Icons library</li>
+                                        </ul>
+                                    </div>
+                                    <div class="p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border border-green-200">
+                                        <div class="font-bold text-gray-800 mb-2 flex items-center gap-2">
+                                            <i class="fas fa-code text-green-600"></i> Data Processing
+                                        </div>
+                                        <ul class="space-y-1 text-gray-700">
+                                            <li>• <strong>XLSX Library:</strong> Excel file parsing</li>
+                                            <li>• <strong>JavaScript:</strong> Data transformation & filtering</li>
+                                            <li>• <strong>In-Memory Store:</strong> Fast data access</li>
+                                        </ul>
+                                    </div>
+                                    <div class="p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg border border-purple-200">
+                                        <div class="font-bold text-gray-800 mb-2 flex items-center gap-2">
+                                            <i class="fas fa-tools text-purple-600"></i> Development
+                                        </div>
+                                        <ul class="space-y-1 text-gray-700">
+                                            <li>• <strong>TypeScript:</strong> Type-safe backend code</li>
+                                            <li>• <strong>Vite:</strong> Build tool for bundling</li>
+                                            <li>• <strong>PM2:</strong> Process manager for dev server</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 3 -->
+                    <div class="dashboard-card p-6 interactive-card">
+                        <div class="flex items-start gap-4">
+                            <div class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-yellow-500 to-yellow-700 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+                                3
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-xl font-bold text-gray-800 mb-3">UI/UX Design System</h3>
+                                <div class="space-y-3 text-sm">
+                                    <div class="p-4 bg-white border-l-4 border-red-500 rounded shadow-sm">
+                                        <strong class="text-red-600">Color Palette:</strong> Mahindra Red (#C8102E) as primary brand color with gradients and shades
+                                    </div>
+                                    <div class="p-4 bg-white border-l-4 border-blue-500 rounded shadow-sm">
+                                        <strong class="text-blue-600">Layout:</strong> Fixed header + left sidebar navigation + main content area with filters
+                                    </div>
+                                    <div class="p-4 bg-white border-l-4 border-green-500 rounded shadow-sm">
+                                        <strong class="text-green-600">Components:</strong> Dashboard cards, metric cards, interactive charts, filter pills, FAB menu
+                                    </div>
+                                    <div class="p-4 bg-white border-l-4 border-purple-500 rounded shadow-sm">
+                                        <strong class="text-purple-600">Interactions:</strong> Hover effects, smooth transitions, loading states, toast notifications
+                                    </div>
+                                    <div class="p-4 bg-white border-l-4 border-yellow-500 rounded shadow-sm">
+                                        <strong class="text-yellow-600">Accessibility:</strong> Audio descriptions, keyboard navigation, ARIA labels, screen reader support
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 4 -->
+                    <div class="dashboard-card p-6 interactive-card">
+                        <div class="flex items-start gap-4">
+                            <div class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-green-500 to-green-700 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+                                4
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-xl font-bold text-gray-800 mb-3">Data Processing Pipeline</h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-center gap-4">
+                                        <div class="flex-1 p-3 bg-blue-50 rounded-lg border border-blue-200 text-sm">
+                                            <strong>1. File Upload:</strong> User uploads Excel via FAB menu
+                                        </div>
+                                        <i class="fas fa-arrow-right text-gray-400"></i>
+                                        <div class="flex-1 p-3 bg-green-50 rounded-lg border border-green-200 text-sm">
+                                            <strong>2. Parsing:</strong> XLSX library extracts sheets & data
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-4">
+                                        <div class="flex-1 p-3 bg-yellow-50 rounded-lg border border-yellow-200 text-sm">
+                                            <strong>3. Transformation:</strong> Clean, normalize, calculate metrics
+                                        </div>
+                                        <i class="fas fa-arrow-right text-gray-400"></i>
+                                        <div class="flex-1 p-3 bg-purple-50 rounded-lg border border-purple-200 text-sm">
+                                            <strong>4. Storage:</strong> In-memory rawData object
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-4">
+                                        <div class="flex-1 p-3 bg-red-50 rounded-lg border border-red-200 text-sm">
+                                            <strong>5. Filtering:</strong> Apply year/month/stage filters
+                                        </div>
+                                        <i class="fas fa-arrow-right text-gray-400"></i>
+                                        <div class="flex-1 p-3 bg-indigo-50 rounded-lg border border-indigo-200 text-sm">
+                                            <strong>6. Visualization:</strong> Update charts & metrics
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 5 -->
+                    <div class="dashboard-card p-6 interactive-card">
+                        <div class="flex items-start gap-4">
+                            <div class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+                                5
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-xl font-bold text-gray-800 mb-3">Feature Implementation</h3>
+                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 text-sm">
+                                    <div class="space-y-2">
+                                        <div class="p-3 bg-gradient-to-r from-red-50 to-white border-l-4 border-red-500 rounded">
+                                            <strong>Overview Tab:</strong> Key metrics, dynamic narrative, accuracy charts
+                                        </div>
+                                        <div class="p-3 bg-gradient-to-r from-orange-50 to-white border-l-4 border-orange-500 rounded">
+                                            <strong>Stage & Parameter:</strong> Heatmap analysis, parameter breakdown
+                                        </div>
+                                        <div class="p-3 bg-gradient-to-r from-yellow-50 to-white border-l-4 border-yellow-500 rounded">
+                                            <strong>Recruiter View:</strong> Individual scorecards, performance charts
+                                        </div>
+                                        <div class="p-3 bg-gradient-to-r from-green-50 to-white border-l-4 border-green-500 rounded">
+                                            <strong>Comparison View:</strong> Side-by-side comparisons (NEW)
+                                        </div>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <div class="p-3 bg-gradient-to-r from-blue-50 to-white border-l-4 border-blue-500 rounded">
+                                            <strong>Trend Analysis:</strong> Time-series forecasting (NEW)
+                                        </div>
+                                        <div class="p-3 bg-gradient-to-r from-indigo-50 to-white border-l-4 border-indigo-500 rounded">
+                                            <strong>Insights:</strong> AI-powered recommendations
+                                        </div>
+                                        <div class="p-3 bg-gradient-to-r from-purple-50 to-white border-l-4 border-purple-500 rounded">
+                                            <strong>Strategic View:</strong> RCAs, CAPAs, Six Sigma projects
+                                        </div>
+                                        <div class="p-3 bg-gradient-to-r from-pink-50 to-white border-l-4 border-pink-500 rounded">
+                                            <strong>Best Practices:</strong> Industry benchmarks, action plans
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 6 -->
+                    <div class="dashboard-card p-6 interactive-card">
+                        <div class="flex items-start gap-4">
+                            <div class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-700 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+                                6
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-xl font-bold text-gray-800 mb-3">Creative Enhancements</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                                    <div class="p-4 bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 rounded-lg border border-orange-200">
+                                        <div class="font-bold text-orange-600 mb-2">🎨 Visual Design</div>
+                                        <ul class="space-y-1 text-gray-700">
+                                            <li>• Mahindra logo animation (now static)</li>
+                                            <li>• Gradient backgrounds & shadows</li>
+                                            <li>• Smooth hover & focus effects</li>
+                                            <li>• Dark/Light theme toggle</li>
+                                        </ul>
+                                    </div>
+                                    <div class="p-4 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-lg border border-indigo-200">
+                                        <div class="font-bold text-indigo-600 mb-2">🚀 UX Features</div>
+                                        <ul class="space-y-1 text-gray-700">
+                                            <li>• FAB menu with 6 quick actions</li>
+                                            <li>• Breadcrumb navigation trail</li>
+                                            <li>• Quick Stats slide-in widget</li>
+                                            <li>• Global search with debouncing</li>
+                                        </ul>
+                                    </div>
+                                    <div class="p-4 bg-gradient-to-br from-green-50 via-teal-50 to-cyan-50 rounded-lg border border-teal-200">
+                                        <div class="font-bold text-teal-600 mb-2">✨ Interactions</div>
+                                        <ul class="space-y-1 text-gray-700">
+                                            <li>• Data refresh indicator</li>
+                                            <li>• Enhanced filter pills</li>
+                                            <li>• Loading skeletons</li>
+                                            <li>• Toast notifications</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 7 -->
+                    <div class="dashboard-card p-6 interactive-card">
+                        <div class="flex items-start gap-4">
+                            <div class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+                                7
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-xl font-bold text-gray-800 mb-3">Testing & Deployment</h3>
+                                <div class="space-y-3 text-sm">
+                                    <div class="flex items-start gap-3">
+                                        <i class="fas fa-check-circle text-green-500 text-xl mt-1"></i>
+                                        <div class="flex-1">
+                                            <strong>Local Testing:</strong> PM2 with wrangler pages dev for hot-reloading
+                                            <div class="mt-1 p-2 bg-gray-50 rounded font-mono text-xs">npm run build && pm2 restart mm-dashboard</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start gap-3">
+                                        <i class="fas fa-check-circle text-green-500 text-xl mt-1"></i>
+                                        <div class="flex-1">
+                                            <strong>Version Control:</strong> Git repository with meaningful commit messages
+                                            <div class="mt-1 p-2 bg-gray-50 rounded font-mono text-xs">git add . && git commit -m "Feature: Add user manual"</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start gap-3">
+                                        <i class="fas fa-check-circle text-green-500 text-xl mt-1"></i>
+                                        <div class="flex-1">
+                                            <strong>Production Deploy:</strong> Cloudflare Pages for global CDN delivery
+                                            <div class="mt-1 p-2 bg-gray-50 rounded font-mono text-xs">wrangler pages deploy dist --project-name webapp</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Key Learnings -->
+                    <div class="dashboard-card p-6 bg-gradient-to-br from-yellow-50 to-orange-50">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                            <i class="fas fa-graduation-cap text-orange-600"></i>
+                            Key Learnings & Best Practices
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                            <div class="p-3 bg-white rounded-lg shadow-sm">
+                                <div class="font-bold text-green-600 mb-2">✅ What Worked Well</div>
+                                <ul class="space-y-1 text-gray-700">
+                                    <li>• Serverless architecture (no infrastructure management)</li>
+                                    <li>• CDN-based libraries (fast loading, no build complexity)</li>
+                                    <li>• In-memory data store (instant filtering & updates)</li>
+                                    <li>• Modular code structure (easy to maintain & extend)</li>
+                                </ul>
+                            </div>
+                            <div class="p-3 bg-white rounded-lg shadow-sm">
+                                <div class="font-bold text-blue-600 mb-2">💡 Improvements Made</div>
+                                <ul class="space-y-1 text-gray-700">
+                                    <li>• Added !important to CSS for consistent hover effects</li>
+                                    <li>• Fixed theme toggle to work without header button</li>
+                                    <li>• Centered header title for balanced design</li>
+                                    <li>• Removed logo animation for professional look</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Comparison View Tab -->
+            <div id="tab-comparison" class="tab-content hidden page-transition">
+                <div class="dashboard-card p-6 mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-3 mb-2">
+                        <i class="fas fa-balance-scale text-purple-600"></i>
+                        Comparison View - Side-by-Side Analysis
+                    </h2>
+                    <p class="text-sm text-gray-600">Compare performance across different dimensions</p>
+                </div>
+                
+                <div class="dashboard-card p-6">
+                    <h3 class="text-lg font-bold mb-4">Select Comparison Type:</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <button class="p-4 border-2 border-purple-500 bg-purple-50 rounded-lg hover:bg-purple-100 transition">
+                            <i class="fas fa-calendar text-purple-600 text-2xl mb-2"></i>
+                            <div class="font-bold">Year-over-Year</div>
+                        </button>
+                        <button class="p-4 border-2 border-gray-300 bg-white rounded-lg hover:bg-gray-50 transition">
+                            <i class="fas fa-users text-blue-600 text-2xl mb-2"></i>
+                            <div class="font-bold">Recruiter vs Recruiter</div>
+                        </button>
+                        <button class="p-4 border-2 border-gray-300 bg-white rounded-lg hover:bg-gray-50 transition">
+                            <i class="fas fa-layer-group text-green-600 text-2xl mb-2"></i>
+                            <div class="font-bold">Stage vs Stage</div>
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border-2 border-blue-300">
+                            <h4 class="font-bold text-lg mb-4 text-blue-800">FY 2023-24</h4>
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-center p-3 bg-white rounded">
+                                    <span>Accuracy:</span>
+                                    <strong class="text-2xl text-blue-600">92.5%</strong>
+                                </div>
+                                <div class="flex justify-between items-center p-3 bg-white rounded">
+                                    <span>Total Audits:</span>
+                                    <strong class="text-2xl text-blue-600">1,247</strong>
+                                </div>
+                                <div class="flex justify-between items-center p-3 bg-white rounded">
+                                    <span>Error Rate:</span>
+                                    <strong class="text-2xl text-blue-600">7.5%</strong>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border-2 border-green-300">
+                            <h4 class="font-bold text-lg mb-4 text-green-800">FY 2024-25</h4>
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-center p-3 bg-white rounded">
+                                    <span>Accuracy:</span>
+                                    <strong class="text-2xl text-green-600">94.8%</strong>
+                                    <span class="text-green-600 text-sm">↑ +2.3%</span>
+                                </div>
+                                <div class="flex justify-between items-center p-3 bg-white rounded">
+                                    <span>Total Audits:</span>
+                                    <strong class="text-2xl text-green-600">1,582</strong>
+                                    <span class="text-green-600 text-sm">↑ +335</span>
+                                </div>
+                                <div class="flex justify-between items-center p-3 bg-white rounded">
+                                    <span>Error Rate:</span>
+                                    <strong class="text-2xl text-green-600">5.2%</strong>
+                                    <span class="text-green-600 text-sm">↓ -2.3%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Trend Analysis Tab -->
+            <div id="tab-trendanalysis" class="tab-content hidden page-transition">
+                <div class="dashboard-card p-6 mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-3 mb-2">
+                        <i class="fas fa-chart-line text-teal-600"></i>
+                        Trend Analysis - Pattern Recognition & Forecasting
+                    </h2>
+                    <p class="text-sm text-gray-600">Historical trends with predictive insights</p>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <div class="dashboard-card p-6">
+                        <h3 class="font-bold text-lg mb-4">Accuracy Trend (Last 12 Months)</h3>
+                        <canvas id="accuracy-trend-chart" style="max-height: 300px;"></canvas>
+                    </div>
+                    <div class="dashboard-card p-6">
+                        <h3 class="font-bold text-lg mb-4">Audit Volume Trend</h3>
+                        <canvas id="volume-trend-chart" style="max-height: 300px;"></canvas>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card p-6">
+                    <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+                        <i class="fas fa-crystal-ball text-purple-600"></i>
+                        Forecast for Next Quarter
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border border-green-200">
+                            <div class="text-sm text-gray-600 mb-1">Predicted Accuracy</div>
+                            <div class="text-3xl font-bold text-green-600">95.2%</div>
+                            <div class="text-xs text-green-700 mt-2">↑ +0.4% improvement</div>
+                        </div>
+                        <div class="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200">
+                            <div class="text-sm text-gray-600 mb-1">Expected Audits</div>
+                            <div class="text-3xl font-bold text-blue-600">1,680</div>
+                            <div class="text-xs text-blue-700 mt-2">↑ +6% volume increase</div>
+                        </div>
+                        <div class="p-4 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg border border-yellow-200">
+                            <div class="text-sm text-gray-600 mb-1">Confidence Level</div>
+                            <div class="text-3xl font-bold text-yellow-600">87%</div>
+                            <div class="text-xs text-yellow-700 mt-2">Based on 12-month data</div>
                         </div>
                     </div>
                 </div>

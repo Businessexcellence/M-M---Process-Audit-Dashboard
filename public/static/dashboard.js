@@ -2365,10 +2365,12 @@ function switchTab(tabName) {
     'overview': 'Overview - Key metrics and summary',
     'stage-parameter': 'Stage and Parameter - Heatmap analysis',
     'recruiter': 'Recruiter View - Performance metrics',
-    'trends': 'Trends and Predictive Analytics',
+    'comparison': 'Comparison View - Side-by-side analysis',
+    'trendanalysis': 'Trend Analysis - Pattern and forecasting',
     'insights': 'Insights and Recommendations',
     'strategic': 'Strategic View - RCAs, CAPAs and Six Sigma Projects',
-    'bestpractices': 'Best Practices - Industry benchmarks and recommendations'
+    'bestpractices': 'Best Practices - Industry benchmarks and recommendations',
+    'usermanual': 'User Manual - Dashboard creation guide'
   };
   
   if (audioEnabled && tabNames[tabName]) {
