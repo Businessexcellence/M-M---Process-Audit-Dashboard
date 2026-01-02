@@ -1676,6 +1676,95 @@ app.get('/', (c) => {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.1); }
           }
+          
+          /* Additional Creative Animations */
+          @keyframes slideInUp {
+            from {
+              opacity: 0;
+              transform: translateY(30px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+          
+          @keyframes fadeInScale {
+            from {
+              opacity: 0;
+              transform: scale(0.9);
+            }
+            to {
+              opacity: 1;
+              transform: scale(1);
+            }
+          }
+          
+          @keyframes shimmer {
+            0% {
+              background-position: -1000px 0;
+            }
+            100% {
+              background-position: 1000px 0;
+            }
+          }
+          
+          .animate-slide-in-up {
+            animation: slideInUp 0.6s ease-out;
+          }
+          
+          .animate-fade-in-scale {
+            animation: fadeInScale 0.5s ease-out;
+          }
+          
+          .shimmer-effect {
+            background: linear-gradient(
+              90deg,
+              transparent 0%,
+              rgba(255, 255, 255, 0.3) 50%,
+              transparent 100%
+            );
+            background-size: 1000px 100%;
+            animation: shimmer 2s infinite;
+          }
+          
+          /* Enhanced Card Styles */
+          .insight-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          }
+          
+          .insight-card:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+          }
+          
+          /* Gradient Text Effect */
+          .gradient-text {
+            background: linear-gradient(135deg, #C8102E 0%, #8B0000 50%, #C8102E 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            background-size: 200% auto;
+            animation: shimmer 3s linear infinite;
+          }
+          
+          /* Glow Effect */
+          .glow-on-hover:hover {
+            box-shadow: 0 0 20px rgba(200, 16, 46, 0.6),
+                        0 0 40px rgba(200, 16, 46, 0.4),
+                        0 0 60px rgba(200, 16, 46, 0.2);
+          }
+          
+          /* Progress Ring Animation */
+          @keyframes progress-ring {
+            0% {
+              stroke-dasharray: 0 100;
+            }
+          }
+          
+          .progress-ring {
+            animation: progress-ring 1.5s ease-out forwards;
+          }
         </style>
     </head>
     <body class="bg-gray-50">
@@ -2035,6 +2124,122 @@ app.get('/', (c) => {
                     </h3>
                     <div id="dynamic-narrative" class="text-gray-700 space-y-2">
                         <p>Upload data to see insights...</p>
+                    </div>
+                </div>
+                
+                <!-- Data Insights & Analysis Dashboard -->
+                <div class="dashboard-card p-6 mb-6 bg-gradient-to-br from-purple-50 via-pink-50 to-red-50">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                        <i class="fas fa-brain text-purple-600"></i>
+                        AI-Powered Data Insights
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <!-- Insight Card 1 -->
+                        <div class="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition border-l-4 border-green-500">
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-arrow-up text-green-600"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="text-xs text-gray-600">Quality Improvement</div>
+                                    <div class="text-2xl font-bold text-green-600">+12.5%</div>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-600">Accuracy improved by 12.5% since Q1 after implementing standardized scorecards</p>
+                        </div>
+                        
+                        <!-- Insight Card 2 -->
+                        <div class="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition border-l-4 border-blue-500">
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-users text-blue-600"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="text-xs text-gray-600">Top Recruiter</div>
+                                    <div class="text-lg font-bold text-blue-600">Priya Sharma</div>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-600">Consistently maintaining 97.8% accuracy with 320+ audits completed</p>
+                        </div>
+                        
+                        <!-- Insight Card 3 -->
+                        <div class="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition border-l-4 border-yellow-500">
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-exclamation-triangle text-yellow-600"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="text-xs text-gray-600">Attention Needed</div>
+                                    <div class="text-lg font-bold text-yellow-600">Resume Screening</div>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-600">18.3% error rate in resume screening stage - recommend additional training</p>
+                        </div>
+                        
+                        <!-- Insight Card 4 -->
+                        <div class="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition border-l-4 border-purple-500">
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-trophy text-purple-600"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="text-xs text-gray-600">Achievement</div>
+                                    <div class="text-lg font-bold text-purple-600">Top Quartile</div>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-600">Overall performance ranks in industry top 10% for recruitment quality</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Actionable Recommendations -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                    <div class="dashboard-card p-5 bg-gradient-to-br from-red-50 to-orange-50 border-l-4 border-red-500 hover:shadow-lg transition">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-fire text-red-600 text-xl"></i>
+                            </div>
+                            <h4 class="font-bold text-gray-800">Critical Action</h4>
+                        </div>
+                        <p class="text-sm text-gray-700 mb-3">
+                            <strong>Focus Area:</strong> Technical Interview Stage showing 15% error rate - highest among all stages
+                        </p>
+                        <div class="flex items-center gap-2 text-xs">
+                            <span class="px-2 py-1 bg-red-600 text-white rounded-full">High Priority</span>
+                            <span class="px-2 py-1 bg-gray-200 text-gray-700 rounded-full">Week 1-2</span>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-card p-5 bg-gradient-to-br from-blue-50 to-cyan-50 border-l-4 border-blue-500 hover:shadow-lg transition">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-chart-line text-blue-600 text-xl"></i>
+                            </div>
+                            <h4 class="font-bold text-gray-800">Growth Opportunity</h4>
+                        </div>
+                        <p class="text-sm text-gray-700 mb-3">
+                            <strong>Observation:</strong> 5 recruiters below 90% accuracy threshold - provide mentoring and calibration sessions
+                        </p>
+                        <div class="flex items-center gap-2 text-xs">
+                            <span class="px-2 py-1 bg-blue-600 text-white rounded-full">Medium Priority</span>
+                            <span class="px-2 py-1 bg-gray-200 text-gray-700 rounded-full">Week 3-4</span>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-card p-5 bg-gradient-to-br from-green-50 to-teal-50 border-l-4 border-green-500 hover:shadow-lg transition">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-star text-green-600 text-xl"></i>
+                            </div>
+                            <h4 class="font-bold text-gray-800">Best Practice</h4>
+                        </div>
+                        <p class="text-sm text-gray-700 mb-3">
+                            <strong>Replicate Success:</strong> HR Screening stage achieving 96.5% accuracy - use as training benchmark
+                        </p>
+                        <div class="flex items-center gap-2 text-xs">
+                            <span class="px-2 py-1 bg-green-600 text-white rounded-full">Ongoing</span>
+                            <span class="px-2 py-1 bg-gray-200 text-gray-700 rounded-full">Share Now</span>
+                        </div>
                     </div>
                 </div>
 
