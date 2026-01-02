@@ -219,6 +219,52 @@ app.get('/', (c) => {
             box-shadow: 2px 0 8px rgba(0,0,0,0.05);
           }
           
+          /* M&M Logo Styles */
+          .nav-logo {
+            padding: 20px;
+            border-bottom: 2px solid var(--mm-border-grey);
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #FFF5F5 0%, #FFFFFF 100%);
+          }
+          
+          .nav-logo-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 12px;
+          }
+          
+          .mm-logo-svg {
+            width: 80px;
+            height: 80px;
+            filter: drop-shadow(0 4px 8px rgba(200, 16, 46, 0.2));
+            animation: logoFloat 3s ease-in-out infinite;
+          }
+          
+          @keyframes logoFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+          }
+          
+          .nav-logo-text {
+            text-align: center;
+          }
+          
+          .nav-logo-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--mm-red);
+            margin-bottom: 2px;
+            letter-spacing: 0.5px;
+          }
+          
+          .nav-logo-subtitle {
+            font-size: 0.7rem;
+            color: var(--mm-grey);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+          }
+          
           .nav-tab {
             display: flex;
             align-items: center;
@@ -557,6 +603,201 @@ app.get('/', (c) => {
           .border-color {
             border-color: var(--border-primary);
           }
+          
+          /* Creative Enhancements */
+          
+          /* Animated Header Gradient */
+          header.bg-mm-red {
+            background: linear-gradient(135deg, #C8102E 0%, #8B0000 50%, #C8102E 100%);
+            background-size: 200% 200%;
+            animation: gradientShift 15s ease infinite;
+            position: relative;
+            overflow: hidden;
+          }
+          
+          header.bg-mm-red::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotate 30s linear infinite;
+          }
+          
+          @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+          }
+          
+          @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+          }
+          
+          /* Pulse Animation for Metrics */
+          .metric-card {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+          }
+          
+          @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.9; }
+          }
+          
+          /* Shimmer Effect for Cards */
+          .dashboard-card {
+            position: relative;
+            overflow: hidden;
+          }
+          
+          .dashboard-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+          }
+          
+          .dashboard-card:hover::after {
+            left: 100%;
+          }
+          
+          /* Glowing Border Effect */
+          .nav-tab.active {
+            box-shadow: 0 0 20px rgba(200, 16, 46, 0.3);
+            animation: glow 2s ease-in-out infinite;
+          }
+          
+          @keyframes glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(200, 16, 46, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(200, 16, 46, 0.5); }
+          }
+          
+          /* Ripple Effect on Buttons */
+          button, .nav-tab {
+            position: relative;
+            overflow: hidden;
+          }
+          
+          button::before, .nav-tab::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+          }
+          
+          button:active::before, .nav-tab:active::before {
+            width: 300px;
+            height: 300px;
+          }
+          
+          /* Progress Bar Stripes Animation */
+          .progress-bar {
+            background: linear-gradient(45deg,
+              var(--mm-red) 25%,
+              var(--mm-dark-red) 25%,
+              var(--mm-dark-red) 50%,
+              var(--mm-red) 50%,
+              var(--mm-red) 75%,
+              var(--mm-dark-red) 75%,
+              var(--mm-dark-red)
+            );
+            background-size: 40px 40px;
+            animation: progressStripes 1s linear infinite;
+          }
+          
+          @keyframes progressStripes {
+            from { background-position: 0 0; }
+            to { background-position: 40px 0; }
+          }
+          
+          /* Number Counter Animation */
+          .text-3xl, .text-2xl {
+            animation: numberPop 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+          }
+          
+          @keyframes numberPop {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+          }
+          
+          /* Tooltip Styles */
+          [title] {
+            position: relative;
+            cursor: help;
+          }
+          
+          /* Scroll Progress Indicator */
+          .main-content-wrapper::before {
+            content: '';
+            position: fixed;
+            top: 96px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--mm-red) 0%, var(--mm-dark-red) 100%);
+            transform-origin: left;
+            transform: scaleX(0);
+            z-index: 100;
+            transition: transform 0.2s;
+          }
+          
+          /* Enhanced Focus States for Accessibility */
+          *:focus-visible {
+            outline: 3px solid var(--mm-red);
+            outline-offset: 2px;
+            border-radius: 4px;
+          }
+          
+          /* Loading Skeleton Animation */
+          .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s ease-in-out infinite;
+          }
+          
+          @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+          }
+          
+          /* Smooth Scroll */
+          html {
+            scroll-behavior: smooth;
+          }
+          
+          /* Dark Mode Enhancements */
+          body.dark-theme .dashboard-card {
+            box-shadow: 0 4px 12px rgba(200, 16, 46, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.05);
+          }
+          
+          body.dark-theme .dashboard-card:hover {
+            box-shadow: 0 8px 24px rgba(200, 16, 46, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.1);
+          }
+          
+          /* Chart Container Enhancements */
+          .chart-container {
+            position: relative;
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 20px;
+          }
+          
+          canvas {
+            animation: fadeIn 0.5s ease-in-out;
+          }
         </style>
     </head>
     <body class="bg-gray-50">
@@ -643,6 +884,22 @@ app.get('/', (c) => {
 
         <!-- Vertical Sidebar Navigation -->
         <nav class="sidebar-nav">
+            <!-- M&M Logo -->
+            <div class="nav-logo">
+                <div class="nav-logo-container">
+                    <svg viewBox="0 0 100 100" class="mm-logo-svg">
+                        <!-- M&M Logo Design -->
+                        <circle cx="50" cy="50" r="45" fill="#C8102E"/>
+                        <text x="50" y="60" font-family="Arial Black, sans-serif" font-size="36" font-weight="bold" fill="#FFFFFF" text-anchor="middle">M&M</text>
+                        <circle cx="50" cy="50" r="45" fill="none" stroke="#8B0000" stroke-width="3"/>
+                    </svg>
+                </div>
+                <div class="nav-logo-text">
+                    <div class="nav-logo-title">Mahindra & Mahindra</div>
+                    <div class="nav-logo-subtitle">Recruitment Audit</div>
+                </div>
+            </div>
+            
             <div class="nav-tab active" onclick="switchTab('overview')">
                 <div class="nav-tab-icon">
                     <i class="fas fa-chart-line"></i>

@@ -323,6 +323,16 @@ function processAndStoreData(data) {
   const sheet3Key = Object.keys(data).find(key => key.toLowerCase() === 'sheet3_parsed');
   const sheet5Key = Object.keys(data).find(key => key.toLowerCase() === 'sheet5_parsed');
   
+  // Find Strategic View sheets
+  const sixSigmaKey = Object.keys(data).find(key => 
+    key.toLowerCase().includes('six') && key.toLowerCase().includes('sigma') && key.includes('_parsed')
+  );
+  const rcaCapaKey = Object.keys(data).find(key => 
+    (key.toLowerCase().includes('rca') || key.toLowerCase().includes('capa')) && key.includes('_parsed')
+  );
+  
+  console.log('Strategic sheets found:', { sixSigmaKey, rcaCapaKey });
+  
   rawData = {
     auditCount: auditCountParsed,
     auditCountRaw: auditCountRaw,
@@ -331,6 +341,8 @@ function processAndStoreData(data) {
     fy24: data[fy24Key] || [],
     recruiterWise: data[recruiterWiseKey] || [],
     parameterErrors: data[sheet3Key] || data[sheet5Key] || [],
+    sixSigmaProjects: data[sixSigmaKey] || [],
+    rcaCapaProjects: data[rcaCapaKey] || [],
     allSheets: data
   };
   
@@ -488,6 +500,7 @@ function updateDashboard() {
   updateRecruiterView();
   updateTrendsView();
   updateInsightsView();
+  updateStrategicView();
 }
 
 // Update key metrics
@@ -2313,6 +2326,8 @@ function switchTab(tabName) {
     updateTeamComparison();
   } else if (tabName === 'improvement-areas') {
     updateImprovementAreas();
+  } else if (tabName === 'strategic') {
+    updateStrategicView();
   }
 }
 
@@ -2354,6 +2369,157 @@ function switchStrategicTab(subTab) {
 
 // Make switchStrategicTab globally available
 window.switchStrategicTab = switchStrategicTab;
+
+// Populate Strategic View with real data
+function updateStrategicView() {
+  if (!rawData) return;
+  
+  updateRCACapaView();
+  updateSixSigmaView();
+}
+
+// Update RCA/CAPA View with real data from "RCA OR CAPA" sheet
+function updateRCACapaView() {
+  if (!rawData || !rawData.rcaCapaProjects || rawData.rcaCapaProjects.length === 0) {
+    console.log('No RCA/CAPA data available');
+    return;
+  }
+  
+  const data = rawData.rcaCapaProjects;
+  console.log('RCA/CAPA Projects data:', data);
+  
+  // Calculate summary metrics
+  const totalProjects = data.length;
+  const rcaProjects = data.filter(p => p['Type'] && p['Type'].toLowerCase().includes('rca'));
+  const capaProjects = data.filter(p => p['Type'] && p['Type'].toLowerCase().includes('capa'));
+  const inProgress = data.filter(p => p['Status'] && p['Status'].toLowerCase().includes('progress'));
+  const completed = data.filter(p => p['Status'] && p['Status'].toLowerCase().includes('complete'));
+  
+  // Update RCA summary cards (if elements exist)
+  const rcaTotalEl = document.querySelector('#strategic-content-rca .dashboard-card:nth-child(1) .text-3xl');
+  if (rcaTotalEl) rcaTotalEl.textContent = rcaProjects.length;
+  
+  const rcaInProgressEl = document.querySelector('#strategic-content-rca .dashboard-card:nth-child(2) .text-3xl');
+  if (rcaInProgressEl) rcaInProgressEl.textContent = rcaProjects.filter(p => p['Status'] && p['Status'].toLowerCase().includes('progress')).length;
+  
+  const rcaCompletedEl = document.querySelector('#strategic-content-rca .dashboard-card:nth-child(3) .text-3xl');
+  if (rcaCompletedEl) rcaCompletedEl.textContent = rcaProjects.filter(p => p['Status'] && p['Status'].toLowerCase().includes('complete')).length;
+  
+  // Update RCA table
+  const rcaTableBody = document.getElementById('rca-projects-table');
+  if (rcaTableBody && rcaProjects.length > 0) {
+    rcaTableBody.innerHTML = rcaProjects.map(project => {
+      const status = project['Status'] || 'Unknown';
+      const priority = project['Priority'] || 'Medium';
+      
+      const statusColor = status.toLowerCase().includes('complete') 
+        ? 'background: #D1FAE5; color: #065F46;'
+        : status.toLowerCase().includes('progress')
+        ? 'background: #FEF3C7; color: #92400E;'
+        : 'background: #DBEAFE; color: #1E40AF;';
+      
+      const priorityColor = priority.toLowerCase().includes('high')
+        ? 'background: #FEE2E2; color: #991B1B;'
+        : priority.toLowerCase().includes('low')
+        ? 'background: #D1FAE5; color: #065F46;'
+        : 'background: #DBEAFE; color: #1E40AF;';
+      
+      return `
+        <tr style="border-bottom: 1px solid var(--border-color);">
+          <td class="py-4 px-4 font-mono text-sm" style="color: var(--text-primary);">${project['Project ID'] || 'N/A'}</td>
+          <td class="py-4 px-4" style="color: var(--text-primary);">${project['Issue Description'] || project['Title'] || 'N/A'}</td>
+          <td class="py-4 px-4" style="color: var(--text-secondary);">${project['Root Cause'] || 'Under investigation'}</td>
+          <td class="py-4 px-4" style="color: var(--text-primary);">${project['Stage'] || project['Recruitment Stage'] || 'N/A'}</td>
+          <td class="py-4 px-4" style="color: var(--text-primary);">${project['Owner'] || 'Unassigned'}</td>
+          <td class="py-4 px-4">
+            <span class="px-2 py-1 rounded text-xs font-semibold" style="${statusColor}">${status}</span>
+          </td>
+          <td class="py-4 px-4">
+            <span class="px-2 py-1 rounded text-xs font-semibold" style="${priorityColor}">${priority}</span>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+  
+  // Update CAPA summary cards
+  const capaTotalEl = document.querySelector('#strategic-content-capa .dashboard-card:nth-child(1) .text-3xl');
+  if (capaTotalEl) capaTotalEl.textContent = capaProjects.length;
+  
+  const capaOpenEl = document.querySelector('#strategic-content-capa .dashboard-card:nth-child(2) .text-3xl');
+  if (capaOpenEl) capaOpenEl.textContent = capaProjects.filter(p => !p['Status'] || !p['Status'].toLowerCase().includes('complete')).length;
+  
+  // Calculate effectiveness rate
+  const completedCapas = capaProjects.filter(p => p['Status'] && p['Status'].toLowerCase().includes('complete'));
+  const effectiveCapas = completedCapas.filter(p => p['Effectiveness'] && p['Effectiveness'].toLowerCase().includes('verified'));
+  const effectivenessRate = completedCapas.length > 0 ? Math.round((effectiveCapas.length / completedCapas.length) * 100) : 0;
+  
+  const capaEffectivenessEl = document.querySelector('#strategic-content-capa .dashboard-card:nth-child(3) .text-3xl');
+  if (capaEffectivenessEl) capaEffectivenessEl.textContent = effectivenessRate + '%';
+}
+
+// Update Six Sigma View with real data from "Six Sigma Projects" sheet
+function updateSixSigmaView() {
+  if (!rawData || !rawData.sixSigmaProjects || rawData.sixSigmaProjects.length === 0) {
+    console.log('No Six Sigma projects data available');
+    return;
+  }
+  
+  const data = rawData.sixSigmaProjects;
+  console.log('Six Sigma Projects data:', data);
+  
+  // Calculate summary metrics
+  const activeProjects = data.filter(p => p['Status'] && !p['Status'].toLowerCase().includes('complete'));
+  
+  // Calculate average cycle time
+  const completedProjects = data.filter(p => p['Status'] && p['Status'].toLowerCase().includes('complete'));
+  let avgCycleTime = 0;
+  if (completedProjects.length > 0) {
+    const totalDays = completedProjects.reduce((sum, p) => {
+      const days = parseFloat(p['Cycle Time (Days)']) || 0;
+      return sum + days;
+    }, 0);
+    avgCycleTime = Math.round(totalDays / completedProjects.length);
+  }
+  
+  // Calculate defect reduction
+  let totalDefectReduction = 0;
+  if (data.length > 0) {
+    data.forEach(p => {
+      const baseline = parseFloat(p['Baseline']) || 0;
+      const current = parseFloat(p['Current']) || 0;
+      if (baseline > 0) {
+        totalDefectReduction += ((baseline - current) / baseline) * 100;
+      }
+    });
+    totalDefectReduction = Math.round(totalDefectReduction / data.length);
+  }
+  
+  // Calculate cost savings
+  const totalSavings = data.reduce((sum, p) => {
+    const savings = parseFloat(p['Cost Savings']) || 0;
+    return sum + savings;
+  }, 0);
+  
+  // Update summary cards
+  const activeProjectsEl = document.querySelector('#strategic-content-sixsigma .dashboard-card:nth-child(1) .text-3xl');
+  if (activeProjectsEl) activeProjectsEl.textContent = activeProjects.length;
+  
+  const avgCycleEl = document.querySelector('#strategic-content-sixsigma .dashboard-card:nth-child(2) .text-3xl');
+  if (avgCycleEl) avgCycleEl.textContent = avgCycleTime || 45;
+  
+  const defectReductionEl = document.querySelector('#strategic-content-sixsigma .dashboard-card:nth-child(3) .text-3xl');
+  if (defectReductionEl) defectReductionEl.textContent = totalDefectReduction + '%';
+  
+  const costSavingsEl = document.querySelector('#strategic-content-sixsigma .dashboard-card:nth-child(4) .text-3xl');
+  if (costSavingsEl) {
+    if (totalSavings >= 1000) {
+      costSavingsEl.textContent = '$' + Math.round(totalSavings / 1000) + 'K';
+    } else {
+      costSavingsEl.textContent = '$' + totalSavings.toLocaleString();
+    }
+  }
+}
 
 // Populate recruiter select dropdown
 function populateRecruiterSelect() {
