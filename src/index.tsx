@@ -448,10 +448,11 @@ app.get('/', (c) => {
             transform: rotate(180deg);
           }
           
-          /* Main content with sidebar offset */
+          /* Main content with sidebar offset and sticky header spacing */
           .main-content-wrapper {
             margin-left: 280px;
-            padding-top: 96px;
+            padding-top: 120px; /* Increased for sticky header */
+            min-height: calc(100vh - 120px);
           }
           
           .filter-pill {
@@ -849,6 +850,772 @@ app.get('/', (c) => {
           canvas {
             animation: fadeIn 0.5s ease-in-out;
           }
+          
+          /* Creative Enhancements */
+          
+          /* Floating Action Button */
+          .fab-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+          }
+          
+          .fab-button {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--mm-red) 0%, var(--mm-dark-red) 100%);
+            color: white;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(200, 16, 46, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: all 0.3s ease;
+            animation: fabPulse 2s ease-in-out infinite;
+          }
+          
+          .fab-button:hover {
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 6px 30px rgba(200, 16, 46, 0.6);
+          }
+          
+          @keyframes fabPulse {
+            0%, 100% { box-shadow: 0 4px 20px rgba(200, 16, 46, 0.4); }
+            50% { box-shadow: 0 4px 30px rgba(200, 16, 46, 0.6); }
+          }
+          
+          .fab-menu {
+            position: absolute;
+            bottom: 70px;
+            right: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+          }
+          
+          .fab-menu.active {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: all;
+          }
+          
+          .fab-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            background: white;
+            border-radius: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+          }
+          
+          .fab-menu-item:hover {
+            background: var(--mm-light-red);
+            transform: translateX(-5px);
+            box-shadow: 0 4px 15px rgba(200, 16, 46, 0.2);
+          }
+          
+          .fab-menu-item i {
+            width: 20px;
+            color: var(--mm-red);
+          }
+          
+          /* Data Refresh Indicator */
+          .refresh-indicator {
+            position: fixed;
+            top: 110px;
+            right: 20px;
+            padding: 8px 16px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            z-index: 40;
+          }
+          
+          .refresh-indicator.active {
+            opacity: 1;
+            transform: translateY(0);
+          }
+          
+          .refresh-indicator .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--mm-light-red);
+            border-top-color: var(--mm-red);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+          }
+          
+          /* Quick Stats Widget */
+          .quick-stats {
+            position: fixed;
+            bottom: 30px;
+            left: 310px;
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            z-index: 45;
+            min-width: 200px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+          }
+          
+          .quick-stats.active {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: all;
+          }
+          
+          .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-primary);
+          }
+          
+          .stat-item:last-child {
+            border-bottom: none;
+          }
+          
+          .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+          }
+          
+          .stat-value {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--mm-red);
+          }
+          
+          /* Breadcrumb Navigation */
+          .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 0;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+          }
+          
+          .breadcrumb-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: color 0.2s ease;
+          }
+          
+          .breadcrumb-item:hover {
+            color: var(--mm-red);
+          }
+          
+          .breadcrumb-separator {
+            color: var(--text-tertiary);
+          }
+          
+          .breadcrumb-item.active {
+            color: var(--mm-red);
+            font-weight: 600;
+          }
+          
+          /* Advanced Filter Panel */
+          .filter-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+          }
+          
+          .filter-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+          }
+          
+          .filter-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+          }
+          
+          .filter-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          }
+          
+          .filter-select {
+            padding: 8px 12px;
+            border: 1px solid var(--border-primary);
+            border-radius: 6px;
+            background: white;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+          }
+          
+          .filter-select:focus {
+            outline: none;
+            border-color: var(--mm-red);
+            box-shadow: 0 0 0 3px rgba(200, 16, 46, 0.1);
+          }
+          
+          /* Data Status Badge */
+          .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+          }
+          
+          .status-badge.success {
+            background: #D1FAE5;
+            color: #065F46;
+          }
+          
+          .status-badge.warning {
+            background: #FEF3C7;
+            color: #92400E;
+          }
+          
+          .status-badge.info {
+            background: #DBEAFE;
+            color: #1E40AF;
+          }
+          
+          .status-badge-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: pulse 2s ease-in-out infinite;
+          }
+          
+          /* Tooltip */
+          .tooltip {
+            position: relative;
+            display: inline-block;
+          }
+          
+          .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1000;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.75rem;
+          }
+          
+          .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+          }
+          
+          /* Sidebar theme adjustments */
+          body.light-theme .sidebar-nav {
+            background: white;
+            border-right-color: var(--border-primary);
+          }
+          
+          body.dark-theme .sidebar-nav {
+            background: var(--bg-secondary);
+            border-right-color: var(--border-primary);
+          }
+          
+          body.dark-theme .nav-logo {
+            background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+          }
+          
+          body.dark-theme .nav-tab {
+            color: var(--text-secondary);
+          }
+          
+          body.dark-theme .nav-tab:hover {
+            background: var(--bg-hover);
+          }
+          
+          body.dark-theme .nav-tab.active {
+            background: var(--bg-hover);
+            color: var(--mm-red);
+          }
+          
+          /* ========== CREATIVE ENHANCEMENTS ========== */
+          
+          /* Breadcrumb Navigation */
+          .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 24px;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-primary);
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+          }
+          
+          .breadcrumb-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+          }
+          
+          .breadcrumb-separator {
+            color: var(--text-tertiary);
+            margin: 0 4px;
+          }
+          
+          .breadcrumb-item.active {
+            color: var(--mm-red);
+            font-weight: 600;
+          }
+          
+          .breadcrumb-item:not(.active) {
+            cursor: pointer;
+            transition: color 0.2s;
+          }
+          
+          .breadcrumb-item:not(.active):hover {
+            color: var(--mm-red);
+          }
+          
+          /* Floating Action Button (FAB) */
+          .fab-container {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            z-index: 9999;
+          }
+          
+          .fab-main {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--mm-red) 0%, var(--mm-dark-red) 100%);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 8px 24px rgba(200, 16, 46, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: fabPulse 2s ease-in-out infinite;
+          }
+          
+          .fab-main:hover {
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 12px 32px rgba(200, 16, 46, 0.6);
+          }
+          
+          @keyframes fabPulse {
+            0%, 100% { box-shadow: 0 8px 24px rgba(200, 16, 46, 0.4); }
+            50% { box-shadow: 0 8px 32px rgba(200, 16, 46, 0.7), 0 0 0 8px rgba(200, 16, 46, 0.2); }
+          }
+          
+          .fab-menu {
+            position: absolute;
+            bottom: 80px;
+            right: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(20px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          }
+          
+          .fab-container.open .fab-menu {
+            opacity: 1;
+            pointer-events: all;
+            transform: translateY(0);
+          }
+          
+          .fab-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+          }
+          
+          .fab-item-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%);
+            color: var(--mm-red);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.2s;
+          }
+          
+          body.dark-theme .fab-item-icon {
+            background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+          }
+          
+          .fab-item:hover .fab-item-icon {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(200, 16, 46, 0.3);
+          }
+          
+          .fab-item-label {
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+          }
+          
+          /* Quick Stats Widget */
+          .quick-stats-widget {
+            position: fixed;
+            top: 120px;
+            right: 24px;
+            background: var(--bg-card);
+            border: 2px solid var(--border-primary);
+            border-radius: 12px;
+            padding: 16px;
+            width: 280px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            z-index: 100;
+            transform: translateX(320px);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          }
+          
+          .quick-stats-widget.open {
+            transform: translateX(0);
+          }
+          
+          .quick-stats-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-primary);
+          }
+          
+          .quick-stats-title {
+            font-weight: 700;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+          }
+          
+          .quick-stats-close {
+            background: none;
+            border: none;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            font-size: 18px;
+            padding: 4px;
+            transition: color 0.2s;
+          }
+          
+          .quick-stats-close:hover {
+            color: var(--mm-red);
+          }
+          
+          .quick-stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-secondary);
+          }
+          
+          .quick-stat-item:last-child {
+            border-bottom: none;
+          }
+          
+          .quick-stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+          }
+          
+          .quick-stat-value {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--mm-red);
+          }
+          
+          /* Data Refresh Indicator */
+          .refresh-indicator {
+            position: fixed;
+            top: 120px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 10000;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          }
+          
+          .refresh-indicator.show {
+            transform: translateX(-50%) translateY(0);
+          }
+          
+          .refresh-indicator-spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+          }
+          
+          @keyframes spin {
+            to { transform: rotate(360deg); }
+          }
+          
+          /* Advanced Search Panel */
+          .search-panel {
+            background: var(--bg-card);
+            border: 2px solid var(--border-primary);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+          }
+          
+          .search-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+          }
+          
+          .search-panel-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+          }
+          
+          .search-input-wrapper {
+            position: relative;
+            flex: 1;
+          }
+          
+          .search-input {
+            width: 100%;
+            padding: 12px 16px 12px 44px;
+            border: 2px solid var(--border-primary);
+            border-radius: 8px;
+            font-size: 0.875rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: all 0.2s;
+          }
+          
+          .search-input:focus {
+            outline: none;
+            border-color: var(--mm-red);
+            box-shadow: 0 0 0 4px rgba(200, 16, 46, 0.1);
+          }
+          
+          .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-tertiary);
+            font-size: 16px;
+          }
+          
+          .search-clear {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            padding: 4px 8px;
+            font-size: 14px;
+            transition: color 0.2s;
+          }
+          
+          .search-clear:hover {
+            color: var(--mm-red);
+          }
+          
+          /* Enhanced Filter Pills */
+          .filter-pills-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 16px;
+          }
+          
+          .filter-pill-enhanced {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, var(--mm-light-red) 0%, rgba(255, 229, 229, 0.5) 100%);
+            color: var(--mm-red);
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+          }
+          
+          body.dark-theme .filter-pill-enhanced {
+            background: linear-gradient(135deg, rgba(200, 16, 46, 0.2) 0%, rgba(200, 16, 46, 0.1) 100%);
+          }
+          
+          .filter-pill-enhanced:hover {
+            background: var(--mm-red);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(200, 16, 46, 0.3);
+          }
+          
+          .filter-pill-icon {
+            font-size: 12px;
+          }
+          
+          .filter-pill-remove {
+            margin-left: 4px;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+          }
+          
+          .filter-pill-enhanced:hover .filter-pill-remove {
+            opacity: 1;
+          }
+          
+          /* Loading Skeleton Enhancement */
+          .skeleton-wave {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(90deg, 
+              var(--bg-secondary) 0%, 
+              var(--bg-tertiary) 50%, 
+              var(--bg-secondary) 100%);
+            background-size: 200% 100%;
+            animation: skeletonWave 1.5s ease-in-out infinite;
+          }
+          
+          @keyframes skeletonWave {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+          }
+          
+          /* Smooth Page Transitions */
+          .page-transition {
+            animation: pageSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          }
+          
+          @keyframes pageSlideIn {
+            from {
+              opacity: 0;
+              transform: translateY(20px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+          
+          /* Enhanced Hover States */
+          .interactive-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          }
+          
+          .interactive-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+          }
+          
+          /* Data Highlight Animation */
+          @keyframes dataHighlight {
+            0%, 100% { background-color: transparent; }
+            50% { background-color: rgba(200, 16, 46, 0.1); }
+          }
+          
+          .data-updated {
+            animation: dataHighlight 1s ease-in-out;
+          }
+          
+          /* Notification Badge */
+          .notification-badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: #EF4444;
+            color: white;
+            font-size: 0.625rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 20px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+            animation: badgePulse 2s ease-in-out infinite;
+          }
+          
+          @keyframes badgePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+          }
         </style>
     </head>
     <body class="bg-gray-50">
@@ -894,7 +1661,7 @@ app.get('/', (c) => {
             </div>
         </div>
         <!-- Header -->
-        <header class="bg-mm-red text-white shadow-lg">
+        <header class="bg-mm-red text-white shadow-lg fixed top-0 left-0 right-0 z-50">
             <div class="container mx-auto px-6 py-4">
                 <div class="flex justify-between items-center">
                     <div class="flex items-center gap-4">
@@ -1007,6 +1774,94 @@ app.get('/', (c) => {
         <!-- Main Content Wrapper -->
         <div class="main-content-wrapper">
         
+        <!-- Breadcrumb Navigation -->
+        <div class="breadcrumb">
+            <span class="breadcrumb-item active" id="breadcrumb-home">
+                <i class="fas fa-home"></i> Home
+            </span>
+            <span class="breadcrumb-separator" id="breadcrumb-sep" style="display: none;">
+                <i class="fas fa-chevron-right"></i>
+            </span>
+            <span class="breadcrumb-item" id="breadcrumb-current" style="display: none;"></span>
+        </div>
+        
+        <!-- Data Refresh Indicator -->
+        <div class="refresh-indicator" id="refresh-indicator">
+            <div class="refresh-indicator-spinner"></div>
+            <span>Updating dashboard data...</span>
+        </div>
+        
+        <!-- Quick Stats Widget -->
+        <div class="quick-stats-widget" id="quick-stats-widget">
+            <div class="quick-stats-header">
+                <span class="quick-stats-title">
+                    <i class="fas fa-bolt"></i> Quick Stats
+                </span>
+                <button class="quick-stats-close" onclick="toggleQuickStats()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="quick-stat-item">
+                <span class="quick-stat-label">Last Updated</span>
+                <span class="quick-stat-value" id="qs-last-updated">--</span>
+            </div>
+            <div class="quick-stat-item">
+                <span class="quick-stat-label">Total Records</span>
+                <span class="quick-stat-value" id="qs-total-records">--</span>
+            </div>
+            <div class="quick-stat-item">
+                <span class="quick-stat-label">Filtered Records</span>
+                <span class="quick-stat-value" id="qs-filtered-records">--</span>
+            </div>
+            <div class="quick-stat-item">
+                <span class="quick-stat-label">Active Filters</span>
+                <span class="quick-stat-value" id="qs-active-filters">0</span>
+            </div>
+            <div class="quick-stat-item">
+                <span class="quick-stat-label">Avg Accuracy</span>
+                <span class="quick-stat-value" id="qs-avg-accuracy">--</span>
+            </div>
+        </div>
+        
+        <!-- Floating Action Button -->
+        <div class="fab-container" id="fab-container">
+            <button class="fab-main" onclick="toggleFAB()" title="Quick Actions">
+                <i class="fas fa-plus" id="fab-icon"></i>
+            </button>
+            <div class="fab-menu" id="fab-menu">
+                <button class="fab-item" onclick="document.getElementById('excel-upload').click()">
+                    <div class="fab-item-icon">
+                        <i class="fas fa-upload"></i>
+                    </div>
+                    <span class="fab-item-label">Upload Excel</span>
+                </button>
+                <button class="fab-item" onclick="toggleQuickStats()">
+                    <div class="fab-item-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <span class="fab-item-label">Quick Stats</span>
+                </button>
+                <button class="fab-item" onclick="exportToPDF()">
+                    <div class="fab-item-icon">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <span class="fab-item-label">Export PDF</span>
+                </button>
+                <button class="fab-item" onclick="resetFilters()">
+                    <div class="fab-item-icon">
+                        <i class="fas fa-redo"></i>
+                    </div>
+                    <span class="fab-item-label">Reset Filters</span>
+                </button>
+                <button class="fab-item" onclick="toggleTheme()">
+                    <div class="fab-item-icon">
+                        <i class="fas fa-adjust"></i>
+                    </div>
+                    <span class="fab-item-label">Toggle Theme</span>
+                </button>
+            </div>
+        </div>
+        
         <!-- Global Filters -->
         <div class="bg-white border-b border-gray-200 py-4 sticky top-0 z-30 shadow-sm">
             <div class="px-6">
@@ -1055,7 +1910,32 @@ app.get('/', (c) => {
             </div>
 
             <!-- Overview Tab -->
-            <div id="tab-overview" class="tab-content hidden">
+            <div id="tab-overview" class="tab-content hidden page-transition">
+                
+                <!-- Advanced Search Panel -->
+                <div class="search-panel">
+                    <div class="search-panel-header">
+                        <div class="search-panel-title">
+                            <i class="fas fa-search"></i>
+                            Advanced Search & Filters
+                        </div>
+                    </div>
+                    <div class="search-input-wrapper">
+                        <i class="fas fa-search search-icon"></i>
+                        <input 
+                            type="text" 
+                            id="global-search" 
+                            class="search-input" 
+                            placeholder="Search by recruiter name, stage, parameter, or any keyword..."
+                            oninput="handleGlobalSearch(this.value)"
+                        />
+                        <button class="search-clear" onclick="clearGlobalSearch()" style="display: none;" id="search-clear-btn">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="filter-pills-container" id="filter-pills-container"></div>
+                </div>
+                
                 <!-- Key Metrics -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
                     <div class="dashboard-card metric-card">
@@ -2407,6 +3287,59 @@ app.get('/', (c) => {
         
         </div>
         <!-- End Main Content Wrapper -->
+
+        <!-- Floating Action Button -->
+        <div class="fab-container">
+            <div class="fab-menu" id="fab-menu">
+                <div class="fab-menu-item" onclick="exportToPDF()">
+                    <i class="fas fa-file-pdf"></i>
+                    <span>Export PDF</span>
+                </div>
+                <div class="fab-menu-item" onclick="resetFilters()">
+                    <i class="fas fa-redo"></i>
+                    <span>Reset Filters</span>
+                </div>
+                <div class="fab-menu-item" onclick="toggleQuickStats()">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Quick Stats</span>
+                </div>
+                <div class="fab-menu-item" onclick="document.getElementById('excel-upload').click()">
+                    <i class="fas fa-upload"></i>
+                    <span>Upload Data</span>
+                </div>
+            </div>
+            <button class="fab-button" onclick="toggleFabMenu()">
+                <i class="fas fa-plus" id="fab-icon"></i>
+            </button>
+        </div>
+
+        <!-- Data Refresh Indicator -->
+        <div class="refresh-indicator" id="refresh-indicator">
+            <div class="spinner"></div>
+            <span style="color: var(--text-primary); font-size: 0.875rem;">Updating dashboard...</span>
+        </div>
+
+        <!-- Quick Stats Widget -->
+        <div class="quick-stats" id="quick-stats">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <h4 style="font-weight: 600; color: var(--text-primary); font-size: 0.875rem;">Quick Stats</h4>
+                <button onclick="toggleQuickStats()" style="background: none; border: none; cursor: pointer; color: var(--text-secondary);">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Active Filters</span>
+                <span class="stat-value" id="qs-filters">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Data Records</span>
+                <span class="stat-value" id="qs-records">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Last Updated</span>
+                <span class="stat-value" id="qs-updated">--</span>
+            </div>
+        </div>
 
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>

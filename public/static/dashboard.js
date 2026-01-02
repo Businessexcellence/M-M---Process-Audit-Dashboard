@@ -3162,4 +3162,317 @@ window.toggleAudioDescription = toggleAudioDescription;
 window.toggleTheme = toggleTheme;
 window.toggleForecastView = toggleForecastView;
 
-console.log('M&M Dashboard JavaScript loaded successfully');
+// Creative UI Functions
+
+// Floating Action Menu
+function toggleFabMenu() {
+  const menu = document.getElementById('fab-menu');
+  const icon = document.getElementById('fab-icon');
+  
+  if (menu.classList.contains('active')) {
+    menu.classList.remove('active');
+    icon.classList.remove('fa-times');
+    icon.classList.add('fa-plus');
+  } else {
+    menu.classList.add('active');
+    icon.classList.remove('fa-plus');
+    icon.classList.add('fa-times');
+  }
+}
+
+// Quick Stats Widget
+function toggleQuickStats() {
+  const widget = document.getElementById('quick-stats');
+  widget.classList.toggle('active');
+  
+  if (widget.classList.contains('active')) {
+    updateQuickStats();
+  }
+}
+
+function updateQuickStats() {
+  // Count active filters
+  const activeFilters = Object.values(currentFilters).filter(v => v !== 'all').length;
+  document.getElementById('qs-filters').textContent = activeFilters;
+  
+  // Show filtered records
+  const recordCount = filteredData ? filteredData.length : 0;
+  document.getElementById('qs-records').textContent = recordCount.toLocaleString();
+  
+  // Show last updated time
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  document.getElementById('qs-updated').textContent = timeStr;
+}
+
+// Show refresh indicator
+function showRefreshIndicator() {
+  const indicator = document.getElementById('refresh-indicator');
+  indicator.classList.add('active');
+}
+
+function hideRefreshIndicator() {
+  const indicator = document.getElementById('refresh-indicator');
+  setTimeout(() => {
+    indicator.classList.remove('active');
+  }, 500);
+}
+
+// Update dashboard with refresh indicator
+const originalUpdateDashboard = updateDashboard;
+updateDashboard = function() {
+  showRefreshIndicator();
+  originalUpdateDashboard();
+  hideRefreshIndicator();
+  updateQuickStats();
+};
+
+// ========== CREATIVE UI ENHANCEMENTS ==========
+
+// Floating Action Button
+function toggleFAB() {
+  const fabContainer = document.getElementById('fab-container');
+  const fabIcon = document.getElementById('fab-icon');
+  
+  if (fabContainer.classList.contains('open')) {
+    fabContainer.classList.remove('open');
+    fabIcon.classList.remove('fa-times');
+    fabIcon.classList.add('fa-plus');
+    fabIcon.style.transform = 'rotate(0deg)';
+  } else {
+    fabContainer.classList.add('open');
+    fabIcon.classList.remove('fa-plus');
+    fabIcon.classList.add('fa-times');
+    fabIcon.style.transform = 'rotate(45deg)';
+  }
+}
+
+// Quick Stats Widget
+function toggleQuickStats() {
+  const widget = document.getElementById('quick-stats-widget');
+  widget.classList.toggle('open');
+  updateQuickStats();
+}
+
+function updateQuickStats() {
+  const now = new Date();
+  document.getElementById('qs-last-updated').textContent = now.toLocaleTimeString();
+  
+  if (rawData && rawData.auditCount) {
+    document.getElementById('qs-total-records').textContent = rawData.auditCount.length.toLocaleString();
+  }
+  
+  if (filteredData) {
+    document.getElementById('qs-filtered-records').textContent = filteredData.length.toLocaleString();
+  }
+  
+  // Count active filters
+  let activeCount = 0;
+  if (currentFilters) {
+    Object.values(currentFilters).forEach(val => {
+      if (val && val !== 'all') activeCount++;
+    });
+  }
+  document.getElementById('qs-active-filters').textContent = activeCount;
+  
+  // Get average accuracy from current metrics
+  const accuracyEl = document.getElementById('metric-accuracy');
+  if (accuracyEl && accuracyEl.textContent !== '--') {
+    document.getElementById('qs-avg-accuracy').textContent = accuracyEl.textContent;
+  }
+}
+
+// Breadcrumb Navigation
+function updateBreadcrumb(tabName) {
+  const breadcrumbCurrent = document.getElementById('breadcrumb-current');
+  const breadcrumbSep = document.getElementById('breadcrumb-sep');
+  
+  if (tabName && tabName !== 'overview') {
+    const tabNames = {
+      'stage-parameter': 'Stage & Parameter Analysis',
+      'recruiter': 'Recruiter View',
+      'trends': 'Trends & FY Analysis',
+      'insights': 'Insights & Recommendations',
+      'strategic': 'Strategic View'
+    };
+    
+    breadcrumbCurrent.textContent = tabNames[tabName] || tabName;
+    breadcrumbCurrent.style.display = 'inline-flex';
+    breadcrumbSep.style.display = 'inline';
+    breadcrumbCurrent.classList.add('active');
+  } else {
+    breadcrumbCurrent.style.display = 'none';
+    breadcrumbSep.style.display = 'none';
+  }
+}
+
+// Data Refresh Indicator
+function showRefreshIndicator() {
+  const indicator = document.getElementById('refresh-indicator');
+  indicator.classList.add('show');
+}
+
+function hideRefreshIndicator() {
+  const indicator = document.getElementById('refresh-indicator');
+  setTimeout(() => {
+    indicator.classList.remove('show');
+  }, 1000);
+}
+
+// Global Search
+let searchTimeout;
+function handleGlobalSearch(query) {
+  const clearBtn = document.getElementById('search-clear-btn');
+  
+  if (query) {
+    clearBtn.style.display = 'block';
+  } else {
+    clearBtn.style.display = 'none';
+  }
+  
+  // Debounce search
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => {
+    performGlobalSearch(query);
+  }, 300);
+}
+
+function performGlobalSearch(query) {
+  if (!query || !rawData || !rawData.auditCount) {
+    filteredData = rawData ? rawData.auditCount : [];
+    updateDashboard();
+    return;
+  }
+  
+  const lowerQuery = query.toLowerCase();
+  
+  filteredData = rawData.auditCount.filter(row => {
+    return Object.values(row).some(value => {
+      if (value === null || value === undefined) return false;
+      return String(value).toLowerCase().includes(lowerQuery);
+    });
+  });
+  
+  console.log(`Search for "${query}" found ${filteredData.length} results`);
+  showRefreshIndicator();
+  updateDashboard();
+  hideRefreshIndicator();
+  updateQuickStats();
+  
+  // Show search result notification
+  showSuccessMessage(`Found ${filteredData.length} matching records`);
+}
+
+function clearGlobalSearch() {
+  document.getElementById('global-search').value = '';
+  document.getElementById('search-clear-btn').style.display = 'none';
+  filteredData = rawData ? rawData.auditCount : [];
+  updateDashboard();
+  updateQuickStats();
+}
+
+// Enhanced Filter Pills Display
+function updateFilterPillsDisplay() {
+  const container = document.getElementById('filter-pills-container');
+  if (!container) return;
+  
+  container.innerHTML = '';
+  
+  if (!currentFilters) return;
+  
+  Object.entries(currentFilters).forEach(([key, value]) => {
+    if (value && value !== 'all') {
+      const pill = document.createElement('div');
+      pill.className = 'filter-pill-enhanced';
+      
+      const icons = {
+        year: 'fa-calendar',
+        month: 'fa-calendar-day',
+        week: 'fa-calendar-week',
+        stage: 'fa-layer-group',
+        parameter: 'fa-sliders-h'
+      };
+      
+      const labels = {
+        year: 'Year',
+        month: 'Month',
+        week: 'Week',
+        stage: 'Stage',
+        parameter: 'Parameter'
+      };
+      
+      pill.innerHTML = `
+        <i class="fas ${icons[key] || 'fa-filter'} filter-pill-icon"></i>
+        <span>${labels[key] || key}: ${value}</span>
+        <i class="fas fa-times filter-pill-remove" onclick="removeFilter('${key}')"></i>
+      `;
+      
+      container.appendChild(pill);
+    }
+  });
+}
+
+function removeFilter(filterKey) {
+  const filterElement = document.getElementById(`filter-${filterKey}`);
+  if (filterElement) {
+    filterElement.value = 'all';
+    applyFilters();
+  }
+}
+
+// Override original switchTab to update breadcrumb
+const originalSwitchTab = switchTab;
+switchTab = function(tabName) {
+  originalSwitchTab(tabName);
+  updateBreadcrumb(tabName);
+  
+  // Add page transition animation
+  const activeTab = document.querySelector('.tab-content:not(.hidden)');
+  if (activeTab) {
+    activeTab.classList.add('page-transition');
+    setTimeout(() => {
+      activeTab.classList.remove('page-transition');
+    }, 400);
+  }
+}
+
+// Override applyFilters to update pill display
+const originalApplyFilters = applyFilters;
+applyFilters = function() {
+  originalApplyFilters();
+  updateFilterPillsDisplay();
+  updateQuickStats();
+}
+
+// Data highlight animation on update
+function highlightUpdatedData(elementId) {
+  const element = document.getElementById(elementId);
+  if (element) {
+    element.classList.add('data-updated');
+    setTimeout(() => {
+      element.classList.remove('data-updated');
+    }, 1000);
+  }
+}
+
+// Auto-update Quick Stats on data changes
+const originalProcessAndStoreData = processAndStoreData;
+processAndStoreData = function(data) {
+  originalProcessAndStoreData(data);
+  updateQuickStats();
+  
+  // Highlight key metrics
+  ['metric-accuracy', 'metric-error-rate', 'metric-total-audits', 'metric-sample-coverage'].forEach(id => {
+    highlightUpdatedData(id);
+  });
+}
+
+// Make functions globally available
+window.toggleFAB = toggleFAB;
+window.toggleQuickStats = toggleQuickStats;
+window.handleGlobalSearch = handleGlobalSearch;
+window.clearGlobalSearch = clearGlobalSearch;
+window.removeFilter = removeFilter;
+window.updateBreadcrumb = updateBreadcrumb;
+
+console.log('M&M Dashboard JavaScript loaded successfully with creative enhancements');
