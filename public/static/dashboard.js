@@ -333,16 +333,46 @@ function processAndStoreData(data) {
   const sheet5Key = Object.keys(data).find(key => key.toLowerCase() === 'sheet5_parsed');
   
   // Find Strategic View sheets
+  console.log('All available sheet keys:', Object.keys(data));
+  console.log('Searching for Strategic sheets...');
+  
+  // List all keys with 'parsed' suffix
+  const parsedKeys = Object.keys(data).filter(key => key.includes('_parsed'));
+  console.log('Keys with _parsed suffix:', parsedKeys);
+  
   const sixSigmaKey = Object.keys(data).find(key => 
     key.toLowerCase().includes('six') && key.toLowerCase().includes('sigma') && key.includes('_parsed')
   );
-  const rcaCapaKey = Object.keys(data).find(key => 
-    (key.toLowerCase().includes('rca') && (key.toLowerCase().includes('or') || key.toLowerCase().includes('capa'))) && key.includes('_parsed')
+  
+  // Try multiple patterns for RCA/CAPA sheet
+  let rcaCapaKey = Object.keys(data).find(key => 
+    key.toLowerCase().includes('rca') && key.toLowerCase().includes('capa') && key.includes('_parsed')
   );
+  
+  // If not found, try with "or" in the name
+  if (!rcaCapaKey) {
+    rcaCapaKey = Object.keys(data).find(key => 
+      key.toLowerCase().includes('rca') && key.toLowerCase().includes('or') && key.includes('_parsed')
+    );
+  }
+  
+  // If still not found, try just "rca"
+  if (!rcaCapaKey) {
+    rcaCapaKey = Object.keys(data).find(key => 
+      key.toLowerCase().includes('rca') && key.includes('_parsed')
+    );
+  }
   
   console.log('Strategic sheets found:', { sixSigmaKey, rcaCapaKey });
   console.log('Six Sigma data:', data[sixSigmaKey] ? data[sixSigmaKey].length + ' records' : 'not found');
   console.log('RCA/CAPA data:', data[rcaCapaKey] ? data[rcaCapaKey].length + ' records' : 'not found');
+  
+  if (rcaCapaKey) {
+    console.log('RCA/CAPA sheet key matched:', rcaCapaKey);
+    console.log('RCA/CAPA sample data:', data[rcaCapaKey].slice(0, 2));
+  } else {
+    console.warn('RCA/CAPA sheet not found! Available parsed keys:', parsedKeys);
+  }
   
   rawData = {
     auditCount: auditCountParsed,
@@ -2475,7 +2505,14 @@ window.switchStrategicTab = switchStrategicTab;
 
 // Populate Strategic View with real data
 function updateStrategicView() {
-  if (!rawData) return;
+  console.log('updateStrategicView called');
+  if (!rawData) {
+    console.warn('rawData not available in updateStrategicView');
+    return;
+  }
+  
+  console.log('rawData.rcaCapaProjects:', rawData.rcaCapaProjects ? rawData.rcaCapaProjects.length + ' records' : 'undefined');
+  console.log('rawData.sixSigmaProjects:', rawData.sixSigmaProjects ? rawData.sixSigmaProjects.length + ' records' : 'undefined');
   
   updateRCACapaView();
   updateSixSigmaView();
