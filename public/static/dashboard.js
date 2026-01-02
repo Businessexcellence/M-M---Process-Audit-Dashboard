@@ -33,6 +33,36 @@ const chartColors = {
 // Initialize dashboard
 document.addEventListener('DOMContentLoaded', function() {
   console.log('M&M Dashboard initialized');
+  
+  // Initialize theme from localStorage or default to dark
+  const savedTheme = localStorage.getItem('theme') || 'dark';
+  darkTheme = (savedTheme === 'dark');
+  
+  if (darkTheme) {
+    document.body.classList.add('dark-theme');
+    document.body.classList.remove('light-theme');
+  } else {
+    document.body.classList.add('light-theme');
+    document.body.classList.remove('dark-theme');
+  }
+  
+  // Update theme toggle button
+  const themeBtn = document.getElementById('theme-toggle');
+  if (themeBtn) {
+    const icon = themeBtn.querySelector('i');
+    if (darkTheme) {
+      themeBtn.classList.add('bg-white', 'text-mm-red');
+      themeBtn.classList.remove('bg-white/20');
+      icon.classList.remove('fa-moon');
+      icon.classList.add('fa-sun');
+    } else {
+      themeBtn.classList.remove('bg-white', 'text-mm-red');
+      themeBtn.classList.add('bg-white/20');
+      icon.classList.remove('fa-sun');
+      icon.classList.add('fa-moon');
+    }
+  }
+  
   showLoadingState();
 });
 
@@ -2225,7 +2255,8 @@ function switchTab(tabName) {
     'stage-parameter': 'Stage and Parameter - Heatmap analysis',
     'recruiter': 'Recruiter View - Performance metrics',
     'trends': 'Trends and Predictive Analytics',
-    'insights': 'Insights and Recommendations'
+    'insights': 'Insights and Recommendations',
+    'strategic': 'Strategic View - RCAs, CAPAs and Six Sigma Projects'
   };
   
   if (audioEnabled && tabNames[tabName]) {
@@ -2284,6 +2315,45 @@ function switchTab(tabName) {
     updateImprovementAreas();
   }
 }
+
+// Switch Strategic View Tabs (RCA, CAPA, Six Sigma)
+function switchStrategicTab(subTab) {
+  // Remove active class from all strategic tabs
+  document.querySelectorAll('.strategic-tab').forEach(tab => {
+    tab.classList.remove('active');
+  });
+  
+  // Add active class to clicked tab
+  const activeTab = document.getElementById(`strategic-tab-${subTab}`);
+  if (activeTab) {
+    activeTab.classList.add('active');
+  }
+  
+  // Hide all strategic content sections
+  document.querySelectorAll('.strategic-content').forEach(content => {
+    content.classList.add('hidden');
+  });
+  
+  // Show selected content
+  const selectedContent = document.getElementById(`strategic-content-${subTab}`);
+  if (selectedContent) {
+    selectedContent.classList.remove('hidden');
+  }
+  
+  // Audio announcement
+  const subTabNames = {
+    'rca': 'Root Cause Analysis Projects',
+    'capa': 'Corrective and Preventive Actions',
+    'sixsigma': 'Six Sigma Projects'
+  };
+  
+  if (audioEnabled && subTabNames[subTab]) {
+    speakText(subTabNames[subTab]);
+  }
+}
+
+// Make switchStrategicTab globally available
+window.switchStrategicTab = switchStrategicTab;
 
 // Populate recruiter select dropdown
 function populateRecruiterSelect() {
@@ -2585,19 +2655,25 @@ function toggleTheme() {
   const icon = btn.querySelector('i');
   
   if (darkTheme) {
+    // Switch to Dark Theme
+    document.body.classList.remove('light-theme');
     document.body.classList.add('dark-theme');
     btn.classList.add('bg-white', 'text-mm-red');
     btn.classList.remove('bg-white/20');
     icon.classList.remove('fa-moon');
     icon.classList.add('fa-sun');
     if (audioEnabled) speakText('Dark theme activated');
+    localStorage.setItem('theme', 'dark');
   } else {
+    // Switch to Light Theme
     document.body.classList.remove('dark-theme');
+    document.body.classList.add('light-theme');
     btn.classList.remove('bg-white', 'text-mm-red');
     btn.classList.add('bg-white/20');
     icon.classList.remove('fa-sun');
     icon.classList.add('fa-moon');
     if (audioEnabled) speakText('Light theme activated');
+    localStorage.setItem('theme', 'light');
   }
 }
 

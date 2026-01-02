@@ -66,19 +66,79 @@ app.get('/', (c) => {
         <script src="https://cdn.tailwindcss.com"></script>
         <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
         <style>
+          /* CSS Variables - Dark Theme (Default) */
           :root {
+            /* Brand Colors - Always constant */
             --mm-red: #C8102E;
             --mm-dark-red: #8B0000;
-            --mm-light-red: #FFE5E5;
+            --mm-light-red-accent: #FFE5E5;
+            
+            /* Dark Theme Colors (Default) */
+            --bg-primary: #000000;
+            --bg-secondary: #1a1a1a;
+            --bg-tertiary: #2a2a2a;
+            --bg-card: #1a1a1a;
+            --bg-hover: #2a2a2a;
+            
+            --text-primary: #FFFFFF;
+            --text-secondary: #CCCCCC;
+            --text-tertiary: #999999;
+            
+            --border-primary: #333333;
+            --border-secondary: #444444;
+            
+            --shadow-color: rgba(0, 0, 0, 0.5);
+            
+            /* Derived Colors */
+            --mm-white: var(--text-primary);
+            --mm-grey: var(--text-secondary);
+            --mm-light-grey: var(--bg-tertiary);
+            --mm-light-red: var(--bg-secondary);
+            --mm-border-grey: var(--border-primary);
+          }
+          
+          /* Light Theme */
+          body.light-theme {
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F9FAFB;
+            --bg-tertiary: #F3F4F6;
+            --bg-card: #FFFFFF;
+            --bg-hover: #FFE5E5;
+            
+            --text-primary: #1F2937;
+            --text-secondary: #6B7280;
+            --text-tertiary: #9CA3AF;
+            
+            --border-primary: #E5E7EB;
+            --border-secondary: #D1D5DB;
+            
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            
+            /* Derived Colors for Light */
             --mm-white: #FFFFFF;
             --mm-grey: #6B7280;
             --mm-light-grey: #F3F4F6;
+            --mm-light-red: #FFE5E5;
             --mm-border-grey: #E5E7EB;
+            
+            /* Success and Status Colors for Light Theme */
+            --success-color: #10B981;
+            --warning-color: #F59E0B;
+            --error-color: #EF4444;
+          }
+          
+          /* Success and Status Colors for Dark Theme */
+          body.dark-theme {
+            --success-color: #34D399;
+            --warning-color: #FBBF24;
+            --error-color: #F87171;
           }
           
           body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background-color: var(--mm-white);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
           }
           
           .mm-red { color: var(--mm-red); }
@@ -89,11 +149,12 @@ app.get('/', (c) => {
           .hover\\:bg-mm-dark-red:hover { background-color: var(--mm-dark-red); }
           
           .dashboard-card {
-            background: var(--mm-white);
-            border: 1px solid var(--mm-border-grey);
+            background: var(--bg-card);
+            border: 1px solid var(--border-primary);
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            transition: box-shadow 0.3s ease;
+            box-shadow: 0 2px 4px var(--shadow-color);
+            transition: box-shadow 0.3s ease, background-color 0.3s ease;
+            color: var(--text-primary);
           }
           
           .dashboard-card:hover {
@@ -433,6 +494,69 @@ app.get('/', (c) => {
             margin-right: 8px;
             width: 20px;
           }
+          
+          /* Strategic View Tabs */
+          .strategic-tab {
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+          }
+          
+          .strategic-tab:hover {
+            color: var(--mm-red);
+            background: var(--bg-hover);
+          }
+          
+          .strategic-tab.active {
+            color: var(--mm-red);
+            border-bottom-color: var(--mm-red);
+            background: var(--bg-hover);
+            font-weight: 600;
+          }
+          
+          .strategic-content {
+            animation: fadeIn 0.3s ease-in-out;
+          }
+          
+          @keyframes fadeIn {
+            from {
+              opacity: 0;
+              transform: translateY(10px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+          
+          /* Card Hover Effects */
+          .dashboard-card {
+            transition: all 0.3s ease;
+          }
+          
+          .dashboard-card:hover {
+            transform: translateY(-2px);
+          }
+          
+          /* Status Badge Colors */
+          .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+          }
+          
+          /* Utility Classes */
+          .hidden {
+            display: none !important;
+          }
+          
+          .border-color {
+            border-color: var(--border-primary);
+          }
         </style>
     </head>
     <body class="bg-gray-50">
@@ -566,6 +690,16 @@ app.get('/', (c) => {
                 <div class="nav-tab-content">
                     <div class="nav-tab-title">Insights</div>
                     <div class="nav-tab-desc">AI recommendations</div>
+                </div>
+            </div>
+            
+            <div class="nav-tab" onclick="switchTab('strategic')">
+                <div class="nav-tab-icon">
+                    <i class="fas fa-chess"></i>
+                </div>
+                <div class="nav-tab-content">
+                    <div class="nav-tab-title">Strategic View</div>
+                    <div class="nav-tab-desc">RCAs, CAPAs & Six Sigma</div>
                 </div>
             </div>
             
@@ -1240,6 +1374,736 @@ app.get('/', (c) => {
                     </div>
                 </div>
             </div>
+
+            <!-- Strategic View Tab -->
+            <div id="tab-strategic" class="tab-content hidden">
+                <div class="mb-6">
+                    <h2 class="text-3xl font-bold" style="color: var(--text-primary);">Strategic View</h2>
+                    <p class="text-sm" style="color: var(--text-secondary);">Root Cause Analysis, Corrective Actions & Six Sigma Projects</p>
+                </div>
+
+                <!-- RCA/CAPA Section -->
+                <div class="dashboard-card p-6 mb-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-2xl font-bold flex items-center" style="color: var(--text-primary);">
+                            <i class="fas fa-search-plus mr-3" style="color: var(--mm-red);"></i>
+                            Root Cause Analysis (RCA) & CAPAs
+                        </h3>
+                        <button onclick="addNewRCA()" class="px-4 py-2 bg-mm-red text-white rounded-lg hover:bg-mm-dark-red transition">
+                            <i class="fas fa-plus mr-2"></i>Add New RCA
+                        </button>
+                    </div>
+
+                    <!-- RCA Status Overview -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                        <div class="p-4 rounded-lg" style="background: var(--bg-secondary); border: 1px solid var(--border-primary);">
+                            <div class="text-sm font-semibold mb-1" style="color: var(--text-secondary);">TOTAL RCAs</div>
+                            <div class="text-3xl font-bold" style="color: var(--text-primary);" id="total-rcas">0</div>
+                        </div>
+                        <div class="p-4 rounded-lg" style="background: var(--bg-secondary); border: 1px solid var(--border-primary);">
+                            <div class="text-sm font-semibold mb-1" style="color: var(--text-secondary);">IN PROGRESS</div>
+                            <div class="text-3xl font-bold text-yellow-500" id="inprogress-rcas">0</div>
+                        </div>
+                        <div class="p-4 rounded-lg" style="background: var(--bg-secondary); border: 1px solid var(--border-primary);">
+                            <div class="text-sm font-semibold mb-1" style="color: var(--text-secondary);">COMPLETED</div>
+                            <div class="text-3xl font-bold text-green-500" id="completed-rcas">0</div>
+                        </div>
+                        <div class="p-4 rounded-lg" style="background: var(--bg-secondary); border: 1px solid var(--border-primary);">
+                            <div class="text-sm font-semibold mb-1" style="color: var(--text-secondary);">PENDING</div>
+                            <div class="text-3xl font-bold text-red-500" id="pending-rcas">0</div>
+                        </div>
+                    </div>
+
+                    <!-- RCA Table -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead style="background: var(--bg-tertiary);">
+                                <tr>
+                                    <th class="px-4 py-3 text-left" style="color: var(--text-primary);">ID</th>
+                                    <th class="px-4 py-3 text-left" style="color: var(--text-primary);">Issue Description</th>
+                                    <th class="px-4 py-3 text-left" style="color: var(--text-primary);">Root Cause</th>
+                                    <th class="px-4 py-3 text-left" style="color: var(--text-primary);">CAPA</th>
+                                    <th class="px-4 py-3 text-left" style="color: var(--text-primary);">Owner</th>
+                                    <th class="px-4 py-3 text-left" style="color: var(--text-primary);">Status</th>
+                                    <th class="px-4 py-3 text-left" style="color: var(--text-primary);">Due Date</th>
+                                    <th class="px-4 py-3 text-center" style="color: var(--text-primary);">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rca-table-body">
+                                <!-- Sample RCA Data -->
+                                <tr style="border-bottom: 1px solid var(--border-primary);">
+                                    <td class="px-4 py-3" style="color: var(--text-primary);">RCA-001</td>
+                                    <td class="px-4 py-3" style="color: var(--text-primary);">High error rate in Intake Meeting form completion</td>
+                                    <td class="px-4 py-3" style="color: var(--text-secondary);">Mandatory fields not enforced in ATS</td>
+                                    <td class="px-4 py-3" style="color: var(--text-secondary);">Enable mandatory field validation</td>
+                                    <td class="px-4 py-3" style="color: var(--text-primary);">John Doe</td>
+                                    <td class="px-4 py-3">
+                                        <span class="px-2 py-1 rounded text-xs font-semibold bg-yellow-100 text-yellow-800">In Progress</span>
+                                    </td>
+                                    <td class="px-4 py-3" style="color: var(--text-primary);">2025-01-15</td>
+                                    <td class="px-4 py-3 text-center">
+                                        <button class="text-blue-500 hover:text-blue-700 mr-2"><i class="fas fa-edit"></i></button>
+                                        <button class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid var(--border-primary);">
+                                    <td class="px-4 py-3" style="color: var(--text-primary);">RCA-002</td>
+                                    <td class="px-4 py-3" style="color: var(--text-primary);">Document verification errors in BGV</td>
+                                    <td class="px-4 py-3" style="color: var(--text-secondary);">Lack of standardized checklist</td>
+                                    <td class="px-4 py-3" style="color: var(--text-secondary);">Create and deploy BGV checklist template</td>
+                                    <td class="px-4 py-3" style="color: var(--text-primary);">Jane Smith</td>
+                                    <td class="px-4 py-3">
+                                        <span class="px-2 py-1 rounded text-xs font-semibold bg-green-100 text-green-800">Completed</span>
+                                    </td>
+                                    <td class="px-4 py-3" style="color: var(--text-primary);">2024-12-20</td>
+                                    <td class="px-4 py-3 text-center">
+                                        <button class="text-blue-500 hover:text-blue-700 mr-2"><i class="fas fa-eye"></i></button>
+                                        <button class="text-green-500 hover:text-green-700"><i class="fas fa-download"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Six Sigma Projects Section -->
+                <div class="dashboard-card p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-2xl font-bold flex items-center" style="color: var(--text-primary);">
+                            <i class="fas fa-project-diagram mr-3" style="color: var(--mm-red);"></i>
+                            Six Sigma Projects
+                        </h3>
+                        <button onclick="addNewProject()" class="px-4 py-2 bg-mm-red text-white rounded-lg hover:bg-mm-dark-red transition">
+                            <i class="fas fa-plus mr-2"></i>Add New Project
+                        </button>
+                    </div>
+
+                    <!-- Six Sigma Metrics -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <div class="p-4 rounded-lg" style="background: var(--bg-secondary); border: 1px solid var(--border-primary);">
+                            <div class="text-sm font-semibold mb-1" style="color: var(--text-secondary);">ACTIVE PROJECTS</div>
+                            <div class="text-3xl font-bold" style="color: var(--text-primary);" id="active-projects">3</div>
+                        </div>
+                        <div class="p-4 rounded-lg" style="background: var(--bg-secondary); border: 1px solid var(--border-primary);">
+                            <div class="text-sm font-semibold mb-1" style="color: var(--text-secondary);">AVG. SIGMA LEVEL</div>
+                            <div class="text-3xl font-bold text-blue-500" id="avg-sigma">4.2σ</div>
+                        </div>
+                        <div class="p-4 rounded-lg" style="background: var(--bg-secondary); border: 1px solid var(--border-primary);">
+                            <div class="text-sm font-semibold mb-1" style="color: var(--text-secondary);">TOTAL SAVINGS</div>
+                            <div class="text-3xl font-bold text-green-500" id="total-savings">$125K</div>
+                        </div>
+                    </div>
+
+                    <!-- Projects Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Project 1 -->
+                        <div class="p-6 rounded-lg" style="background: var(--bg-secondary); border: 1px solid var(--border-primary);">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center">
+                                    <div class="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold mr-3">
+                                        D
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold" style="color: var(--text-primary);">DMAIC: Intake Quality</h4>
+                                        <p class="text-xs" style="color: var(--text-secondary);">Phase: Analyze</p>
+                                    </div>
+                                </div>
+                                <span class="px-2 py-1 rounded text-xs font-semibold bg-blue-100 text-blue-800">Active</span>
+                            </div>
+                            <p class="text-sm mb-4" style="color: var(--text-secondary);">
+                                Reduce Intake form errors by 50% through process standardization and automation
+                            </p>
+                            <div class="space-y-2">
+                                <div class="flex justify-between text-sm">
+                                    <span style="color: var(--text-secondary);">Progress</span>
+                                    <span style="color: var(--text-primary);">60%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-blue-500 h-2 rounded-full" style="width: 60%"></div>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex justify-between text-xs" style="color: var(--text-secondary);">
+                                <span><i class="fas fa-user mr-1"></i>Sarah Johnson</span>
+                                <span><i class="fas fa-calendar mr-1"></i>Due: Feb 2025</span>
+                            </div>
+                        </div>
+
+                        <!-- Project 2 -->
+                        <div class="p-6 rounded-lg" style="background: var(--bg-secondary); border: 1px solid var(--border-primary);">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center">
+                                    <div class="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center text-white font-bold mr-3">
+                                        L
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold" style="color: var(--text-primary);">Lean: BGV Process</h4>
+                                        <p class="text-xs" style="color: var(--text-secondary);">Phase: Control</p>
+                                    </div>
+                                </div>
+                                <span class="px-2 py-1 rounded text-xs font-semibold bg-green-100 text-green-800">On Track</span>
+                            </div>
+                            <p class="text-sm mb-4" style="color: var(--text-secondary);">
+                                Eliminate waste in BGV document verification, reduce cycle time by 30%
+                            </p>
+                            <div class="space-y-2">
+                                <div class="flex justify-between text-sm">
+                                    <span style="color: var(--text-secondary);">Progress</span>
+                                    <span style="color: var(--text-primary);">85%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-500 h-2 rounded-full" style="width: 85%"></div>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex justify-between text-xs" style="color: var(--text-secondary);">
+                                <span><i class="fas fa-user mr-1"></i>Mike Chen</span>
+                                <span><i class="fas fa-calendar mr-1"></i>Due: Jan 2025</span>
+                            </div>
+                        </div>
+
+                        <!-- Project 3 -->
+                        <div class="p-6 rounded-lg" style="background: var(--bg-secondary); border: 1px solid var(--border-primary);">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center">
+                                    <div class="w-12 h-12 rounded-full bg-purple-500 flex items-center justify-center text-white font-bold mr-3">
+                                        K
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold" style="color: var(--text-primary);">Kaizen: Offer Letter QC</h4>
+                                        <p class="text-xs" style="color: var(--text-secondary);">Phase: Implement</p>
+                                    </div>
+                                </div>
+                                <span class="px-2 py-1 rounded text-xs font-semibold bg-purple-100 text-purple-800">Active</span>
+                            </div>
+                            <p class="text-sm mb-4" style="color: var(--text-secondary);">
+                                Continuous improvement in offer letter accuracy through peer review system
+                            </p>
+                            <div class="space-y-2">
+                                <div class="flex justify-between text-sm">
+                                    <span style="color: var(--text-secondary);">Progress</span>
+                                    <span style="color: var(--text-primary);">40%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-purple-500 h-2 rounded-full" style="width: 40%"></div>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex justify-between text-xs" style="color: var(--text-secondary);">
+                                <span><i class="fas fa-user mr-1"></i>Emma Wilson</span>
+                                <span><i class="fas fa-calendar mr-1"></i>Due: Mar 2025</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Strategic View Tab -->
+            <div id="tab-strategic" class="tab-content hidden">
+                <!-- Strategic View Header -->
+                <div class="dashboard-card p-6 mb-6">
+                    <h2 class="text-2xl font-bold mb-2" style="color: var(--text-primary);">
+                        <i class="fas fa-chess text-mm-red mr-2"></i>Strategic View
+                    </h2>
+                    <p style="color: var(--text-secondary);">Root Cause Analysis (RCA), Corrective Actions (CAPA), and Six Sigma Project Management</p>
+                </div>
+
+                <!-- Strategic Tabs Navigation -->
+                <div class="dashboard-card mb-6">
+                    <div class="flex border-b" style="border-color: var(--border-color);">
+                        <button onclick="switchStrategicTab('rca')" id="strategic-tab-rca" class="strategic-tab active px-6 py-3 font-semibold transition-all">
+                            <i class="fas fa-search mr-2"></i>RCA Projects
+                        </button>
+                        <button onclick="switchStrategicTab('capa')" id="strategic-tab-capa" class="strategic-tab px-6 py-3 font-semibold transition-all">
+                            <i class="fas fa-clipboard-check mr-2"></i>CAPA Actions
+                        </button>
+                        <button onclick="switchStrategicTab('sixsigma')" id="strategic-tab-sixsigma" class="strategic-tab px-6 py-3 font-semibold transition-all">
+                            <i class="fas fa-chart-line mr-2"></i>Six Sigma Projects
+                        </button>
+                    </div>
+                </div>
+
+                <!-- RCA Projects Content -->
+                <div id="strategic-content-rca" class="strategic-content">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                        <!-- Summary Cards -->
+                        <div class="dashboard-card p-6">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="text-sm font-semibold" style="color: var(--text-secondary);">TOTAL RCA PROJECTS</h4>
+                                <i class="fas fa-project-diagram" style="color: var(--mm-red);"></i>
+                            </div>
+                            <div class="text-3xl font-bold mb-1" style="color: var(--text-primary);">12</div>
+                            <div class="text-xs" style="color: var(--success-color);">
+                                <i class="fas fa-arrow-up mr-1"></i>3 new this month
+                            </div>
+                        </div>
+                        <div class="dashboard-card p-6">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="text-sm font-semibold" style="color: var(--text-secondary);">IN PROGRESS</h4>
+                                <i class="fas fa-spinner" style="color: #F59E0B;"></i>
+                            </div>
+                            <div class="text-3xl font-bold mb-1" style="color: var(--text-primary);">7</div>
+                            <div class="text-xs" style="color: var(--text-secondary);">
+                                Average 23 days to completion
+                            </div>
+                        </div>
+                        <div class="dashboard-card p-6">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="text-sm font-semibold" style="color: var(--text-secondary);">COMPLETED</h4>
+                                <i class="fas fa-check-circle" style="color: var(--success-color);"></i>
+                            </div>
+                            <div class="text-3xl font-bold mb-1" style="color: var(--text-primary);">5</div>
+                            <div class="text-xs" style="color: var(--success-color);">
+                                <i class="fas fa-check mr-1"></i>100% effectiveness
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RCA Projects List -->
+                    <div class="dashboard-card">
+                        <div class="p-4 border-b" style="background: var(--card-bg); border-color: var(--border-color);">
+                            <h3 class="font-bold" style="color: var(--text-primary);">
+                                <i class="fas fa-list text-mm-red mr-2"></i>Active RCA Projects
+                            </h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead>
+                                        <tr style="border-bottom: 2px solid var(--border-color);">
+                                            <th class="text-left py-3 px-4 font-semibold" style="color: var(--text-secondary);">Project ID</th>
+                                            <th class="text-left py-3 px-4 font-semibold" style="color: var(--text-secondary);">Issue Description</th>
+                                            <th class="text-left py-3 px-4 font-semibold" style="color: var(--text-secondary);">Root Cause</th>
+                                            <th class="text-left py-3 px-4 font-semibold" style="color: var(--text-secondary);">Stage</th>
+                                            <th class="text-left py-3 px-4 font-semibold" style="color: var(--text-secondary);">Owner</th>
+                                            <th class="text-left py-3 px-4 font-semibold" style="color: var(--text-secondary);">Status</th>
+                                            <th class="text-left py-3 px-4 font-semibold" style="color: var(--text-secondary);">Priority</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="rca-projects-table">
+                                        <!-- Dynamic content will be loaded here -->
+                                        <tr style="border-bottom: 1px solid var(--border-color);">
+                                            <td class="py-4 px-4 font-mono text-sm" style="color: var(--text-primary);">RCA-2025-001</td>
+                                            <td class="py-4 px-4" style="color: var(--text-primary);">Low accuracy in Offer Letter validation</td>
+                                            <td class="py-4 px-4" style="color: var(--text-secondary);">Inconsistent checklist usage</td>
+                                            <td class="py-4 px-4" style="color: var(--text-primary);">Offer/APL</td>
+                                            <td class="py-4 px-4" style="color: var(--text-primary);">Sarah Johnson</td>
+                                            <td class="py-4 px-4">
+                                                <span class="px-2 py-1 rounded text-xs font-semibold" style="background: #FEF3C7; color: #92400E;">In Progress</span>
+                                            </td>
+                                            <td class="py-4 px-4">
+                                                <span class="px-2 py-1 rounded text-xs font-semibold" style="background: #FEE2E2; color: #991B1B;">High</span>
+                                            </td>
+                                        </tr>
+                                        <tr style="border-bottom: 1px solid var(--border-color);">
+                                            <td class="py-4 px-4 font-mono text-sm" style="color: var(--text-primary);">RCA-2025-002</td>
+                                            <td class="py-4 px-4" style="color: var(--text-primary);">Document completeness issues in Pre-Onboarding</td>
+                                            <td class="py-4 px-4" style="color: var(--text-secondary);">Manual tracking process</td>
+                                            <td class="py-4 px-4" style="color: var(--text-primary);">Pre-Onboarding</td>
+                                            <td class="py-4 px-4" style="color: var(--text-primary);">Mike Chen</td>
+                                            <td class="py-4 px-4">
+                                                <span class="px-2 py-1 rounded text-xs font-semibold" style="background: #FEF3C7; color: #92400E;">In Progress</span>
+                                            </td>
+                                            <td class="py-4 px-4">
+                                                <span class="px-2 py-1 rounded text-xs font-semibold" style="background: #DBEAFE; color: #1E40AF;">Medium</span>
+                                            </td>
+                                        </tr>
+                                        <tr style="border-bottom: 1px solid var(--border-color);">
+                                            <td class="py-4 px-4 font-mono text-sm" style="color: var(--text-primary);">RCA-2024-089</td>
+                                            <td class="py-4 px-4" style="color: var(--text-primary);">Screening quality variance across recruiters</td>
+                                            <td class="py-4 px-4" style="color: var(--text-secondary);">Training gaps identified</td>
+                                            <td class="py-4 px-4" style="color: var(--text-primary);">Screening</td>
+                                            <td class="py-4 px-4" style="color: var(--text-primary);">Emma Wilson</td>
+                                            <td class="py-4 px-4">
+                                                <span class="px-2 py-1 rounded text-xs font-semibold" style="background: #D1FAE5; color: #065F46;">Completed</span>
+                                            </td>
+                                            <td class="py-4 px-4">
+                                                <span class="px-2 py-1 rounded text-xs font-semibold" style="background: #DBEAFE; color: #1E40AF;">Medium</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CAPA Actions Content -->
+                <div id="strategic-content-capa" class="strategic-content hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                        <!-- Summary Cards -->
+                        <div class="dashboard-card p-6">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="text-sm font-semibold" style="color: var(--text-secondary);">TOTAL CAPA ACTIONS</h4>
+                                <i class="fas fa-tasks" style="color: var(--mm-red);"></i>
+                            </div>
+                            <div class="text-3xl font-bold mb-1" style="color: var(--text-primary);">28</div>
+                            <div class="text-xs" style="color: var(--success-color);">
+                                <i class="fas fa-arrow-up mr-1"></i>5 new actions
+                            </div>
+                        </div>
+                        <div class="dashboard-card p-6">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="text-sm font-semibold" style="color: var(--text-secondary);">OPEN ACTIONS</h4>
+                                <i class="fas fa-clock" style="color: #F59E0B;"></i>
+                            </div>
+                            <div class="text-3xl font-bold mb-1" style="color: var(--text-primary);">15</div>
+                            <div class="text-xs" style="color: var(--text-secondary);">
+                                3 due this week
+                            </div>
+                        </div>
+                        <div class="dashboard-card p-6">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="text-sm font-semibold" style="color: var(--text-secondary);">EFFECTIVENESS RATE</h4>
+                                <i class="fas fa-chart-line" style="color: var(--success-color);"></i>
+                            </div>
+                            <div class="text-3xl font-bold mb-1" style="color: var(--text-primary);">94%</div>
+                            <div class="text-xs" style="color: var(--success-color);">
+                                <i class="fas fa-check mr-1"></i>Above target
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CAPA Actions List -->
+                    <div class="dashboard-card">
+                        <div class="p-4 border-b" style="background: var(--card-bg); border-color: var(--border-color);">
+                            <h3 class="font-bold" style="color: var(--text-primary);">
+                                <i class="fas fa-clipboard-list text-mm-red mr-2"></i>Active CAPA Actions
+                            </h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="space-y-4">
+                                <!-- CAPA Card 1 -->
+                                <div class="p-4 rounded-lg" style="background: var(--card-bg); border: 1px solid var(--border-color);">
+                                    <div class="flex items-start justify-between mb-3">
+                                        <div class="flex-1">
+                                            <div class="flex items-center gap-2 mb-2">
+                                                <span class="font-mono text-sm font-bold" style="color: var(--mm-red);">CAPA-2025-014</span>
+                                                <span class="px-2 py-1 rounded text-xs font-semibold" style="background: #FEE2E2; color: #991B1B;">High Priority</span>
+                                            </div>
+                                            <h4 class="font-semibold mb-1" style="color: var(--text-primary);">Implement automated checklist validation for Offer Letters</h4>
+                                            <p class="text-sm mb-3" style="color: var(--text-secondary);">
+                                                <strong>Corrective Action:</strong> Deploy automated system to validate offer letter completeness before submission
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-3">
+                                        <div>
+                                            <div class="text-xs font-semibold mb-1" style="color: var(--text-secondary);">Owner</div>
+                                            <div class="text-sm" style="color: var(--text-primary);">Sarah Johnson</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-xs font-semibold mb-1" style="color: var(--text-secondary);">Stage</div>
+                                            <div class="text-sm" style="color: var(--text-primary);">Offer/APL</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-xs font-semibold mb-1" style="color: var(--text-secondary);">Due Date</div>
+                                            <div class="text-sm" style="color: var(--text-primary);">Jan 15, 2025</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-xs font-semibold mb-1" style="color: var(--text-secondary);">Status</div>
+                                            <span class="px-2 py-1 rounded text-xs font-semibold" style="background: #FEF3C7; color: #92400E;">In Progress</span>
+                                        </div>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <div class="flex justify-between text-sm">
+                                            <span style="color: var(--text-secondary);">Progress</span>
+                                            <span style="color: var(--text-primary);">65%</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                            <div class="h-2 rounded-full" style="width: 65%; background: var(--mm-red);"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- CAPA Card 2 -->
+                                <div class="p-4 rounded-lg" style="background: var(--card-bg); border: 1px solid var(--border-color);">
+                                    <div class="flex items-start justify-between mb-3">
+                                        <div class="flex-1">
+                                            <div class="flex items-center gap-2 mb-2">
+                                                <span class="font-mono text-sm font-bold" style="color: var(--mm-red);">CAPA-2025-013</span>
+                                                <span class="px-2 py-1 rounded text-xs font-semibold" style="background: #DBEAFE; color: #1E40AF;">Medium Priority</span>
+                                            </div>
+                                            <h4 class="font-semibold mb-1" style="color: var(--text-primary);">Standardize screening interview evaluation criteria</h4>
+                                            <p class="text-sm mb-3" style="color: var(--text-secondary);">
+                                                <strong>Corrective Action:</strong> Develop and deploy unified evaluation framework across all recruiters
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-3">
+                                        <div>
+                                            <div class="text-xs font-semibold mb-1" style="color: var(--text-secondary);">Owner</div>
+                                            <div class="text-sm" style="color: var(--text-primary);">Mike Chen</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-xs font-semibold mb-1" style="color: var(--text-secondary);">Stage</div>
+                                            <div class="text-sm" style="color: var(--text-primary);">Screening</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-xs font-semibold mb-1" style="color: var(--text-secondary);">Due Date</div>
+                                            <div class="text-sm" style="color: var(--text-primary);">Jan 20, 2025</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-xs font-semibold mb-1" style="color: var(--text-secondary);">Status</div>
+                                            <span class="px-2 py-1 rounded text-xs font-semibold" style="background: #FEF3C7; color: #92400E;">In Progress</span>
+                                        </div>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <div class="flex justify-between text-sm">
+                                            <span style="color: var(--text-secondary);">Progress</span>
+                                            <span style="color: var(--text-primary);">40%</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                            <div class="h-2 rounded-full" style="width: 40%; background: var(--mm-red);"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- CAPA Card 3 -->
+                                <div class="p-4 rounded-lg" style="background: var(--card-bg); border: 1px solid var(--border-color);">
+                                    <div class="flex items-start justify-between mb-3">
+                                        <div class="flex-1">
+                                            <div class="flex items-center gap-2 mb-2">
+                                                <span class="font-mono text-sm font-bold" style="color: var(--mm-red);">CAPA-2024-092</span>
+                                                <span class="px-2 py-1 rounded text-xs font-semibold" style="background: #D1FAE5; color: #065F46;">Completed</span>
+                                            </div>
+                                            <h4 class="font-semibold mb-1" style="color: var(--text-primary);">Enhance Pre-Onboarding documentation tracking</h4>
+                                            <p class="text-sm mb-3" style="color: var(--text-secondary);">
+                                                <strong>Corrective Action:</strong> Implemented digital tracking system for all pre-onboarding documents
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-3">
+                                        <div>
+                                            <div class="text-xs font-semibold mb-1" style="color: var(--text-secondary);">Owner</div>
+                                            <div class="text-sm" style="color: var(--text-primary);">Emma Wilson</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-xs font-semibold mb-1" style="color: var(--text-secondary);">Stage</div>
+                                            <div class="text-sm" style="color: var(--text-primary);">Pre-Onboarding</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-xs font-semibold mb-1" style="color: var(--text-secondary);">Completed</div>
+                                            <div class="text-sm" style="color: var(--text-primary);">Dec 28, 2024</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-xs font-semibold mb-1" style="color: var(--text-secondary);">Effectiveness</div>
+                                            <span class="px-2 py-1 rounded text-xs font-semibold" style="background: #D1FAE5; color: #065F46;">Verified</span>
+                                        </div>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <div class="flex justify-between text-sm">
+                                            <span style="color: var(--text-secondary);">Progress</span>
+                                            <span style="color: var(--text-primary);">100%</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                            <div class="bg-green-500 h-2 rounded-full" style="width: 100%;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Six Sigma Projects Content -->
+                <div id="strategic-content-sixsigma" class="strategic-content hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
+                        <!-- Summary Cards -->
+                        <div class="dashboard-card p-6">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="text-sm font-semibold" style="color: var(--text-secondary);">ACTIVE PROJECTS</h4>
+                                <i class="fas fa-project-diagram" style="color: var(--mm-red);"></i>
+                            </div>
+                            <div class="text-3xl font-bold mb-1" style="color: var(--text-primary);">6</div>
+                            <div class="text-xs" style="color: var(--success-color);">
+                                <i class="fas fa-arrow-up mr-1"></i>2 Yellow Belts
+                            </div>
+                        </div>
+                        <div class="dashboard-card p-6">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="text-sm font-semibold" style="color: var(--text-secondary);">AVG. CYCLE TIME</h4>
+                                <i class="fas fa-clock" style="color: #F59E0B;"></i>
+                            </div>
+                            <div class="text-3xl font-bold mb-1" style="color: var(--text-primary);">45</div>
+                            <div class="text-xs" style="color: var(--text-secondary);">
+                                days (target: 60)
+                            </div>
+                        </div>
+                        <div class="dashboard-card p-6">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="text-sm font-semibold" style="color: var(--text-secondary);">DEFECT REDUCTION</h4>
+                                <i class="fas fa-chart-line" style="color: var(--success-color);"></i>
+                            </div>
+                            <div class="text-3xl font-bold mb-1" style="color: var(--text-primary);">32%</div>
+                            <div class="text-xs" style="color: var(--success-color);">
+                                <i class="fas fa-arrow-down mr-1"></i>vs. baseline
+                            </div>
+                        </div>
+                        <div class="dashboard-card p-6">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="text-sm font-semibold" style="color: var(--text-secondary);">COST SAVINGS</h4>
+                                <i class="fas fa-dollar-sign" style="color: var(--success-color);"></i>
+                            </div>
+                            <div class="text-3xl font-bold mb-1" style="color: var(--text-primary);">$48K</div>
+                            <div class="text-xs" style="color: var(--success-color);">
+                                <i class="fas fa-check mr-1"></i>YTD savings
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Six Sigma Projects Grid -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Project 1 -->
+                        <div class="dashboard-card">
+                            <div class="p-4 border-b" style="background: var(--card-bg); border-color: var(--border-color);">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="font-bold" style="color: var(--text-primary);">
+                                        <i class="fas fa-certificate text-mm-red mr-2"></i>SS-YB-2025-01
+                                    </h3>
+                                    <span class="px-2 py-1 rounded text-xs font-semibold" style="background: #FEF3C7; color: #92400E;">Measure Phase</span>
+                                </div>
+                            </div>
+                            <div class="p-6">
+                                <h4 class="font-semibold mb-2" style="color: var(--text-primary);">Reduce Offer Letter Error Rate</h4>
+                                <p class="text-sm mb-4" style="color: var(--text-secondary);">
+                                    DMAIC project to reduce offer letter errors from 8.2% to below 3% through process standardization
+                                </p>
+                                <div class="grid grid-cols-2 gap-4 mb-4">
+                                    <div>
+                                        <div class="text-xs font-semibold mb-1" style="color: var(--text-secondary);">Belt Level</div>
+                                        <div class="text-sm font-semibold" style="color: var(--mm-red);">Yellow Belt</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs font-semibold mb-1" style="color: var(--text-secondary);">Champion</div>
+                                        <div class="text-sm" style="color: var(--text-primary);">David Lee</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs font-semibold mb-1" style="color: var(--text-secondary);">Black Belt</div>
+                                        <div class="text-sm" style="color: var(--text-primary);">Sarah Johnson</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs font-semibold mb-1" style="color: var(--text-secondary);">Timeline</div>
+                                        <div class="text-sm" style="color: var(--text-primary);">Q1 2025</div>
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <div class="text-xs font-semibold mb-2" style="color: var(--text-secondary);">DMAIC Progress</div>
+                                    <div class="flex gap-2">
+                                        <div class="flex-1 text-center">
+                                            <div class="w-full h-2 rounded-full" style="background: var(--mm-red);"></div>
+                                            <div class="text-xs mt-1" style="color: var(--text-primary);">Define</div>
+                                        </div>
+                                        <div class="flex-1 text-center">
+                                            <div class="w-full h-2 rounded-full" style="background: var(--mm-red);"></div>
+                                            <div class="text-xs mt-1" style="color: var(--text-primary);">Measure</div>
+                                        </div>
+                                        <div class="flex-1 text-center">
+                                            <div class="w-full h-2 rounded-full bg-gray-300"></div>
+                                            <div class="text-xs mt-1" style="color: var(--text-secondary);">Analyze</div>
+                                        </div>
+                                        <div class="flex-1 text-center">
+                                            <div class="w-full h-2 rounded-full bg-gray-300"></div>
+                                            <div class="text-xs mt-1" style="color: var(--text-secondary);">Improve</div>
+                                        </div>
+                                        <div class="flex-1 text-center">
+                                            <div class="w-full h-2 rounded-full bg-gray-300"></div>
+                                            <div class="text-xs mt-1" style="color: var(--text-secondary);">Control</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-3 gap-4 pt-4" style="border-top: 1px solid var(--border-color);">
+                                    <div class="text-center">
+                                        <div class="text-xs mb-1" style="color: var(--text-secondary);">Baseline</div>
+                                        <div class="text-lg font-bold" style="color: var(--mm-red);">8.2%</div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="text-xs mb-1" style="color: var(--text-secondary);">Current</div>
+                                        <div class="text-lg font-bold" style="color: var(--text-primary);">6.8%</div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="text-xs mb-1" style="color: var(--text-secondary);">Target</div>
+                                        <div class="text-lg font-bold" style="color: var(--success-color);">3.0%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Project 2 -->
+                        <div class="dashboard-card">
+                            <div class="p-4 border-b" style="background: var(--card-bg); border-color: var(--border-color);">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="font-bold" style="color: var(--text-primary);">
+                                        <i class="fas fa-certificate text-mm-red mr-2"></i>SS-YB-2024-12
+                                    </h3>
+                                    <span class="px-2 py-1 rounded text-xs font-semibold" style="background: #D1FAE5; color: #065F46;">Control Phase</span>
+                                </div>
+                            </div>
+                            <div class="p-6">
+                                <h4 class="font-semibold mb-2" style="color: var(--text-primary);">Improve Screening Consistency</h4>
+                                <p class="text-sm mb-4" style="color: var(--text-secondary);">
+                                    DMAIC project to standardize screening evaluation and reduce variance across recruiters
+                                </p>
+                                <div class="grid grid-cols-2 gap-4 mb-4">
+                                    <div>
+                                        <div class="text-xs font-semibold mb-1" style="color: var(--text-secondary);">Belt Level</div>
+                                        <div class="text-sm font-semibold" style="color: var(--mm-red);">Yellow Belt</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs font-semibold mb-1" style="color: var(--text-secondary);">Champion</div>
+                                        <div class="text-sm" style="color: var(--text-primary);">Rachel Adams</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs font-semibold mb-1" style="color: var(--text-secondary);">Black Belt</div>
+                                        <div class="text-sm" style="color: var(--text-primary);">Mike Chen</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs font-semibold mb-1" style="color: var(--text-secondary);">Timeline</div>
+                                        <div class="text-sm" style="color: var(--text-primary);">Q4 2024</div>
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <div class="text-xs font-semibold mb-2" style="color: var(--text-secondary);">DMAIC Progress</div>
+                                    <div class="flex gap-2">
+                                        <div class="flex-1 text-center">
+                                            <div class="w-full h-2 rounded-full" style="background: var(--mm-red);"></div>
+                                            <div class="text-xs mt-1" style="color: var(--text-primary);">Define</div>
+                                        </div>
+                                        <div class="flex-1 text-center">
+                                            <div class="w-full h-2 rounded-full" style="background: var(--mm-red);"></div>
+                                            <div class="text-xs mt-1" style="color: var(--text-primary);">Measure</div>
+                                        </div>
+                                        <div class="flex-1 text-center">
+                                            <div class="w-full h-2 rounded-full" style="background: var(--mm-red);"></div>
+                                            <div class="text-xs mt-1" style="color: var(--text-primary);">Analyze</div>
+                                        </div>
+                                        <div class="flex-1 text-center">
+                                            <div class="w-full h-2 rounded-full" style="background: var(--mm-red);"></div>
+                                            <div class="text-xs mt-1" style="color: var(--text-primary);">Improve</div>
+                                        </div>
+                                        <div class="flex-1 text-center">
+                                            <div class="w-full h-2 rounded-full" style="background: var(--mm-red);"></div>
+                                            <div class="text-xs mt-1" style="color: var(--text-primary);">Control</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-3 gap-4 pt-4" style="border-top: 1px solid var(--border-color);">
+                                    <div class="text-center">
+                                        <div class="text-xs mb-1" style="color: var(--text-secondary);">Baseline</div>
+                                        <div class="text-lg font-bold" style="color: var(--mm-red);">5.8%</div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="text-xs mb-1" style="color: var(--text-secondary);">Current</div>
+                                        <div class="text-lg font-bold" style="color: var(--success-color);">2.1%</div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="text-xs mb-1" style="color: var(--text-secondary);">Target</div>
+                                        <div class="text-lg font-bold" style="color: var(--success-color);">2.5%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </main>
         
         </div>
