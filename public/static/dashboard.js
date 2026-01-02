@@ -2528,14 +2528,41 @@ function updateRCACapaView() {
   const data = rawData.rcaCapaProjects;
   console.log('RCA/CAPA Projects data:', data);
   console.log('Total RCA/CAPA records:', data.length);
+  console.log('First record structure:', data[0]);
+  console.log('First record keys:', Object.keys(data[0] || {}));
   
-  // Calculate summary metrics
+  // Helper function to safely get property value
+  const getProperty = (obj, possibleKeys) => {
+    if (!obj) return null;
+    for (const key of possibleKeys) {
+      if (obj.hasOwnProperty(key)) return obj[key];
+    }
+    return null;
+  };
+  
+  // Calculate summary metrics with defensive coding
   const totalProjects = data.length;
-  const rcaProjects = data.filter(p => p['Type'] && p['Type'].toLowerCase().includes('rca'));
-  const capaProjects = data.filter(p => p['Type'] && p['Type'].toLowerCase().includes('capa'));
-  const inProgress = data.filter(p => p['Status'] && (p['Status'].toLowerCase().includes('progress') || p['Status'].toLowerCase().includes('open')));
-  const completed = data.filter(p => p['Status'] && p['Status'].toLowerCase().includes('complete'));
-  const pending = data.filter(p => !p['Status'] || p['Status'].toLowerCase().includes('pending'));
+  const rcaProjects = data.filter(p => {
+    const type = getProperty(p, ['Type', 'type', 'TYPE', 'Project Type']);
+    return type && type.toString().toLowerCase().includes('rca');
+  });
+  const capaProjects = data.filter(p => {
+    const type = getProperty(p, ['Type', 'type', 'TYPE', 'Project Type']);
+    return type && type.toString().toLowerCase().includes('capa');
+  });
+  
+  const inProgress = data.filter(p => {
+    const status = getProperty(p, ['Status', 'status', 'STATUS', 'Project Status']);
+    return status && (status.toString().toLowerCase().includes('progress') || status.toString().toLowerCase().includes('open'));
+  });
+  const completed = data.filter(p => {
+    const status = getProperty(p, ['Status', 'status', 'STATUS', 'Project Status']);
+    return status && status.toString().toLowerCase().includes('complete');
+  });
+  const pending = data.filter(p => {
+    const status = getProperty(p, ['Status', 'status', 'STATUS', 'Project Status']);
+    return !status || status.toString().toLowerCase().includes('pending');
+  });
   
   console.log('RCA Projects:', rcaProjects.length);
   console.log('CAPA Projects:', capaProjects.length);
@@ -2552,21 +2579,30 @@ function updateRCACapaView() {
   
   const rcaInProgressEl = document.getElementById('inprogress-rcas');
   if (rcaInProgressEl) {
-    const inProgressRCAs = rcaProjects.filter(p => p['Status'] && (p['Status'].toLowerCase().includes('progress') || p['Status'].toLowerCase().includes('open')));
+    const inProgressRCAs = rcaProjects.filter(p => {
+      const status = getProperty(p, ['Status', 'status', 'STATUS', 'Project Status']);
+      return status && (status.toString().toLowerCase().includes('progress') || status.toString().toLowerCase().includes('open'));
+    });
     rcaInProgressEl.textContent = inProgressRCAs.length;
     console.log('Updated inprogress-rcas to:', inProgressRCAs.length);
   }
   
   const rcaCompletedEl = document.getElementById('completed-rcas');
   if (rcaCompletedEl) {
-    const completedRCAs = rcaProjects.filter(p => p['Status'] && p['Status'].toLowerCase().includes('complete'));
+    const completedRCAs = rcaProjects.filter(p => {
+      const status = getProperty(p, ['Status', 'status', 'STATUS', 'Project Status']);
+      return status && status.toString().toLowerCase().includes('complete');
+    });
     rcaCompletedEl.textContent = completedRCAs.length;
     console.log('Updated completed-rcas to:', completedRCAs.length);
   }
   
   const rcaPendingEl = document.getElementById('pending-rcas');
   if (rcaPendingEl) {
-    const pendingRCAs = rcaProjects.filter(p => !p['Status'] || p['Status'].toLowerCase().includes('pending'));
+    const pendingRCAs = rcaProjects.filter(p => {
+      const status = getProperty(p, ['Status', 'status', 'STATUS', 'Project Status']);
+      return !status || status.toString().toLowerCase().includes('pending');
+    });
     rcaPendingEl.textContent = pendingRCAs.length;
     console.log('Updated pending-rcas to:', pendingRCAs.length);
   }
@@ -2576,28 +2612,33 @@ function updateRCACapaView() {
   if (rcaTableBody && rcaProjects.length > 0) {
     console.log('Updating RCA table with', rcaProjects.length, 'records');
     rcaTableBody.innerHTML = rcaProjects.map(project => {
-      const status = project['Status'] || 'Unknown';
-      const priority = project['Priority'] || 'Medium';
+      const status = getProperty(project, ['Status', 'status', 'STATUS', 'Project Status']) || 'Unknown';
+      const priority = getProperty(project, ['Priority', 'priority', 'PRIORITY']) || 'Medium';
+      const projectId = getProperty(project, ['Project ID', 'project id', 'ID', 'id', 'ProjectID']) || 'N/A';
+      const issueDesc = getProperty(project, ['Issue Description', 'issue description', 'Description', 'Issue', 'Title']) || 'N/A';
+      const rootCause = getProperty(project, ['Root Cause', 'root cause', 'RootCause', 'Cause']) || 'Under investigation';
+      const stage = getProperty(project, ['Stage', 'stage', 'Recruitment Stage', 'Process Stage']) || 'N/A';
+      const owner = getProperty(project, ['Owner', 'owner', 'Assigned To', 'Responsible']) || 'Unassigned';
       
-      const statusColor = status.toLowerCase().includes('complete') 
+      const statusColor = status.toString().toLowerCase().includes('complete') 
         ? 'background: #D1FAE5; color: #065F46;'
-        : status.toLowerCase().includes('progress')
+        : status.toString().toLowerCase().includes('progress')
         ? 'background: #FEF3C7; color: #92400E;'
         : 'background: #DBEAFE; color: #1E40AF;';
       
-      const priorityColor = priority.toLowerCase().includes('high')
+      const priorityColor = priority.toString().toLowerCase().includes('high')
         ? 'background: #FEE2E2; color: #991B1B;'
-        : priority.toLowerCase().includes('low')
+        : priority.toString().toLowerCase().includes('low')
         ? 'background: #D1FAE5; color: #065F46;'
         : 'background: #DBEAFE; color: #1E40AF;';
       
       return `
         <tr style="border-bottom: 1px solid var(--border-color);">
-          <td class="py-4 px-4 font-mono text-sm" style="color: var(--text-primary);">${project['Project ID'] || 'N/A'}</td>
-          <td class="py-4 px-4" style="color: var(--text-primary);">${project['Issue Description'] || project['Title'] || 'N/A'}</td>
-          <td class="py-4 px-4" style="color: var(--text-secondary);">${project['Root Cause'] || 'Under investigation'}</td>
-          <td class="py-4 px-4" style="color: var(--text-primary);">${project['Stage'] || project['Recruitment Stage'] || 'N/A'}</td>
-          <td class="py-4 px-4" style="color: var(--text-primary);">${project['Owner'] || 'Unassigned'}</td>
+          <td class="py-4 px-4 font-mono text-sm" style="color: var(--text-primary);">${projectId}</td>
+          <td class="py-4 px-4" style="color: var(--text-primary);">${issueDesc}</td>
+          <td class="py-4 px-4" style="color: var(--text-secondary);">${rootCause}</td>
+          <td class="py-4 px-4" style="color: var(--text-primary);">${stage}</td>
+          <td class="py-4 px-4" style="color: var(--text-primary);">${owner}</td>
           <td class="py-4 px-4">
             <span class="px-2 py-1 rounded text-xs font-semibold" style="${statusColor}">${status}</span>
           </td>
@@ -2614,11 +2655,23 @@ function updateRCACapaView() {
   if (capaTotalEl) capaTotalEl.textContent = capaProjects.length;
   
   const capaOpenEl = document.querySelector('#strategic-content-capa .dashboard-card:nth-child(2) .text-3xl');
-  if (capaOpenEl) capaOpenEl.textContent = capaProjects.filter(p => !p['Status'] || !p['Status'].toLowerCase().includes('complete')).length;
+  if (capaOpenEl) {
+    const openCapas = capaProjects.filter(p => {
+      const status = getProperty(p, ['Status', 'status', 'STATUS', 'Project Status']);
+      return !status || !status.toString().toLowerCase().includes('complete');
+    });
+    capaOpenEl.textContent = openCapas.length;
+  }
   
   // Calculate effectiveness rate
-  const completedCapas = capaProjects.filter(p => p['Status'] && p['Status'].toLowerCase().includes('complete'));
-  const effectiveCapas = completedCapas.filter(p => p['Effectiveness'] && p['Effectiveness'].toLowerCase().includes('verified'));
+  const completedCapas = capaProjects.filter(p => {
+    const status = getProperty(p, ['Status', 'status', 'STATUS', 'Project Status']);
+    return status && status.toString().toLowerCase().includes('complete');
+  });
+  const effectiveCapas = completedCapas.filter(p => {
+    const effectiveness = getProperty(p, ['Effectiveness', 'effectiveness', 'Verified', 'Verification Status']);
+    return effectiveness && effectiveness.toString().toLowerCase().includes('verified');
+  });
   const effectivenessRate = completedCapas.length > 0 ? Math.round((effectiveCapas.length / completedCapas.length) * 100) : 0;
   
   const capaEffectivenessEl = document.querySelector('#strategic-content-capa .dashboard-card:nth-child(3) .text-3xl');
@@ -2635,17 +2688,35 @@ function updateSixSigmaView() {
   const data = rawData.sixSigmaProjects;
   console.log('Six Sigma Projects data:', data);
   console.log('Total Six Sigma records:', data.length);
+  console.log('First Six Sigma record structure:', data[0]);
+  console.log('First Six Sigma record keys:', Object.keys(data[0] || {}));
+  
+  // Helper function to safely get property value
+  const getProperty = (obj, possibleKeys) => {
+    if (!obj) return null;
+    for (const key of possibleKeys) {
+      if (obj.hasOwnProperty(key)) return obj[key];
+    }
+    return null;
+  };
   
   // Calculate summary metrics
-  const activeProjects = data.filter(p => !p['Status'] || !p['Status'].toLowerCase().includes('complete'));
+  const activeProjects = data.filter(p => {
+    const status = getProperty(p, ['Status', 'status', 'STATUS', 'Project Status']);
+    return !status || !status.toString().toLowerCase().includes('complete');
+  });
   console.log('Active Six Sigma projects:', activeProjects.length);
   
   // Calculate average cycle time
-  const completedProjects = data.filter(p => p['Status'] && p['Status'].toLowerCase().includes('complete'));
+  const completedProjects = data.filter(p => {
+    const status = getProperty(p, ['Status', 'status', 'STATUS', 'Project Status']);
+    return status && status.toString().toLowerCase().includes('complete');
+  });
   let avgCycleTime = 0;
   if (completedProjects.length > 0) {
     const totalDays = completedProjects.reduce((sum, p) => {
-      const days = parseFloat(p['Cycle Time (Days)']) || 0;
+      const cycleTime = getProperty(p, ['Cycle Time (Days)', 'Cycle Time', 'Duration', 'Days']);
+      const days = parseFloat(cycleTime) || 0;
       return sum + days;
     }, 0);
     avgCycleTime = Math.round(totalDays / completedProjects.length);
@@ -2655,8 +2726,8 @@ function updateSixSigmaView() {
   let totalDefectReduction = 0;
   if (data.length > 0) {
     data.forEach(p => {
-      const baseline = parseFloat(p['Baseline']) || 0;
-      const current = parseFloat(p['Current']) || 0;
+      const baseline = parseFloat(getProperty(p, ['Baseline', 'baseline', 'Baseline Defects'])) || 0;
+      const current = parseFloat(getProperty(p, ['Current', 'current', 'Current Defects'])) || 0;
       if (baseline > 0) {
         totalDefectReduction += ((baseline - current) / baseline) * 100;
       }
@@ -2666,7 +2737,7 @@ function updateSixSigmaView() {
   
   // Calculate cost savings
   const totalSavings = data.reduce((sum, p) => {
-    const savings = parseFloat(p['Cost Savings']) || 0;
+    const savings = parseFloat(getProperty(p, ['Cost Savings', 'Savings', 'cost savings'])) || 0;
     return sum + savings;
   }, 0);
   
@@ -2680,7 +2751,11 @@ function updateSixSigmaView() {
   const avgSigmaEl = document.getElementById('avg-sigma');
   if (avgSigmaEl) {
     // Calculate average sigma level if available
-    const sigmaLevels = data.filter(p => p['Sigma Level']).map(p => parseFloat(p['Sigma Level']));
+    const sigmaLevels = data.map(p => {
+      const sigmaLevel = getProperty(p, ['Sigma Level', 'sigma level', 'SIGMA LEVEL', 'Sigma']);
+      return parseFloat(sigmaLevel);
+    }).filter(s => !isNaN(s));
+    
     if (sigmaLevels.length > 0) {
       const avgSigma = (sigmaLevels.reduce((a, b) => a + b, 0) / sigmaLevels.length).toFixed(1);
       avgSigmaEl.textContent = avgSigma + 'σ';
