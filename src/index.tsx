@@ -336,21 +336,21 @@ app.get('/', (c) => {
           }
           
           .nav-tab:hover {
-            color: var(--mm-red);
-            background: linear-gradient(90deg, #FFF5F5 0%, #FEE2E2 100%);
-            border-left-color: var(--mm-light-red);
-            transform: translateX(4px);
-            box-shadow: 0 4px 12px rgba(200, 16, 46, 0.15);
+            color: var(--mm-red) !important;
+            background: linear-gradient(90deg, #FFF5F5 0%, #FEE2E2 100%) !important;
+            border-left-color: var(--mm-light-red) !important;
+            transform: translateX(4px) !important;
+            box-shadow: 0 4px 12px rgba(200, 16, 46, 0.15) !important;
           }
           
           .nav-tab:hover .nav-tab-icon {
-            background: linear-gradient(135deg, #C8102E 0%, #8B0000 100%);
-            color: white;
-            transform: scale(1.1);
+            background: linear-gradient(135deg, #C8102E 0%, #8B0000 100%) !important;
+            color: white !important;
+            transform: scale(1.1) !important;
           }
           
           .nav-tab:hover .nav-tab-title {
-            color: #C8102E;
+            color: #C8102E !important;
           }
           
           .nav-tab.active {
@@ -358,6 +358,11 @@ app.get('/', (c) => {
             background: var(--mm-light-red);
             border-left-color: var(--mm-red);
             font-weight: 600;
+          }
+          
+          .nav-tab.active:hover {
+            background: linear-gradient(90deg, #FFF5F5 0%, #FEE2E2 100%) !important;
+            transform: translateX(4px) !important;
           }
           
           .nav-tab-icon {
@@ -1671,14 +1676,12 @@ app.get('/', (c) => {
         <!-- Header -->
         <header class="bg-mm-red text-white shadow-lg" style="position: fixed; top: 0; left: 0; right: 0; z-index: 10000; width: 100%;">
             <div class="container mx-auto px-6 py-4">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <h1 class="text-2xl font-bold">M&M Recruitment Process Audit Dashboard</h1>
-                        <p class="text-sm text-red-100 mt-1">Real-time QA Insights & Performance Analytics</p>
-                    </div>
-                    <!-- Keep file input hidden for FAB to trigger -->
-                    <input type="file" id="excel-upload" accept=".xlsx,.xls" class="hidden" onchange="handleFileUpload(event)">
+                <div class="text-center">
+                    <h1 class="text-2xl font-bold">M&M Recruitment Process Audit Dashboard</h1>
+                    <p class="text-sm text-red-100 mt-1">Real-time QA Insights & Performance Analytics</p>
                 </div>
+                <!-- Keep file input hidden for FAB to trigger -->
+                <input type="file" id="excel-upload" accept=".xlsx,.xls" class="hidden" onchange="handleFileUpload(event)">
             </div>
         </header>
 

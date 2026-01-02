@@ -2916,30 +2916,23 @@ function toggleAudioDescription() {
 
 function toggleTheme() {
   darkTheme = !darkTheme;
-  const btn = document.getElementById('theme-toggle');
-  const icon = btn.querySelector('i');
   
   if (darkTheme) {
     // Switch to Dark Theme
     document.body.classList.remove('light-theme');
     document.body.classList.add('dark-theme');
-    btn.classList.add('bg-white', 'text-mm-red');
-    btn.classList.remove('bg-white/20');
-    icon.classList.remove('fa-moon');
-    icon.classList.add('fa-sun');
     if (audioEnabled) speakText('Dark theme activated');
     localStorage.setItem('theme', 'dark');
   } else {
     // Switch to Light Theme
     document.body.classList.remove('dark-theme');
     document.body.classList.add('light-theme');
-    btn.classList.remove('bg-white', 'text-mm-red');
-    btn.classList.add('bg-white/20');
-    icon.classList.remove('fa-sun');
-    icon.classList.add('fa-moon');
     if (audioEnabled) speakText('Light theme activated');
     localStorage.setItem('theme', 'light');
   }
+  
+  // Show success message
+  showSuccessMessage(darkTheme ? 'Dark theme activated' : 'Light theme activated');
 }
 
 function speakText(text) {
