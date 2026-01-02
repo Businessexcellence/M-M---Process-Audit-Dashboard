@@ -337,10 +337,12 @@ function processAndStoreData(data) {
     key.toLowerCase().includes('six') && key.toLowerCase().includes('sigma') && key.includes('_parsed')
   );
   const rcaCapaKey = Object.keys(data).find(key => 
-    (key.toLowerCase().includes('rca') || key.toLowerCase().includes('capa')) && key.includes('_parsed')
+    (key.toLowerCase().includes('rca') && (key.toLowerCase().includes('or') || key.toLowerCase().includes('capa'))) && key.includes('_parsed')
   );
   
   console.log('Strategic sheets found:', { sixSigmaKey, rcaCapaKey });
+  console.log('Six Sigma data:', data[sixSigmaKey] ? data[sixSigmaKey].length + ' records' : 'not found');
+  console.log('RCA/CAPA data:', data[rcaCapaKey] ? data[rcaCapaKey].length + ' records' : 'not found');
   
   rawData = {
     auditCount: auditCountParsed,
@@ -2488,27 +2490,54 @@ function updateRCACapaView() {
   
   const data = rawData.rcaCapaProjects;
   console.log('RCA/CAPA Projects data:', data);
+  console.log('Total RCA/CAPA records:', data.length);
   
   // Calculate summary metrics
   const totalProjects = data.length;
   const rcaProjects = data.filter(p => p['Type'] && p['Type'].toLowerCase().includes('rca'));
   const capaProjects = data.filter(p => p['Type'] && p['Type'].toLowerCase().includes('capa'));
-  const inProgress = data.filter(p => p['Status'] && p['Status'].toLowerCase().includes('progress'));
+  const inProgress = data.filter(p => p['Status'] && (p['Status'].toLowerCase().includes('progress') || p['Status'].toLowerCase().includes('open')));
   const completed = data.filter(p => p['Status'] && p['Status'].toLowerCase().includes('complete'));
+  const pending = data.filter(p => !p['Status'] || p['Status'].toLowerCase().includes('pending'));
   
-  // Update RCA summary cards (if elements exist)
-  const rcaTotalEl = document.querySelector('#strategic-content-rca .dashboard-card:nth-child(1) .text-3xl');
-  if (rcaTotalEl) rcaTotalEl.textContent = rcaProjects.length;
+  console.log('RCA Projects:', rcaProjects.length);
+  console.log('CAPA Projects:', capaProjects.length);
+  console.log('In Progress:', inProgress.length);
+  console.log('Completed:', completed.length);
+  console.log('Pending:', pending.length);
   
-  const rcaInProgressEl = document.querySelector('#strategic-content-rca .dashboard-card:nth-child(2) .text-3xl');
-  if (rcaInProgressEl) rcaInProgressEl.textContent = rcaProjects.filter(p => p['Status'] && p['Status'].toLowerCase().includes('progress')).length;
+  // Update RCA summary cards using correct IDs
+  const rcaTotalEl = document.getElementById('total-rcas');
+  if (rcaTotalEl) {
+    rcaTotalEl.textContent = rcaProjects.length;
+    console.log('Updated total-rcas to:', rcaProjects.length);
+  }
   
-  const rcaCompletedEl = document.querySelector('#strategic-content-rca .dashboard-card:nth-child(3) .text-3xl');
-  if (rcaCompletedEl) rcaCompletedEl.textContent = rcaProjects.filter(p => p['Status'] && p['Status'].toLowerCase().includes('complete')).length;
+  const rcaInProgressEl = document.getElementById('inprogress-rcas');
+  if (rcaInProgressEl) {
+    const inProgressRCAs = rcaProjects.filter(p => p['Status'] && (p['Status'].toLowerCase().includes('progress') || p['Status'].toLowerCase().includes('open')));
+    rcaInProgressEl.textContent = inProgressRCAs.length;
+    console.log('Updated inprogress-rcas to:', inProgressRCAs.length);
+  }
+  
+  const rcaCompletedEl = document.getElementById('completed-rcas');
+  if (rcaCompletedEl) {
+    const completedRCAs = rcaProjects.filter(p => p['Status'] && p['Status'].toLowerCase().includes('complete'));
+    rcaCompletedEl.textContent = completedRCAs.length;
+    console.log('Updated completed-rcas to:', completedRCAs.length);
+  }
+  
+  const rcaPendingEl = document.getElementById('pending-rcas');
+  if (rcaPendingEl) {
+    const pendingRCAs = rcaProjects.filter(p => !p['Status'] || p['Status'].toLowerCase().includes('pending'));
+    rcaPendingEl.textContent = pendingRCAs.length;
+    console.log('Updated pending-rcas to:', pendingRCAs.length);
+  }
   
   // Update RCA table
-  const rcaTableBody = document.getElementById('rca-projects-table');
+  const rcaTableBody = document.getElementById('rca-table-body');
   if (rcaTableBody && rcaProjects.length > 0) {
+    console.log('Updating RCA table with', rcaProjects.length, 'records');
     rcaTableBody.innerHTML = rcaProjects.map(project => {
       const status = project['Status'] || 'Unknown';
       const priority = project['Priority'] || 'Medium';
@@ -2568,9 +2597,11 @@ function updateSixSigmaView() {
   
   const data = rawData.sixSigmaProjects;
   console.log('Six Sigma Projects data:', data);
+  console.log('Total Six Sigma records:', data.length);
   
   // Calculate summary metrics
-  const activeProjects = data.filter(p => p['Status'] && !p['Status'].toLowerCase().includes('complete'));
+  const activeProjects = data.filter(p => !p['Status'] || !p['Status'].toLowerCase().includes('complete'));
+  console.log('Active Six Sigma projects:', activeProjects.length);
   
   // Calculate average cycle time
   const completedProjects = data.filter(p => p['Status'] && p['Status'].toLowerCase().includes('complete'));
@@ -2602,23 +2633,32 @@ function updateSixSigmaView() {
     return sum + savings;
   }, 0);
   
-  // Update summary cards
-  const activeProjectsEl = document.querySelector('#strategic-content-sixsigma .dashboard-card:nth-child(1) .text-3xl');
-  if (activeProjectsEl) activeProjectsEl.textContent = activeProjects.length;
+  // Update summary cards using correct IDs
+  const activeProjectsEl = document.getElementById('active-projects');
+  if (activeProjectsEl) {
+    activeProjectsEl.textContent = activeProjects.length;
+    console.log('Updated active-projects to:', activeProjects.length);
+  }
   
-  const avgCycleEl = document.querySelector('#strategic-content-sixsigma .dashboard-card:nth-child(2) .text-3xl');
-  if (avgCycleEl) avgCycleEl.textContent = avgCycleTime || 45;
-  
-  const defectReductionEl = document.querySelector('#strategic-content-sixsigma .dashboard-card:nth-child(3) .text-3xl');
-  if (defectReductionEl) defectReductionEl.textContent = totalDefectReduction + '%';
-  
-  const costSavingsEl = document.querySelector('#strategic-content-sixsigma .dashboard-card:nth-child(4) .text-3xl');
-  if (costSavingsEl) {
-    if (totalSavings >= 1000) {
-      costSavingsEl.textContent = '$' + Math.round(totalSavings / 1000) + 'K';
-    } else {
-      costSavingsEl.textContent = '$' + totalSavings.toLocaleString();
+  const avgSigmaEl = document.getElementById('avg-sigma');
+  if (avgSigmaEl) {
+    // Calculate average sigma level if available
+    const sigmaLevels = data.filter(p => p['Sigma Level']).map(p => parseFloat(p['Sigma Level']));
+    if (sigmaLevels.length > 0) {
+      const avgSigma = (sigmaLevels.reduce((a, b) => a + b, 0) / sigmaLevels.length).toFixed(1);
+      avgSigmaEl.textContent = avgSigma + 'σ';
+      console.log('Updated avg-sigma to:', avgSigma + 'σ');
     }
+  }
+  
+  const totalSavingsEl = document.getElementById('total-savings');
+  if (totalSavingsEl) {
+    if (totalSavings >= 1000) {
+      totalSavingsEl.textContent = '$' + Math.round(totalSavings / 1000) + 'K';
+    } else {
+      totalSavingsEl.textContent = '$' + totalSavings.toLocaleString();
+    }
+    console.log('Updated total-savings to: $' + totalSavings);
   }
 }
 
