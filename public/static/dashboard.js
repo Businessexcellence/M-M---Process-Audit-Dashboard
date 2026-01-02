@@ -414,8 +414,12 @@ function applyFilters() {
   currentFilters.stage = document.getElementById('filter-stage').value;
   currentFilters.parameter = document.getElementById('filter-parameter').value;
   
+  console.log('Applying filters:', currentFilters);
+  
   // Filter data
   filteredData = filterDataByCurrentFilters();
+  
+  console.log('Filtered data records:', filteredData ? filteredData.length : 0);
   
   // Update active filter pills
   updateActiveFilterPills();
@@ -584,6 +588,14 @@ function updateKeyMetrics() {
   const errorRate = totalExcludingNA > 0 ? (totalFail / totalExcludingNA * 100) : 0;
   const sampleCoverage = totalPopulation > 0 ? (totalOpportunityCount / totalPopulation * 100) : 0;
   
+  console.log('Key Metrics Calculated:', {
+    accuracy: accuracy.toFixed(1) + '%',
+    errorRate: errorRate.toFixed(1) + '%',
+    totalAudits: totalOpportunityCount,
+    sampleCoverage: sampleCoverage.toFixed(1) + '%',
+    filteredRecords: filteredData.length
+  });
+  
   document.getElementById('metric-accuracy').textContent = accuracy.toFixed(1) + '%';
   document.getElementById('metric-error-rate').textContent = errorRate.toFixed(1) + '%';
   document.getElementById('metric-total-audits').textContent = totalOpportunityCount.toLocaleString();
@@ -681,7 +693,7 @@ function updateMonthlyAccuracyChart() {
     return;
   }
   if (!filteredData || filteredData.length === 0) {
-    console.warn('No filtered data available for monthly accuracy chart');
+    console.log('No filtered data available - waiting for data or filters to be applied');
     return;
   }
   
@@ -723,7 +735,12 @@ function updateMonthlyAccuracyChart() {
   console.log('Months found:', months);
   
   if (months.length === 0) {
-    console.warn('No monthly data to display');
+    console.log('No monthly data available for current filters - this is expected when data lacks monthly breakdown');
+    // Don't return, just skip the chart update gracefully
+    if (charts.monthlyAccuracy) {
+      charts.monthlyAccuracy.destroy();
+      charts.monthlyAccuracy = null;
+    }
     return;
   }
   

@@ -221,12 +221,16 @@ app.get('/', (c) => {
           
           /* M&M Logo Styles */
           .nav-logo {
-            padding: 20px;
+            padding: 24px 16px;
             border-bottom: 2px solid var(--mm-border-grey);
             margin-bottom: 8px;
             background: linear-gradient(135deg, #FFF5F5 0%, #FFFFFF 100%);
             position: relative;
             overflow: hidden;
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
           }
           
           .nav-logo::before {
@@ -236,51 +240,59 @@ app.get('/', (c) => {
             left: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(circle, rgba(200, 16, 46, 0.05) 0%, transparent 70%);
-            animation: logoGlow 4s ease-in-out infinite;
+            background: radial-gradient(circle, rgba(200, 16, 46, 0.08) 0%, transparent 70%);
+            animation: logoGlow 2.5s ease-in-out infinite;
           }
           
           @keyframes logoGlow {
-            0%, 100% { opacity: 0.5; }
+            0%, 100% { opacity: 0.6; }
             50% { opacity: 1; }
           }
           
           .nav-logo-container {
             display: flex;
             justify-content: center;
-            margin-bottom: 12px;
-            perspective: 1000px;
+            align-items: center;
+            perspective: 1200px;
+            z-index: 1;
           }
           
           .mahindra-logo-img {
-            width: 140px;
-            height: auto;
-            filter: drop-shadow(0 8px 16px rgba(200, 16, 46, 0.3));
-            animation: logo3DRotate 8s ease-in-out infinite;
+            width: 200px;
+            height: 120px;
+            object-fit: contain;
+            filter: drop-shadow(0 10px 20px rgba(200, 16, 46, 0.4));
+            animation: logo3DRotate 3s ease-in-out infinite;
             transform-style: preserve-3d;
             transition: transform 0.3s ease;
           }
           
           .mahindra-logo-img:hover {
             animation-play-state: paused;
-            transform: scale(1.1) rotateY(20deg);
+            transform: scale(1.15) rotateY(25deg);
           }
           
           @keyframes logo3DRotate {
             0% { 
-              transform: rotateY(0deg) rotateX(0deg) translateZ(0px);
+              transform: rotateY(0deg) rotateX(0deg) translateZ(0px) scale(1);
             }
-            25% { 
-              transform: rotateY(10deg) rotateX(5deg) translateZ(10px);
+            15% { 
+              transform: rotateY(15deg) rotateX(8deg) translateZ(15px) scale(1.05);
+            }
+            35% { 
+              transform: rotateY(0deg) rotateX(0deg) translateZ(0px) scale(1);
             }
             50% { 
-              transform: rotateY(0deg) rotateX(0deg) translateZ(0px);
+              transform: rotateY(-15deg) rotateX(-8deg) translateZ(15px) scale(1.05);
             }
-            75% { 
-              transform: rotateY(-10deg) rotateX(-5deg) translateZ(10px);
+            65% { 
+              transform: rotateY(0deg) rotateX(0deg) translateZ(0px) scale(1);
+            }
+            80% { 
+              transform: rotateY(8deg) rotateX(-5deg) translateZ(10px) scale(1.02);
             }
             100% { 
-              transform: rotateY(0deg) rotateX(0deg) translateZ(0px);
+              transform: rotateY(0deg) rotateX(0deg) translateZ(0px) scale(1);
             }
           }
           
@@ -927,10 +939,6 @@ app.get('/', (c) => {
             <div class="nav-logo">
                 <div class="nav-logo-container">
                     <img src="/static/mahindra-logo.png" alt="Mahindra & Mahindra" class="mahindra-logo-img">
-                </div>
-                <div class="nav-logo-text">
-                    <div class="nav-logo-title">Mahindra & Mahindra</div>
-                    <div class="nav-logo-subtitle">Recruitment Audit</div>
                 </div>
             </div>
             
