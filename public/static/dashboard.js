@@ -2367,7 +2367,8 @@ function switchTab(tabName) {
     'recruiter': 'Recruiter View - Performance metrics',
     'trends': 'Trends and Predictive Analytics',
     'insights': 'Insights and Recommendations',
-    'strategic': 'Strategic View - RCAs, CAPAs and Six Sigma Projects'
+    'strategic': 'Strategic View - RCAs, CAPAs and Six Sigma Projects',
+    'bestpractices': 'Best Practices - Industry benchmarks and recommendations'
   };
   
   if (audioEnabled && tabNames[tabName]) {

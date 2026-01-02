@@ -272,14 +272,12 @@ app.get('/', (c) => {
             height: 120px;
             object-fit: contain;
             filter: drop-shadow(0 10px 20px rgba(200, 16, 46, 0.4));
-            animation: logo3DRotate 3s ease-in-out infinite;
             transform-style: preserve-3d;
             transition: transform 0.3s ease;
           }
           
           .mahindra-logo-img:hover {
-            animation-play-state: paused;
-            transform: scale(1.15) rotateY(25deg);
+            transform: scale(1.05);
           }
           
           @keyframes logo3DRotate {
@@ -1674,38 +1672,12 @@ app.get('/', (c) => {
         <header class="bg-mm-red text-white shadow-lg" style="position: fixed; top: 0; left: 0; right: 0; z-index: 10000; width: 100%;">
             <div class="container mx-auto px-6 py-4">
                 <div class="flex justify-between items-center">
-                    <div class="flex items-center gap-4">
-                        <div>
-                            <h1 class="text-2xl font-bold">M&M Recruitment Process Audit Dashboard</h1>
-                            <p class="text-sm text-red-100 mt-1">Real-time QA Insights & Performance Analytics</p>
-                        </div>
-                        <!-- Audio Description & Theme Toggle -->
-                        <div class="flex gap-2 ml-6">
-                            <button onclick="toggleAudioDescription()" id="audio-toggle" class="bg-white/20 hover:bg-white/30 px-3 py-2 rounded-lg transition flex items-center gap-2" title="Toggle Audio Description">
-                                <i class="fas fa-volume-up"></i>
-                                <span class="text-xs font-medium">Audio</span>
-                            </button>
-                            <button onclick="toggleTheme()" id="theme-toggle" class="bg-white/20 hover:bg-white/30 px-3 py-2 rounded-lg transition flex items-center gap-2" title="Toggle Theme">
-                                <i class="fas fa-moon"></i>
-                                <span class="text-xs font-medium">Theme</span>
-                            </button>
-                        </div>
+                    <div>
+                        <h1 class="text-2xl font-bold">M&M Recruitment Process Audit Dashboard</h1>
+                        <p class="text-sm text-red-100 mt-1">Real-time QA Insights & Performance Analytics</p>
                     </div>
-                    <div class="flex gap-3">
-                        <label for="excel-upload" class="bg-white text-red-600 px-4 py-2 rounded-lg cursor-pointer hover:bg-red-50 transition flex items-center gap-2 font-semibold">
-                            <i class="fas fa-upload"></i>
-                            <span>Upload Excel</span>
-                            <input type="file" id="excel-upload" accept=".xlsx,.xls" class="hidden" onchange="handleFileUpload(event)">
-                        </label>
-                        <button onclick="exportToPDF()" class="bg-white text-red-600 px-4 py-2 rounded-lg hover:bg-red-50 transition flex items-center gap-2 font-semibold">
-                            <i class="fas fa-file-pdf"></i>
-                            <span>Export PDF</span>
-                        </button>
-                        <button onclick="resetFilters()" class="bg-white text-red-600 px-4 py-2 rounded-lg hover:bg-red-50 transition flex items-center gap-2 font-semibold">
-                            <i class="fas fa-redo"></i>
-                            <span>Reset</span>
-                        </button>
-                    </div>
+                    <!-- Keep file input hidden for FAB to trigger -->
+                    <input type="file" id="excel-upload" accept=".xlsx,.xls" class="hidden" onchange="handleFileUpload(event)">
                 </div>
             </div>
         </header>
@@ -1779,6 +1751,16 @@ app.get('/', (c) => {
                 </div>
             </div>
             
+            <div class="nav-tab" onclick="switchTab('bestpractices')">
+                <div class="nav-tab-icon">
+                    <i class="fas fa-award"></i>
+                </div>
+                <div class="nav-tab-content">
+                    <div class="nav-tab-title">Best Practices</div>
+                    <div class="nav-tab-desc">Industry Benchmarks</div>
+                </div>
+            </div>
+            
         </nav>
 
         <!-- Main Content Wrapper -->
@@ -1839,6 +1821,12 @@ app.get('/', (c) => {
                 <i class="fas fa-plus" id="fab-icon"></i>
             </button>
             <div class="fab-menu" id="fab-menu">
+                <button class="fab-item" onclick="toggleAudioDescription()" id="fab-audio-toggle">
+                    <div class="fab-item-icon">
+                        <i class="fas fa-volume-up"></i>
+                    </div>
+                    <span class="fab-item-label">Audio Commands</span>
+                </button>
                 <button class="fab-item" onclick="document.getElementById('excel-upload').click()">
                     <div class="fab-item-icon">
                         <i class="fas fa-upload"></i>
@@ -3286,6 +3274,276 @@ app.get('/', (c) => {
                                         <div class="text-xs mb-1" style="color: var(--text-secondary);">Target</div>
                                         <div class="text-lg font-bold" style="color: var(--success-color);">2.5%</div>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Best Practices & Industry Benchmarks Tab -->
+            <div id="tab-bestpractices" class="tab-content hidden page-transition">
+                <div class="dashboard-card p-6 mb-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-3">
+                                <i class="fas fa-award text-yellow-500"></i>
+                                Best Practices & Industry Benchmarks
+                            </h2>
+                            <p class="text-sm text-gray-600 mt-2">Industry-leading recruitment audit practices from top companies</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Industry Benchmark Comparison -->
+                <div class="dashboard-card p-6 mb-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                        <i class="fas fa-chart-bar text-blue-600"></i>
+                        Your Performance vs Industry Standards
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border border-green-200">
+                            <div class="text-3xl font-bold text-green-700" id="metric-accuracy">--</div>
+                            <div class="text-sm text-gray-600 mt-1">Your Accuracy</div>
+                            <div class="text-2xl font-bold text-green-600 mt-2">95%</div>
+                            <div class="text-xs text-gray-500">Industry Best: Top 10%</div>
+                            <div class="mt-3 text-xs text-green-700 font-semibold">
+                                <i class="fas fa-arrow-up"></i> Exceeding Target
+                            </div>
+                        </div>
+                        <div class="text-center p-4 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg border border-yellow-200">
+                            <div class="text-3xl font-bold text-yellow-700" id="metric-sample-coverage">--</div>
+                            <div class="text-sm text-gray-600 mt-1">Sample Coverage</div>
+                            <div class="text-2xl font-bold text-yellow-600 mt-2">80%</div>
+                            <div class="text-xs text-gray-500">Industry Target: Top 25%</div>
+                            <div class="mt-3 text-xs text-yellow-700 font-semibold">
+                                <i class="fas fa-equals"></i> Meeting Target
+                            </div>
+                        </div>
+                        <div class="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200">
+                            <div class="text-3xl font-bold text-blue-700" id="metric-error-rate">--</div>
+                            <div class="text-sm text-gray-600 mt-1">Error Rate</div>
+                            <div class="text-2xl font-bold text-blue-600 mt-2">&lt;3%</div>
+                            <div class="text-xs text-gray-500">Industry Best: Top Quartile</div>
+                            <div class="mt-3 text-xs text-blue-700 font-semibold">
+                                <i class="fas fa-arrow-down"></i> Below Target
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Best Practices from Top Companies -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <!-- Google/Alphabet Practices -->
+                    <div class="dashboard-card p-6 interactive-card">
+                        <div class="flex items-start gap-4">
+                            <div class="w-16 h-16 bg-gradient-to-br from-red-500 to-yellow-500 rounded-full flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-google text-white text-2xl"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-gray-800 mb-2">Google - Structured Hiring</h4>
+                                <ul class="space-y-2 text-sm text-gray-700">
+                                    <li class="flex items-start gap-2">
+                                        <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                                        <span><strong>Standardized Scorecards:</strong> Use consistent 1-5 rating scale for all candidates</span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                                        <span><strong>Committee Review:</strong> Hiring decisions made by panel, not individuals</span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                                        <span><strong>Quality Metric:</strong> Track "Quality of Hire" score at 6-month mark (Target: 85%+)</span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <i class="fas fa-lightbulb text-yellow-500 mt-1"></i>
+                                        <span class="italic">Recommendation: Implement standardized interview scorecards</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Amazon Practices -->
+                    <div class="dashboard-card p-6 interactive-card">
+                        <div class="flex items-start gap-4">
+                            <div class="w-16 h-16 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-amazon text-white text-2xl"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-gray-800 mb-2">Amazon - Bar Raiser Program</h4>
+                                <ul class="space-y-2 text-sm text-gray-700">
+                                    <li class="flex items-start gap-2">
+                                        <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                                        <span><strong>Bar Raiser:</strong> Trained auditor in every hiring interview (Accuracy: 98%)</span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                                        <span><strong>Leadership Principles:</strong> 14 principles scored in every assessment</span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                                        <span><strong>Written Feedback:</strong> Mandatory detailed notes within 24 hours</span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <i class="fas fa-lightbulb text-yellow-500 mt-1"></i>
+                                        <span class="italic">Recommendation: Designate quality champions for audits</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Microsoft Practices -->
+                    <div class="dashboard-card p-6 interactive-card">
+                        <div class="flex items-start gap-4">
+                            <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-microsoft text-white text-2xl"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-gray-800 mb-2">Microsoft - Data-Driven Hiring</h4>
+                                <ul class="space-y-2 text-sm text-gray-700">
+                                    <li class="flex items-start gap-2">
+                                        <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                                        <span><strong>Predictive Analytics:</strong> ML models predict candidate success (Accuracy: 87%)</span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                                        <span><strong>Real-Time Dashboards:</strong> Track hiring velocity and quality metrics daily</span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                                        <span><strong>Continuous Calibration:</strong> Monthly auditor training and recalibration</span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <i class="fas fa-lightbulb text-yellow-500 mt-1"></i>
+                                        <span class="italic">Recommendation: Implement monthly calibration sessions</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- LinkedIn Practices -->
+                    <div class="dashboard-card p-6 interactive-card">
+                        <div class="flex items-start gap-4">
+                            <div class="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full flex items-center justify-center flex-shrink-0">
+                                <i class="fab fa-linkedin text-white text-2xl"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-gray-800 mb-2">LinkedIn - Talent Intelligence</h4>
+                                <ul class="space-y-2 text-sm text-gray-700">
+                                    <li class="flex items-start gap-2">
+                                        <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                                        <span><strong>Skills-Based Hiring:</strong> Focus on verified skills over credentials (85% success)</span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                                        <span><strong>Blind Screening:</strong> Remove bias with anonymized resume reviews</span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                                        <span><strong>Talent Pools:</strong> Maintain warm pipelines for critical roles (50% faster TTH)</span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <i class="fas fa-lightbulb text-yellow-500 mt-1"></i>
+                                        <span class="italic">Recommendation: Build skills-based assessment criteria</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Key Metrics to Track -->
+                <div class="dashboard-card p-6 mb-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                        <i class="fas fa-tachometer-alt text-purple-600"></i>
+                        Industry-Standard KPIs for Recruitment Audits
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="border-l-4 border-green-500 pl-4 py-2 bg-green-50">
+                            <div class="font-bold text-gray-800">Quality of Hire</div>
+                            <div class="text-2xl font-bold text-green-600">85-95%</div>
+                            <div class="text-xs text-gray-600 mt-1">Performance rating after 6-12 months</div>
+                        </div>
+                        <div class="border-l-4 border-blue-500 pl-4 py-2 bg-blue-50">
+                            <div class="font-bold text-gray-800">Time to Hire</div>
+                            <div class="text-2xl font-bold text-blue-600">30-45 days</div>
+                            <div class="text-xs text-gray-600 mt-1">From requisition to offer acceptance</div>
+                        </div>
+                        <div class="border-l-4 border-purple-500 pl-4 py-2 bg-purple-50">
+                            <div class="font-bold text-gray-800">Audit Accuracy</div>
+                            <div class="text-2xl font-bold text-purple-600">95-98%</div>
+                            <div class="text-xs text-gray-600 mt-1">Agreement between auditors</div>
+                        </div>
+                        <div class="border-l-4 border-yellow-500 pl-4 py-2 bg-yellow-50">
+                            <div class="font-bold text-gray-800">Sample Size</div>
+                            <div class="text-2xl font-bold text-yellow-600">10-15%</div>
+                            <div class="text-xs text-gray-600 mt-1">Of total recruitment population</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Action Plan Recommendations -->
+                <div class="dashboard-card p-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                        <i class="fas fa-clipboard-list text-red-600"></i>
+                        Recommended Action Plan - Next 90 Days
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="flex items-start gap-4 p-4 bg-gradient-to-r from-red-50 to-white rounded-lg border-l-4 border-red-500">
+                            <div class="flex-shrink-0 w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                                <span class="font-bold text-red-600">1</span>
+                            </div>
+                            <div class="flex-1">
+                                <div class="font-bold text-gray-800 mb-1">Week 1-2: Implement Standardized Scorecards</div>
+                                <p class="text-sm text-gray-600">Create uniform evaluation criteria across all recruitment stages. Expected impact: +15% accuracy improvement.</p>
+                                <div class="mt-2 flex gap-2">
+                                    <span class="px-2 py-1 bg-red-100 text-red-700 text-xs rounded-full">High Priority</span>
+                                    <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">Quick Win</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start gap-4 p-4 bg-gradient-to-r from-orange-50 to-white rounded-lg border-l-4 border-orange-500">
+                            <div class="flex-shrink-0 w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                                <span class="font-bold text-orange-600">2</span>
+                            </div>
+                            <div class="flex-1">
+                                <div class="font-bold text-gray-800 mb-1">Week 3-4: Launch Quality Champion Program</div>
+                                <p class="text-sm text-gray-600">Train and certify 5-7 senior recruiters as quality auditors. Expected impact: +20% audit coverage.</p>
+                                <div class="mt-2 flex gap-2">
+                                    <span class="px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full">Medium Priority</span>
+                                    <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">Training Required</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start gap-4 p-4 bg-gradient-to-r from-green-50 to-white rounded-lg border-l-4 border-green-500">
+                            <div class="flex-shrink-0 w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                                <span class="font-bold text-green-600">3</span>
+                            </div>
+                            <div class="flex-1">
+                                <div class="font-bold text-gray-800 mb-1">Month 2: Deploy Real-Time Monitoring Dashboard</div>
+                                <p class="text-sm text-gray-600">Enable daily tracking of quality metrics with automated alerts. Expected impact: 50% faster issue detection.</p>
+                                <div class="mt-2 flex gap-2">
+                                    <span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">Strategic</span>
+                                    <span class="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full">Technology</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start gap-4 p-4 bg-gradient-to-r from-blue-50 to-white rounded-lg border-l-4 border-blue-500">
+                            <div class="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                                <span class="font-bold text-blue-600">4</span>
+                            </div>
+                            <div class="flex-1">
+                                <div class="font-bold text-gray-800 mb-1">Month 3: Monthly Calibration Sessions</div>
+                                <p class="text-sm text-gray-600">Establish recurring calibration meetings to ensure consistency. Expected impact: +10% inter-rater reliability.</p>
+                                <div class="mt-2 flex gap-2">
+                                    <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">Ongoing</span>
+                                    <span class="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded-full">Culture Change</span>
                                 </div>
                             </div>
                         </div>
