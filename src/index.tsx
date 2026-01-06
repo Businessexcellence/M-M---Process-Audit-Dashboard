@@ -2102,10 +2102,7 @@ app.get('/', (c) => {
             </div>
         </div>
         
-        <!-- Data Summary Bar -->
-        <div id="data-summary-bar" class="bg-gradient-to-r from-blue-50 to-purple-50 border-b border-gray-200 shadow-sm" style="color: var(--text-primary);">
-            <!-- Will be populated by JavaScript -->
-        </div>
+        <!-- Data Summary Bar - REMOVED per user request -->
         
         <!-- Global Filters -->
         <div class="bg-white border-b border-gray-200 py-4 shadow-sm">
@@ -2572,6 +2569,75 @@ app.get('/', (c) => {
                             <tbody id="recruiter-table-body">
                             </tbody>
                         </table>
+                    </div>
+                </div>
+                
+                <!-- Recruiter of the Month Section -->
+                <div class="dashboard-card mt-6 bg-gradient-to-br from-yellow-50 via-orange-50 to-red-50">
+                    <div class="p-6 border-b border-gray-200">
+                        <h3 class="text-2xl font-bold text-gray-800 flex items-center gap-3">
+                            <i class="fas fa-trophy text-yellow-500"></i>
+                            Recruiter of the Month
+                        </h3>
+                        <p class="text-sm text-gray-600 mt-2">Top performing recruiter based on accuracy and volume</p>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <!-- Top Recruiter Card -->
+                            <div class="col-span-1 md:col-span-2">
+                                <div class="bg-white rounded-xl shadow-lg p-6 border-4 border-yellow-400">
+                                    <div class="flex items-center gap-4 mb-4">
+                                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-4xl">
+                                            🏆
+                                        </div>
+                                        <div>
+                                            <div class="text-xs text-gray-500 uppercase tracking-wide">Champion</div>
+                                            <h4 class="text-3xl font-bold text-gray-800" id="rotm-name">Loading...</h4>
+                                            <div class="text-sm text-gray-600" id="rotm-pm">Program Manager</div>
+                                        </div>
+                                    </div>
+                                    <div class="grid grid-cols-3 gap-4 mt-6">
+                                        <div class="text-center">
+                                            <div class="text-3xl font-bold text-green-600" id="rotm-accuracy">--</div>
+                                            <div class="text-xs text-gray-600">Accuracy</div>
+                                        </div>
+                                        <div class="text-center">
+                                            <div class="text-3xl font-bold text-blue-600" id="rotm-samples">--</div>
+                                            <div class="text-xs text-gray-600">Audits</div>
+                                        </div>
+                                        <div class="text-center">
+                                            <div class="text-3xl font-bold text-red-600" id="rotm-errors">--</div>
+                                            <div class="text-xs text-gray-600">Errors</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Runner-ups -->
+                            <div class="space-y-4">
+                                <!-- Second Place -->
+                                <div class="bg-white rounded-lg shadow p-4 border-2 border-gray-300">
+                                    <div class="flex items-center gap-3">
+                                        <div class="text-3xl">🥈</div>
+                                        <div class="flex-1">
+                                            <div class="font-bold text-gray-800" id="rotm-second-name">--</div>
+                                            <div class="text-sm text-gray-600" id="rotm-second-accuracy">--</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Third Place -->
+                                <div class="bg-white rounded-lg shadow p-4 border-2 border-orange-300">
+                                    <div class="flex items-center gap-3">
+                                        <div class="text-3xl">🥉</div>
+                                        <div class="flex-1">
+                                            <div class="font-bold text-gray-800" id="rotm-third-name">--</div>
+                                            <div class="text-sm text-gray-600" id="rotm-third-accuracy">--</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -4236,58 +4302,70 @@ app.get('/', (c) => {
                 <div class="dashboard-card p-6">
                     <h3 class="text-lg font-bold mb-4">Select Comparison Type:</h3>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                        <button class="p-4 border-2 border-purple-500 bg-purple-50 rounded-lg hover:bg-purple-100 transition">
+                        <button onclick="showComparisonType('year')" id="btn-compare-year" class="p-4 border-2 border-purple-500 bg-purple-50 rounded-lg hover:bg-purple-100 transition">
                             <i class="fas fa-calendar text-purple-600 text-2xl mb-2"></i>
                             <div class="font-bold">Year-over-Year</div>
                         </button>
-                        <button class="p-4 border-2 border-gray-300 bg-white rounded-lg hover:bg-gray-50 transition">
+                        <button onclick="showComparisonType('recruiter')" id="btn-compare-recruiter" class="p-4 border-2 border-gray-300 bg-white rounded-lg hover:bg-gray-50 transition">
                             <i class="fas fa-users text-blue-600 text-2xl mb-2"></i>
                             <div class="font-bold">Recruiter vs Recruiter</div>
                         </button>
-                        <button class="p-4 border-2 border-gray-300 bg-white rounded-lg hover:bg-gray-50 transition">
+                        <button onclick="showComparisonType('stage')" id="btn-compare-stage" class="p-4 border-2 border-gray-300 bg-white rounded-lg hover:bg-gray-50 transition">
                             <i class="fas fa-layer-group text-green-600 text-2xl mb-2"></i>
                             <div class="font-bold">Stage vs Stage</div>
                         </button>
                     </div>
                     
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div class="p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border-2 border-blue-300">
-                            <h4 class="font-bold text-lg mb-4 text-blue-800">FY 2023-24</h4>
-                            <div class="space-y-3">
-                                <div class="flex justify-between items-center p-3 bg-white rounded">
-                                    <span>Accuracy:</span>
-                                    <strong class="text-2xl text-blue-600">92.5%</strong>
-                                </div>
-                                <div class="flex justify-between items-center p-3 bg-white rounded">
-                                    <span>Total Audits:</span>
-                                    <strong class="text-2xl text-blue-600">1,247</strong>
-                                </div>
-                                <div class="flex justify-between items-center p-3 bg-white rounded">
-                                    <span>Error Rate:</span>
-                                    <strong class="text-2xl text-blue-600">7.5%</strong>
-                                </div>
+                    <!-- Year Comparison -->
+                    <div id="comparison-year" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                    
+                    <!-- Recruiter Comparison -->
+                    <div id="comparison-recruiter" class="hidden">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">Select First Recruiter:</label>
+                                <select id="recruiter-compare-1" class="w-full px-4 py-2 border rounded-lg">
+                                    <option value="">Choose Recruiter...</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">Select Second Recruiter:</label>
+                                <select id="recruiter-compare-2" class="w-full px-4 py-2 border rounded-lg">
+                                    <option value="">Choose Recruiter...</option>
+                                </select>
                             </div>
                         </div>
-                        
-                        <div class="p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border-2 border-green-300">
-                            <h4 class="font-bold text-lg mb-4 text-green-800">FY 2024-25</h4>
-                            <div class="space-y-3">
-                                <div class="flex justify-between items-center p-3 bg-white rounded">
-                                    <span>Accuracy:</span>
-                                    <strong class="text-2xl text-green-600">94.8%</strong>
-                                    <span class="text-green-600 text-sm">↑ +2.3%</span>
-                                </div>
-                                <div class="flex justify-between items-center p-3 bg-white rounded">
-                                    <span>Total Audits:</span>
-                                    <strong class="text-2xl text-green-600">1,582</strong>
-                                    <span class="text-green-600 text-sm">↑ +335</span>
-                                </div>
-                                <div class="flex justify-between items-center p-3 bg-white rounded">
-                                    <span>Error Rate:</span>
-                                    <strong class="text-2xl text-green-600">5.2%</strong>
-                                    <span class="text-green-600 text-sm">↓ -2.3%</span>
-                                </div>
+                        <button onclick="compareRecruiters()" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 mb-6">
+                            Compare
+                        </button>
+                        <div id="recruiter-comparison-result" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <!-- Will be populated after comparison -->
+                        </div>
+                    </div>
+                    
+                    <!-- Stage Comparison -->
+                    <div id="comparison-stage" class="hidden">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">Select First Stage:</label>
+                                <select id="stage-compare-1" class="w-full px-4 py-2 border rounded-lg">
+                                    <option value="">Choose Stage...</option>
+                                </select>
                             </div>
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">Select Second Stage:</label>
+                                <select id="stage-compare-2" class="w-full px-4 py-2 border rounded-lg">
+                                    <option value="">Choose Stage...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button onclick="compareStages()" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 mb-6">
+                            Compare
+                        </button>
+                        <div id="stage-comparison-result" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <!-- Will be populated after comparison -->
                         </div>
                     </div>
                 </div>

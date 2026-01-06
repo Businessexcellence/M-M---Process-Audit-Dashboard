@@ -1677,6 +1677,85 @@ function updateRecruiterView() {
   updateRecruiterScatterChart();
   updateRecruiterBarChart();
   updateRecruiterTable();
+  updateRecruiterOfTheMonth();
+}
+
+// Recruiter of the Month
+function updateRecruiterOfTheMonth() {
+  if (!rawData) return;
+  
+  // Build recruiter data
+  let recruiterData = {};
+  
+  if (rawData.recruiterWise && rawData.recruiterWise.length > 0) {
+    rawData.recruiterWise.forEach(row => {
+      const recruiter = row['Recruiter Name'] || row['__EMPTY_6'] || row['G'];
+      const auditScore = row['Audit Score'] || row['__EMPTY_9'] || row['J'];
+      const sampleCount = parseFloat(row['Sample Count']) || parseFloat(row['__EMPTY_10']) || parseFloat(row['K']) || 0;
+      
+      if (!recruiter || recruiter === 'Recruiter Name') return;
+      
+      if (!recruiterData[recruiter]) {
+        recruiterData[recruiter] = { 
+          passCount: 0, 
+          totalCount: 0, 
+          errors: 0, 
+          samples: 0,
+          pm: row['Program Manager'] || row['__EMPTY_8'] || row['I'] || ''
+        };
+      }
+      
+      if (auditScore === 1 || auditScore === '1') {
+        recruiterData[recruiter].passCount++;
+        recruiterData[recruiter].totalCount++;
+      } else if (auditScore === 0 || auditScore === '0') {
+        recruiterData[recruiter].totalCount++;
+        recruiterData[recruiter].errors++;
+      }
+      
+      recruiterData[recruiter].samples += sampleCount;
+    });
+  }
+  
+  // Sort by accuracy and samples
+  const topRecruiters = Object.entries(recruiterData)
+    .map(([name, data]) => ({
+      name,
+      accuracy: data.totalCount > 0 ? (data.passCount / data.totalCount * 100) : 0,
+      errors: data.errors,
+      samples: data.samples,
+      pm: data.pm
+    }))
+    .filter(r => r.samples >= 10) // Minimum 10 audits
+    .sort((a, b) => {
+      // Sort by accuracy first, then by sample count
+      if (Math.abs(a.accuracy - b.accuracy) < 0.1) {
+        return b.samples - a.samples;
+      }
+      return b.accuracy - a.accuracy;
+    })
+    .slice(0, 3);
+  
+  if (topRecruiters.length > 0) {
+    const champion = topRecruiters[0];
+    document.getElementById('rotm-name').textContent = champion.name;
+    document.getElementById('rotm-pm').textContent = champion.pm;
+    document.getElementById('rotm-accuracy').textContent = champion.accuracy.toFixed(1) + '%';
+    document.getElementById('rotm-samples').textContent = champion.samples;
+    document.getElementById('rotm-errors').textContent = champion.errors;
+  }
+  
+  if (topRecruiters.length > 1) {
+    const second = topRecruiters[1];
+    document.getElementById('rotm-second-name').textContent = second.name;
+    document.getElementById('rotm-second-accuracy').textContent = second.accuracy.toFixed(1) + '% • ' + second.samples + ' audits';
+  }
+  
+  if (topRecruiters.length > 2) {
+    const third = topRecruiters[2];
+    document.getElementById('rotm-third-name').textContent = third.name;
+    document.getElementById('rotm-third-accuracy').textContent = third.accuracy.toFixed(1) + '% • ' + third.samples + ' audits';
+  }
 }
 
 function updateRecruiterScatterChart() {
@@ -3481,14 +3560,13 @@ function hideRefreshIndicator() {
   }, 500);
 }
 
-// Update dashboard with refresh indicator and summary bar
+// Update dashboard with refresh indicator
 const originalUpdateDashboard = updateDashboard;
 updateDashboard = function() {
   showRefreshIndicator();
   originalUpdateDashboard();
   hideRefreshIndicator();
   updateQuickStats();
-  updateDataSummaryBar();
 };
 
 // ========== CREATIVE UI ENHANCEMENTS ==========
@@ -3738,6 +3816,291 @@ window.handleGlobalSearch = handleGlobalSearch;
 window.clearGlobalSearch = clearGlobalSearch;
 window.removeFilter = removeFilter;
 window.updateBreadcrumb = updateBreadcrumb;
+
+// ========== COMPARISON VIEW FUNCTIONS ==========
+
+let currentComparisonType = 'year';
+
+function showComparisonType(type) {
+  currentComparisonType = type;
+  
+  // Update button states
+  ['year', 'recruiter', 'stage'].forEach(t => {
+    const btn = document.getElementById(`btn-compare-${t}`);
+    if (btn) {
+      if (t === type) {
+        btn.className = 'p-4 border-2 border-purple-500 bg-purple-50 rounded-lg hover:bg-purple-100 transition';
+      } else {
+        btn.className = 'p-4 border-2 border-gray-300 bg-white rounded-lg hover:bg-gray-50 transition';
+      }
+    }
+  });
+  
+  // Show/hide comparison sections
+  document.getElementById('comparison-year').classList.toggle('hidden', type !== 'year');
+  document.getElementById('comparison-recruiter').classList.toggle('hidden', type !== 'recruiter');
+  document.getElementById('comparison-stage').classList.toggle('hidden', type !== 'stage');
+  
+  // Populate dropdowns
+  if (type === 'recruiter') {
+    populateRecruiterDropdowns();
+  } else if (type === 'stage') {
+    populateStageDropdowns();
+  } else if (type === 'year') {
+    updateYearComparison();
+  }
+}
+window.showComparisonType = showComparisonType;
+
+function populateRecruiterDropdowns() {
+  if (!rawData || !rawData.recruiterWise) return;
+  
+  const recruiters = [];
+  rawData.recruiterWise.forEach(row => {
+    const recruiter = row['Recruiter Name'] || row['__EMPTY_6'] || row['G'];
+    if (recruiter && recruiter !== 'Recruiter Name' && !recruiters.includes(recruiter)) {
+      recruiters.push(recruiter);
+    }
+  });
+  
+  recruiters.sort();
+  
+  ['recruiter-compare-1', 'recruiter-compare-2'].forEach(id => {
+    const select = document.getElementById(id);
+    if (select) {
+      select.innerHTML = '<option value="">Choose Recruiter...</option>';
+      recruiters.forEach(r => {
+        const option = document.createElement('option');
+        option.value = r;
+        option.textContent = r;
+        select.appendChild(option);
+      });
+    }
+  });
+}
+
+function populateStageDropdowns() {
+  if (!rawData || !rawData.auditCount) return;
+  
+  const stages = [...new Set(rawData.auditCount.map(r => r['Recruitment Stage'] || r['__EMPTY_5'] || r['F']).filter(Boolean))];
+  stages.sort();
+  
+  ['stage-compare-1', 'stage-compare-2'].forEach(id => {
+    const select = document.getElementById(id);
+    if (select) {
+      select.innerHTML = '<option value="">Choose Stage...</option>';
+      stages.forEach(s => {
+        const option = document.createElement('option');
+        option.value = s;
+        option.textContent = s;
+        select.appendChild(option);
+      });
+    }
+  });
+}
+
+function compareRecruiters() {
+  const rec1Name = document.getElementById('recruiter-compare-1').value;
+  const rec2Name = document.getElementById('recruiter-compare-2').value;
+  
+  if (!rec1Name || !rec2Name) {
+    showToast('Please select both recruiters', 'warning');
+    return;
+  }
+  
+  if (rec1Name === rec2Name) {
+    showToast('Please select different recruiters', 'warning');
+    return;
+  }
+  
+  if (!rawData || !rawData.recruiterWise) return;
+  
+  // Calculate stats for both recruiters
+  const getRecruiterStats = (name) => {
+    let passCount = 0, totalCount = 0, errors = 0, samples = 0;
+    
+    rawData.recruiterWise.forEach(row => {
+      const recruiter = row['Recruiter Name'] || row['__EMPTY_6'] || row['G'];
+      if (recruiter === name) {
+        const auditScore = row['Audit Score'] || row['__EMPTY_9'] || row['J'];
+        const sampleCount = parseFloat(row['Sample Count']) || parseFloat(row['__EMPTY_10']) || parseFloat(row['K']) || 0;
+        
+        if (auditScore === 1 || auditScore === '1') {
+          passCount++;
+          totalCount++;
+        } else if (auditScore === 0 || auditScore === '0') {
+          totalCount++;
+          errors++;
+        }
+        samples += sampleCount;
+      }
+    });
+    
+    return {
+      accuracy: totalCount > 0 ? (passCount / totalCount * 100) : 0,
+      errors,
+      samples,
+      totalCount
+    };
+  };
+  
+  const rec1Stats = getRecruiterStats(rec1Name);
+  const rec2Stats = getRecruiterStats(rec2Name);
+  
+  const resultDiv = document.getElementById('recruiter-comparison-result');
+  resultDiv.innerHTML = `
+    <div class="p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border-2 border-blue-300">
+      <h4 class="font-bold text-lg mb-4 text-blue-800">${rec1Name}</h4>
+      <div class="space-y-3">
+        <div class="flex justify-between items-center p-3 bg-white rounded">
+          <span>Accuracy:</span>
+          <strong class="text-2xl text-blue-600">${rec1Stats.accuracy.toFixed(1)}%</strong>
+        </div>
+        <div class="flex justify-between items-center p-3 bg-white rounded">
+          <span>Total Audits:</span>
+          <strong class="text-2xl text-blue-600">${rec1Stats.samples}</strong>
+        </div>
+        <div class="flex justify-between items-center p-3 bg-white rounded">
+          <span>Errors:</span>
+          <strong class="text-2xl text-blue-600">${rec1Stats.errors}</strong>
+        </div>
+      </div>
+    </div>
+    
+    <div class="p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border-2 border-green-300">
+      <h4 class="font-bold text-lg mb-4 text-green-800">${rec2Name}</h4>
+      <div class="space-y-3">
+        <div class="flex justify-between items-center p-3 bg-white rounded">
+          <span>Accuracy:</span>
+          <strong class="text-2xl text-green-600">${rec2Stats.accuracy.toFixed(1)}%</strong>
+          <span class="text-${rec2Stats.accuracy > rec1Stats.accuracy ? 'green' : 'red'}-600 text-sm">
+            ${rec2Stats.accuracy > rec1Stats.accuracy ? '↑' : '↓'} ${Math.abs(rec2Stats.accuracy - rec1Stats.accuracy).toFixed(1)}%
+          </span>
+        </div>
+        <div class="flex justify-between items-center p-3 bg-white rounded">
+          <span>Total Audits:</span>
+          <strong class="text-2xl text-green-600">${rec2Stats.samples}</strong>
+          <span class="text-${rec2Stats.samples > rec1Stats.samples ? 'green' : 'red'}-600 text-sm">
+            ${rec2Stats.samples > rec1Stats.samples ? '↑' : '↓'} ${Math.abs(rec2Stats.samples - rec1Stats.samples)}
+          </span>
+        </div>
+        <div class="flex justify-between items-center p-3 bg-white rounded">
+          <span>Errors:</span>
+          <strong class="text-2xl text-green-600">${rec2Stats.errors}</strong>
+          <span class="text-${rec2Stats.errors < rec1Stats.errors ? 'green' : 'red'}-600 text-sm">
+            ${rec2Stats.errors < rec1Stats.errors ? '↓' : '↑'} ${Math.abs(rec2Stats.errors - rec1Stats.errors)}
+          </span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+window.compareRecruiters = compareRecruiters;
+
+function compareStages() {
+  const stage1Name = document.getElementById('stage-compare-1').value;
+  const stage2Name = document.getElementById('stage-compare-2').value;
+  
+  if (!stage1Name || !stage2Name) {
+    showToast('Please select both stages', 'warning');
+    return;
+  }
+  
+  if (stage1Name === stage2Name) {
+    showToast('Please select different stages', 'warning');
+    return;
+  }
+  
+  if (!rawData || !rawData.auditCount) return;
+  
+  // Calculate stats for both stages from Audit Count sheet (Column F)
+  const getStageStats = (stageName) => {
+    let pass = 0, fail = 0, total = 0, samples = 0;
+    
+    rawData.auditCount.forEach(row => {
+      const stage = row['Recruitment Stage'] || row['__EMPTY_5'] || row['F'];
+      if (stage === stageName) {
+        pass += parseFloat(row['Opportunity Pass']) || 0;
+        fail += parseFloat(row['Opportunity Fail']) || 0;
+        const excludeNA = parseFloat(row['Opportunity Excluding NA']) || 0;
+        total += excludeNA;
+        samples += parseFloat(row['Sample Count']) || 0;
+      }
+    });
+    
+    return {
+      accuracy: total > 0 ? (pass / total * 100) : 0,
+      errors: fail,
+      samples,
+      total
+    };
+  };
+  
+  const stage1Stats = getStageStats(stage1Name);
+  const stage2Stats = getStageStats(stage2Name);
+  
+  const resultDiv = document.getElementById('stage-comparison-result');
+  resultDiv.innerHTML = `
+    <div class="p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg border-2 border-purple-300">
+      <h4 class="font-bold text-lg mb-4 text-purple-800">${stage1Name}</h4>
+      <div class="space-y-3">
+        <div class="flex justify-between items-center p-3 bg-white rounded">
+          <span>Accuracy:</span>
+          <strong class="text-2xl text-purple-600">${stage1Stats.accuracy.toFixed(1)}%</strong>
+        </div>
+        <div class="flex justify-between items-center p-3 bg-white rounded">
+          <span>Total Audits:</span>
+          <strong class="text-2xl text-purple-600">${stage1Stats.samples}</strong>
+        </div>
+        <div class="flex justify-between items-center p-3 bg-white rounded">
+          <span>Errors:</span>
+          <strong class="text-2xl text-purple-600">${stage1Stats.errors}</strong>
+        </div>
+      </div>
+    </div>
+    
+    <div class="p-6 bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg border-2 border-orange-300">
+      <h4 class="font-bold text-lg mb-4 text-orange-800">${stage2Name}</h4>
+      <div class="space-y-3">
+        <div class="flex justify-between items-center p-3 bg-white rounded">
+          <span>Accuracy:</span>
+          <strong class="text-2xl text-orange-600">${stage2Stats.accuracy.toFixed(1)}%</strong>
+          <span class="text-${stage2Stats.accuracy > stage1Stats.accuracy ? 'green' : 'red'}-600 text-sm">
+            ${stage2Stats.accuracy > stage1Stats.accuracy ? '↑' : '↓'} ${Math.abs(stage2Stats.accuracy - stage1Stats.accuracy).toFixed(1)}%
+          </span>
+        </div>
+        <div class="flex justify-between items-center p-3 bg-white rounded">
+          <span>Total Audits:</span>
+          <strong class="text-2xl text-orange-600">${stage2Stats.samples}</strong>
+          <span class="text-${stage2Stats.samples > stage1Stats.samples ? 'green' : 'red'}-600 text-sm">
+            ${stage2Stats.samples > stage1Stats.samples ? '↑' : '↓'} ${Math.abs(stage2Stats.samples - stage1Stats.samples)}
+          </span>
+        </div>
+        <div class="flex justify-between items-center p-3 bg-white rounded">
+          <span>Errors:</span>
+          <strong class="text-2xl text-orange-600">${stage2Stats.errors}</strong>
+          <span class="text-${stage2Stats.errors < stage1Stats.errors ? 'green' : 'red'}-600 text-sm">
+            ${stage2Stats.errors < stage1Stats.errors ? '↓' : '↑'} ${Math.abs(stage2Stats.errors - stage1Stats.errors)}
+          </span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+window.compareStages = compareStages;
+
+function updateYearComparison() {
+  // Placeholder for year comparison - can be enhanced
+  const yearDiv = document.getElementById('comparison-year');
+  if (yearDiv) {
+    yearDiv.innerHTML = `
+      <div class="p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border-2 border-blue-300">
+        <h4 class="font-bold text-lg mb-4 text-blue-800">Upload data to compare years</h4>
+        <p class="text-gray-600">Year-over-year comparison will appear here</p>
+      </div>
+    `;
+  }
+}
 
 // ========== NEW CREATIVE FEATURES ==========
 
