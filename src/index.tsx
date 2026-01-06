@@ -502,23 +502,100 @@ app.get('/', (c) => {
           
           .metric-card {
             text-align: center;
-            padding: 24px;
+            padding: 32px 24px;
             background: linear-gradient(135deg, var(--mm-white) 0%, var(--mm-light-red) 100%);
+            border-left: 4px solid var(--mm-red);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+          }
+          
+          .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--mm-red) 0%, var(--mm-dark-red) 100%);
+          }
+          
+          .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(200, 16, 46, 0.2);
+            border-left-width: 6px;
           }
           
           .metric-value {
-            font-size: 2.5rem;
+            font-size: 3rem;
             font-weight: 700;
-            color: var(--mm-red);
+            background: linear-gradient(135deg, var(--mm-red) 0%, var(--mm-dark-red) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             line-height: 1;
+            animation: countUp 0.8s ease-out;
+          }
+          
+          @keyframes countUp {
+            from {
+              opacity: 0;
+              transform: translateY(20px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
           }
           
           .metric-label {
             font-size: 0.875rem;
             color: var(--mm-grey);
-            margin-top: 8px;
+            margin-top: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.75px;
+            font-weight: 600;
+          }
+          
+          /* Recruiter Performance Badges */
+          .recruiter-medal {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            animation: slideIn 0.5s ease;
+          }
+          
+          @keyframes slideIn {
+            from {
+              opacity: 0;
+              transform: translateX(-20px);
+            }
+            to {
+              opacity: 1;
+              transform: translateX(0);
+            }
+          }
+          
+          .medal-gold {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #8B4513;
+          }
+          
+          .medal-silver {
+            background: linear-gradient(135deg, #C0C0C0 0%, #A8A8A8 100%);
+            color: #4A4A4A;
+          }
+          
+          .medal-bronze {
+            background: linear-gradient(135deg, #CD7F32 0%, #B87333 100%);
+            color: #FFFFFF;
           }
           
           .chart-container {

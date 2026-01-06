@@ -1672,6 +1672,8 @@ function updateHeatmap() {
 
 // Update Recruiter view
 function updateRecruiterView() {
+  console.log('Updating Recruiter View...');
+  console.log('Recruiter Wise Data available:', rawData?.recruiterWise?.length || 0, 'records');
   updateRecruiterScatterChart();
   updateRecruiterBarChart();
   updateRecruiterTable();
@@ -1679,35 +1681,87 @@ function updateRecruiterView() {
 
 function updateRecruiterScatterChart() {
   const canvas = document.getElementById('recruiter-scatter-chart');
-  if (!canvas || !filteredData) return;
+  if (!canvas) return;
   
   if (charts.recruiterScatter) {
     charts.recruiterScatter.destroy();
   }
   
-  // Group by recruiter
-  const recruiterData = {};
-  filteredData.forEach(r => {
-    const recruiter = r['Recruiter Name'];
-    if (!recruiter) return;
+  // Use Recruiter Wise Data sheet if available, otherwise calculate from Audit Count
+  let recruiterData = {};
+  
+  if (rawData && rawData.recruiterWise && rawData.recruiterWise.length > 0) {
+    console.log('Using Recruiter Wise Data sheet for recruiter calculations');
     
-    if (!recruiterData[recruiter]) {
-      recruiterData[recruiter] = { pass: 0, total: 0, samples: 0, errors: 0, pm: r['Program Manager'] || '' };
-    }
+    // Use Recruiter Wise Data sheet
+    // Column G: Recruiter Name, Column J: Audit Score (1 or 0)
+    // Accuracy = (Count of 1s) / (Total count excluding NA) * 100
     
-    recruiterData[recruiter].pass += parseFloat(r['Opportunity Pass']) || 0;
-    recruiterData[recruiter].total += parseFloat(r['Opportunity Excluding NA']) || 0;
-    recruiterData[recruiter].samples += parseFloat(r['Sample Count']) || 0;
-    recruiterData[recruiter].errors += parseFloat(r['Opportunity Fail']) || 0;
-  });
+    rawData.recruiterWise.forEach(row => {
+      const recruiter = row['Recruiter Name'] || row['__EMPTY_6'] || row['G'];
+      const auditScore = row['Audit Score'] || row['__EMPTY_9'] || row['J'];
+      const sampleCount = parseFloat(row['Sample Count']) || parseFloat(row['__EMPTY_10']) || parseFloat(row['K']) || 0;
+      
+      if (!recruiter || recruiter === 'Recruiter Name') return; // Skip header
+      
+      if (!recruiterData[recruiter]) {
+        recruiterData[recruiter] = { 
+          passCount: 0, 
+          totalCount: 0, 
+          samples: 0, 
+          errors: 0,
+          pm: row['Program Manager'] || row['__EMPTY_8'] || row['I'] || ''
+        };
+      }
+      
+      // Count 1s for pass, exclude NA
+      if (auditScore === 1 || auditScore === '1') {
+        recruiterData[recruiter].passCount++;
+        recruiterData[recruiter].totalCount++;
+      } else if (auditScore === 0 || auditScore === '0') {
+        recruiterData[recruiter].totalCount++;
+        recruiterData[recruiter].errors++;
+      }
+      // NA values are not counted in totalCount
+      
+      recruiterData[recruiter].samples += sampleCount;
+    });
+  } else {
+    console.log('Using Audit Count data for recruiter calculations (fallback)');
+    
+    // Fallback to Audit Count aggregation
+    if (!filteredData) return;
+    
+    filteredData.forEach(r => {
+      const recruiter = r['Recruiter Name'];
+      if (!recruiter) return;
+      
+      if (!recruiterData[recruiter]) {
+        recruiterData[recruiter] = { 
+          passCount: 0, 
+          totalCount: 0, 
+          samples: 0, 
+          errors: 0, 
+          pm: r['Program Manager'] || '' 
+        };
+      }
+      
+      recruiterData[recruiter].passCount += parseFloat(r['Opportunity Pass']) || 0;
+      recruiterData[recruiter].totalCount += parseFloat(r['Opportunity Excluding NA']) || 0;
+      recruiterData[recruiter].samples += parseFloat(r['Sample Count']) || 0;
+      recruiterData[recruiter].errors += parseFloat(r['Opportunity Fail']) || 0;
+    });
+  }
   
   const scatterData = Object.entries(recruiterData).map(([name, data]) => ({
     x: data.samples,
-    y: data.total > 0 ? (data.pass / data.total * 100) : 0,
+    y: data.totalCount > 0 ? (data.passCount / data.totalCount * 100) : 0,
     r: Math.max(5, Math.min(20, data.errors)),
     name,
     pm: data.pm
   }));
+  
+  console.log('Recruiter scatter data:', scatterData.length, 'recruiters');
   
   const ctx = canvas.getContext('2d');
   charts.recruiterScatter = new Chart(ctx, {
@@ -1834,33 +1888,72 @@ function updateRecruiterBarChart() {
 
 function updateRecruiterTable() {
   const tbody = document.getElementById('recruiter-table-body');
-  if (!tbody || !filteredData) return;
+  if (!tbody) return;
   
-  // Group by recruiter
-  const recruiterData = {};
-  filteredData.forEach(r => {
-    const recruiter = r['Recruiter Name'];
-    if (!recruiter) return;
+  // Use Recruiter Wise Data sheet if available
+  let recruiterData = {};
+  
+  if (rawData && rawData.recruiterWise && rawData.recruiterWise.length > 0) {
+    console.log('Using Recruiter Wise Data sheet for table');
     
-    if (!recruiterData[recruiter]) {
-      recruiterData[recruiter] = { pass: 0, total: 0, errors: 0, samples: 0, pm: r['Program Manager'] || '' };
-    }
+    rawData.recruiterWise.forEach(row => {
+      const recruiter = row['Recruiter Name'] || row['__EMPTY_6'] || row['G'];
+      const auditScore = row['Audit Score'] || row['__EMPTY_9'] || row['J'];
+      const sampleCount = parseFloat(row['Sample Count']) || parseFloat(row['__EMPTY_10']) || parseFloat(row['K']) || 0;
+      
+      if (!recruiter || recruiter === 'Recruiter Name') return;
+      
+      if (!recruiterData[recruiter]) {
+        recruiterData[recruiter] = { 
+          passCount: 0, 
+          totalCount: 0, 
+          errors: 0, 
+          samples: 0,
+          pm: row['Program Manager'] || row['__EMPTY_8'] || row['I'] || ''
+        };
+      }
+      
+      if (auditScore === 1 || auditScore === '1') {
+        recruiterData[recruiter].passCount++;
+        recruiterData[recruiter].totalCount++;
+      } else if (auditScore === 0 || auditScore === '0') {
+        recruiterData[recruiter].totalCount++;
+        recruiterData[recruiter].errors++;
+      }
+      
+      recruiterData[recruiter].samples += sampleCount;
+    });
+  } else {
+    console.log('Using Audit Count data for table (fallback)');
     
-    recruiterData[recruiter].pass += parseFloat(r['Opportunity Pass']) || 0;
-    recruiterData[recruiter].total += parseFloat(r['Opportunity Excluding NA']) || 0;
-    recruiterData[recruiter].errors += parseFloat(r['Opportunity Fail']) || 0;
-    recruiterData[recruiter].samples += parseFloat(r['Sample Count']) || 0;
-  });
+    if (!filteredData) return;
+    
+    filteredData.forEach(r => {
+      const recruiter = r['Recruiter Name'];
+      if (!recruiter) return;
+      
+      if (!recruiterData[recruiter]) {
+        recruiterData[recruiter] = { passCount: 0, totalCount: 0, errors: 0, samples: 0, pm: r['Program Manager'] || '' };
+      }
+      
+      recruiterData[recruiter].passCount += parseFloat(r['Opportunity Pass']) || 0;
+      recruiterData[recruiter].totalCount += parseFloat(r['Opportunity Excluding NA']) || 0;
+      recruiterData[recruiter].errors += parseFloat(r['Opportunity Fail']) || 0;
+      recruiterData[recruiter].samples += parseFloat(r['Sample Count']) || 0;
+    });
+  }
   
   const recruiterArray = Object.entries(recruiterData)
     .map(([name, data]) => ({
       name,
-      accuracy: data.total > 0 ? (data.pass / data.total * 100) : 0,
+      accuracy: data.totalCount > 0 ? (data.passCount / data.totalCount * 100) : 0,
       errors: data.errors,
       samples: data.samples,
       pm: data.pm
     }))
     .sort((a, b) => b.accuracy - a.accuracy);
+  
+  console.log('Recruiter table:', recruiterArray.length, 'recruiters');
   
   tbody.innerHTML = recruiterArray.map(r => {
     const statusClass = r.accuracy >= 95 ? 'bg-green-100 text-green-800' : 
