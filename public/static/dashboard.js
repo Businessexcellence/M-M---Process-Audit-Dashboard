@@ -3853,15 +3853,14 @@ function showComparisonType(type) {
 window.showComparisonType = showComparisonType;
 
 function populateRecruiterDropdowns() {
-  if (!rawData || !rawData.recruiterWise) return;
+  if (!rawData || !rawData.auditCount) return;
   
-  const recruiters = [];
-  rawData.recruiterWise.forEach(row => {
-    const recruiter = row['Recruiter Name'] || row['__EMPTY_6'] || row['G'];
-    if (recruiter && recruiter !== 'Recruiter Name' && !recruiters.includes(recruiter)) {
-      recruiters.push(recruiter);
-    }
-  });
+  // Get unique recruiters from Audit Count sheet
+  const recruiters = [...new Set(
+    rawData.auditCount
+      .map(r => r['Recruiter Name'] || r['__EMPTY_6'] || r['G'])
+      .filter(r => r && r !== 'Recruiter Name')
+  )];
   
   recruiters.sort();
   
@@ -3913,34 +3912,32 @@ function compareRecruiters() {
     return;
   }
   
-  if (!rawData || !rawData.recruiterWise) return;
+  if (!rawData || !rawData.auditCount) return;
   
-  // Calculate stats for both recruiters
+  // Calculate stats for both recruiters from Audit Count sheet
+  // Using correct formulas:
+  // Accuracy = (Σ Opportunity Pass) / (Σ Opportunity Excluding NA) × 100
+  // Total Audits = Σ Opportunity Count
+  // Error Rate = (Σ Opportunity Fail) / (Σ Opportunity Excluding NA) × 100
   const getRecruiterStats = (name) => {
-    let passCount = 0, totalCount = 0, errors = 0, samples = 0;
+    let pass = 0, fail = 0, totalExcludingNA = 0, opportunityCount = 0;
     
-    rawData.recruiterWise.forEach(row => {
+    rawData.auditCount.forEach(row => {
       const recruiter = row['Recruiter Name'] || row['__EMPTY_6'] || row['G'];
       if (recruiter === name) {
-        const auditScore = row['Audit Score'] || row['__EMPTY_9'] || row['J'];
-        const sampleCount = parseFloat(row['Sample Count']) || parseFloat(row['__EMPTY_10']) || parseFloat(row['K']) || 0;
-        
-        if (auditScore === 1 || auditScore === '1') {
-          passCount++;
-          totalCount++;
-        } else if (auditScore === 0 || auditScore === '0') {
-          totalCount++;
-          errors++;
-        }
-        samples += sampleCount;
+        pass += parseFloat(row['Opportunity Pass']) || 0;
+        fail += parseFloat(row['Opportunity Fail']) || 0;
+        totalExcludingNA += parseFloat(row['Opportunity Excluding NA']) || 0;
+        opportunityCount += parseFloat(row['Opportunity Count']) || 0;
       }
     });
     
     return {
-      accuracy: totalCount > 0 ? (passCount / totalCount * 100) : 0,
-      errors,
-      samples,
-      totalCount
+      accuracy: totalExcludingNA > 0 ? (pass / totalExcludingNA * 100) : 0,
+      errorRate: totalExcludingNA > 0 ? (fail / totalExcludingNA * 100) : 0,
+      totalAudits: opportunityCount,
+      errors: fail,
+      totalExcludingNA
     };
   };
   
@@ -3953,16 +3950,16 @@ function compareRecruiters() {
       <h4 class="font-bold text-lg mb-4 text-blue-800">${rec1Name}</h4>
       <div class="space-y-3">
         <div class="flex justify-between items-center p-3 bg-white rounded">
-          <span>Accuracy:</span>
+          <span class="text-sm text-gray-600">Accuracy:</span>
           <strong class="text-2xl text-blue-600">${rec1Stats.accuracy.toFixed(1)}%</strong>
         </div>
         <div class="flex justify-between items-center p-3 bg-white rounded">
-          <span>Total Audits:</span>
-          <strong class="text-2xl text-blue-600">${rec1Stats.samples}</strong>
+          <span class="text-sm text-gray-600">Total Audits (Σ Opp Count):</span>
+          <strong class="text-2xl text-blue-600">${rec1Stats.totalAudits}</strong>
         </div>
         <div class="flex justify-between items-center p-3 bg-white rounded">
-          <span>Errors:</span>
-          <strong class="text-2xl text-blue-600">${rec1Stats.errors}</strong>
+          <span class="text-sm text-gray-600">Error Rate:</span>
+          <strong class="text-2xl text-blue-600">${rec1Stats.errorRate.toFixed(1)}%</strong>
         </div>
       </div>
     </div>
@@ -3971,24 +3968,24 @@ function compareRecruiters() {
       <h4 class="font-bold text-lg mb-4 text-green-800">${rec2Name}</h4>
       <div class="space-y-3">
         <div class="flex justify-between items-center p-3 bg-white rounded">
-          <span>Accuracy:</span>
+          <span class="text-sm text-gray-600">Accuracy:</span>
           <strong class="text-2xl text-green-600">${rec2Stats.accuracy.toFixed(1)}%</strong>
-          <span class="text-${rec2Stats.accuracy > rec1Stats.accuracy ? 'green' : 'red'}-600 text-sm">
+          <span class="text-${rec2Stats.accuracy > rec1Stats.accuracy ? 'green' : 'red'}-600 text-sm font-semibold">
             ${rec2Stats.accuracy > rec1Stats.accuracy ? '↑' : '↓'} ${Math.abs(rec2Stats.accuracy - rec1Stats.accuracy).toFixed(1)}%
           </span>
         </div>
         <div class="flex justify-between items-center p-3 bg-white rounded">
-          <span>Total Audits:</span>
-          <strong class="text-2xl text-green-600">${rec2Stats.samples}</strong>
-          <span class="text-${rec2Stats.samples > rec1Stats.samples ? 'green' : 'red'}-600 text-sm">
-            ${rec2Stats.samples > rec1Stats.samples ? '↑' : '↓'} ${Math.abs(rec2Stats.samples - rec1Stats.samples)}
+          <span class="text-sm text-gray-600">Total Audits (Σ Opp Count):</span>
+          <strong class="text-2xl text-green-600">${rec2Stats.totalAudits}</strong>
+          <span class="text-${rec2Stats.totalAudits > rec1Stats.totalAudits ? 'green' : 'red'}-600 text-sm font-semibold">
+            ${rec2Stats.totalAudits > rec1Stats.totalAudits ? '↑' : '↓'} ${Math.abs(rec2Stats.totalAudits - rec1Stats.totalAudits)}
           </span>
         </div>
         <div class="flex justify-between items-center p-3 bg-white rounded">
-          <span>Errors:</span>
-          <strong class="text-2xl text-green-600">${rec2Stats.errors}</strong>
-          <span class="text-${rec2Stats.errors < rec1Stats.errors ? 'green' : 'red'}-600 text-sm">
-            ${rec2Stats.errors < rec1Stats.errors ? '↓' : '↑'} ${Math.abs(rec2Stats.errors - rec1Stats.errors)}
+          <span class="text-sm text-gray-600">Error Rate:</span>
+          <strong class="text-2xl text-green-600">${rec2Stats.errorRate.toFixed(1)}%</strong>
+          <span class="text-${rec2Stats.errorRate < rec1Stats.errorRate ? 'green' : 'red'}-600 text-sm font-semibold">
+            ${rec2Stats.errorRate < rec1Stats.errorRate ? '↓' : '↑'} ${Math.abs(rec2Stats.errorRate - rec1Stats.errorRate).toFixed(1)}%
           </span>
         </div>
       </div>
@@ -4014,25 +4011,29 @@ function compareStages() {
   if (!rawData || !rawData.auditCount) return;
   
   // Calculate stats for both stages from Audit Count sheet (Column F)
+  // Using correct formulas:
+  // Accuracy = (Σ Opportunity Pass) / (Σ Opportunity Excluding NA) × 100
+  // Total Audits = Σ Opportunity Count
+  // Error Rate = (Σ Opportunity Fail) / (Σ Opportunity Excluding NA) × 100
   const getStageStats = (stageName) => {
-    let pass = 0, fail = 0, total = 0, samples = 0;
+    let pass = 0, fail = 0, totalExcludingNA = 0, opportunityCount = 0;
     
     rawData.auditCount.forEach(row => {
       const stage = row['Recruitment Stage'] || row['__EMPTY_5'] || row['F'];
       if (stage === stageName) {
         pass += parseFloat(row['Opportunity Pass']) || 0;
         fail += parseFloat(row['Opportunity Fail']) || 0;
-        const excludeNA = parseFloat(row['Opportunity Excluding NA']) || 0;
-        total += excludeNA;
-        samples += parseFloat(row['Sample Count']) || 0;
+        totalExcludingNA += parseFloat(row['Opportunity Excluding NA']) || 0;
+        opportunityCount += parseFloat(row['Opportunity Count']) || 0;
       }
     });
     
     return {
-      accuracy: total > 0 ? (pass / total * 100) : 0,
+      accuracy: totalExcludingNA > 0 ? (pass / totalExcludingNA * 100) : 0,
+      errorRate: totalExcludingNA > 0 ? (fail / totalExcludingNA * 100) : 0,
+      totalAudits: opportunityCount,
       errors: fail,
-      samples,
-      total
+      totalExcludingNA
     };
   };
   
@@ -4045,16 +4046,16 @@ function compareStages() {
       <h4 class="font-bold text-lg mb-4 text-purple-800">${stage1Name}</h4>
       <div class="space-y-3">
         <div class="flex justify-between items-center p-3 bg-white rounded">
-          <span>Accuracy:</span>
+          <span class="text-sm text-gray-600">Accuracy:</span>
           <strong class="text-2xl text-purple-600">${stage1Stats.accuracy.toFixed(1)}%</strong>
         </div>
         <div class="flex justify-between items-center p-3 bg-white rounded">
-          <span>Total Audits:</span>
-          <strong class="text-2xl text-purple-600">${stage1Stats.samples}</strong>
+          <span class="text-sm text-gray-600">Total Audits (Σ Opp Count):</span>
+          <strong class="text-2xl text-purple-600">${stage1Stats.totalAudits}</strong>
         </div>
         <div class="flex justify-between items-center p-3 bg-white rounded">
-          <span>Errors:</span>
-          <strong class="text-2xl text-purple-600">${stage1Stats.errors}</strong>
+          <span class="text-sm text-gray-600">Error Rate:</span>
+          <strong class="text-2xl text-purple-600">${stage1Stats.errorRate.toFixed(1)}%</strong>
         </div>
       </div>
     </div>
@@ -4063,24 +4064,24 @@ function compareStages() {
       <h4 class="font-bold text-lg mb-4 text-orange-800">${stage2Name}</h4>
       <div class="space-y-3">
         <div class="flex justify-between items-center p-3 bg-white rounded">
-          <span>Accuracy:</span>
+          <span class="text-sm text-gray-600">Accuracy:</span>
           <strong class="text-2xl text-orange-600">${stage2Stats.accuracy.toFixed(1)}%</strong>
-          <span class="text-${stage2Stats.accuracy > stage1Stats.accuracy ? 'green' : 'red'}-600 text-sm">
+          <span class="text-${stage2Stats.accuracy > stage1Stats.accuracy ? 'green' : 'red'}-600 text-sm font-semibold">
             ${stage2Stats.accuracy > stage1Stats.accuracy ? '↑' : '↓'} ${Math.abs(stage2Stats.accuracy - stage1Stats.accuracy).toFixed(1)}%
           </span>
         </div>
         <div class="flex justify-between items-center p-3 bg-white rounded">
-          <span>Total Audits:</span>
-          <strong class="text-2xl text-orange-600">${stage2Stats.samples}</strong>
-          <span class="text-${stage2Stats.samples > stage1Stats.samples ? 'green' : 'red'}-600 text-sm">
-            ${stage2Stats.samples > stage1Stats.samples ? '↑' : '↓'} ${Math.abs(stage2Stats.samples - stage1Stats.samples)}
+          <span class="text-sm text-gray-600">Total Audits (Σ Opp Count):</span>
+          <strong class="text-2xl text-orange-600">${stage2Stats.totalAudits}</strong>
+          <span class="text-${stage2Stats.totalAudits > stage1Stats.totalAudits ? 'green' : 'red'}-600 text-sm font-semibold">
+            ${stage2Stats.totalAudits > stage1Stats.totalAudits ? '↑' : '↓'} ${Math.abs(stage2Stats.totalAudits - stage1Stats.totalAudits)}
           </span>
         </div>
         <div class="flex justify-between items-center p-3 bg-white rounded">
-          <span>Errors:</span>
-          <strong class="text-2xl text-orange-600">${stage2Stats.errors}</strong>
-          <span class="text-${stage2Stats.errors < stage1Stats.errors ? 'green' : 'red'}-600 text-sm">
-            ${stage2Stats.errors < stage1Stats.errors ? '↓' : '↑'} ${Math.abs(stage2Stats.errors - stage1Stats.errors)}
+          <span class="text-sm text-gray-600">Error Rate:</span>
+          <strong class="text-2xl text-orange-600">${stage2Stats.errorRate.toFixed(1)}%</strong>
+          <span class="text-${stage2Stats.errorRate < stage1Stats.errorRate ? 'green' : 'red'}-600 text-sm font-semibold">
+            ${stage2Stats.errorRate < stage1Stats.errorRate ? '↓' : '↑'} ${Math.abs(stage2Stats.errorRate - stage1Stats.errorRate).toFixed(1)}%
           </span>
         </div>
       </div>
