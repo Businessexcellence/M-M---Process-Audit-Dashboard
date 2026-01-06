@@ -3388,13 +3388,14 @@ function hideRefreshIndicator() {
   }, 500);
 }
 
-// Update dashboard with refresh indicator
+// Update dashboard with refresh indicator and summary bar
 const originalUpdateDashboard = updateDashboard;
 updateDashboard = function() {
   showRefreshIndicator();
   originalUpdateDashboard();
   hideRefreshIndicator();
   updateQuickStats();
+  updateDataSummaryBar();
 };
 
 // ========== CREATIVE UI ENHANCEMENTS ==========
@@ -3831,13 +3832,6 @@ document.addEventListener('keydown', function(e) {
     if (search) search.focus();
   }
 });
-
-// Update dashboard with summary bar
-const originalUpdateDashboard = updateDashboard;
-updateDashboard = function() {
-  originalUpdateDashboard();
-  updateDataSummaryBar();
-}
 
 console.log('M&M Dashboard JavaScript loaded successfully with creative enhancements');
 console.log('✨ New Features: Export CSV, Progress Rings, Performance Badges, Sparklines, Comparison Mode');
