@@ -345,22 +345,32 @@ function processAndStoreData(data) {
   );
   
   // Try multiple patterns for RCA/CAPA sheet
+  // Pattern 1: "RCA-CAPA" (with hyphen)
   let rcaCapaKey = Object.keys(data).find(key => 
     key.toLowerCase().includes('rca') && key.toLowerCase().includes('capa') && key.includes('_parsed')
   );
   
-  // If not found, try with "or" in the name
+  // Pattern 2: "RCA Or CAPA" or "RCA or CAPA" (with "or")
   if (!rcaCapaKey) {
     rcaCapaKey = Object.keys(data).find(key => 
       key.toLowerCase().includes('rca') && key.toLowerCase().includes('or') && key.includes('_parsed')
     );
   }
   
-  // If still not found, try just "rca"
+  // Pattern 3: Just "RCA" (most flexible)
   if (!rcaCapaKey) {
     rcaCapaKey = Object.keys(data).find(key => 
       key.toLowerCase().includes('rca') && key.includes('_parsed')
     );
+  }
+  
+  // Pattern 4: Check for hyphen variations (RCA-CAPA, RCA_CAPA)
+  if (!rcaCapaKey) {
+    rcaCapaKey = Object.keys(data).find(key => {
+      const lowerKey = key.toLowerCase();
+      return (lowerKey.includes('rca-') || lowerKey.includes('rca_') || lowerKey.includes('rca ')) && 
+             key.includes('_parsed');
+    });
   }
   
   console.log('Strategic sheets found:', { sixSigmaKey, rcaCapaKey });
@@ -465,8 +475,18 @@ function filterDataByCurrentFilters() {
   
   let filtered = [...rawData.auditCount];
   
+  // Helper function to get Financial Year from row (check multiple column names)
+  const getFinancialYear = (row) => {
+    return row['Financial Year'] || row['FY'] || row['Fy'] || row['financial year'] || row['__EMPTY_1'] || null;
+  };
+  
   if (currentFilters.year !== 'all') {
-    filtered = filtered.filter(r => r['Financial Year'] === currentFilters.year);
+    filtered = filtered.filter(r => {
+      const fy = getFinancialYear(r);
+      // Handle both "FY23" and "2023" formats
+      return fy === currentFilters.year || 
+             (fy && fy.toString().includes(currentFilters.year.toString().replace('FY', '')));
+    });
   }
   if (currentFilters.month !== 'all') {
     filtered = filtered.filter(r => r['Month'] === currentFilters.month);
@@ -480,6 +500,8 @@ function filterDataByCurrentFilters() {
   if (currentFilters.parameter !== 'all') {
     filtered = filtered.filter(r => r['Parameter'] === currentFilters.parameter);
   }
+  
+  console.log(`Filter applied: year=${currentFilters.year}, filtered count: ${filtered.length}`);
   
   return filtered;
 }
@@ -3623,4 +3645,200 @@ window.clearGlobalSearch = clearGlobalSearch;
 window.removeFilter = removeFilter;
 window.updateBreadcrumb = updateBreadcrumb;
 
+// ========== NEW CREATIVE FEATURES ==========
+
+// 1. Export to CSV functionality
+function exportToCSV() {
+  if (!filteredData || filteredData.length === 0) {
+    showToast('No data available to export', 'warning');
+    return;
+  }
+  
+  try {
+    // Get headers
+    const headers = Object.keys(filteredData[0]);
+    
+    // Create CSV content
+    let csvContent = headers.join(',') + '\n';
+    
+    filteredData.forEach(row => {
+      const values = headers.map(header => {
+        const value = row[header];
+        // Escape commas and quotes
+        if (value && value.toString().includes(',')) {
+          return `"${value}"`;
+        }
+        return value || '';
+      });
+      csvContent += values.join(',') + '\n';
+    });
+    
+    // Create download link
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `MM_Audit_Data_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    showToast('Data exported successfully!', 'success');
+  } catch (error) {
+    console.error('Export error:', error);
+    showToast('Export failed', 'error');
+  }
+}
+window.exportToCSV = exportToCSV;
+
+// 2. Animated Progress Rings
+function createProgressRing(percentage, color = '#C8102E') {
+  const radius = 40;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (percentage / 100) * circumference;
+  
+  return `
+    <svg class="progress-ring" width="100" height="100" style="transform: rotate(-90deg);">
+      <circle cx="50" cy="50" r="${radius}" stroke="#E5E7EB" stroke-width="8" fill="none"/>
+      <circle cx="50" cy="50" r="${radius}" stroke="${color}" stroke-width="8" fill="none"
+              stroke-dasharray="${circumference}" stroke-dashoffset="${offset}"
+              style="transition: stroke-dashoffset 1s ease-in-out; stroke-linecap: round;"/>
+      <text x="50" y="50" text-anchor="middle" dy=".3em" font-size="20" font-weight="bold" fill="${color}"
+            style="transform: rotate(90deg); transform-origin: center;">
+        ${percentage.toFixed(0)}%
+      </text>
+    </svg>
+  `;
+}
+window.createProgressRing = createProgressRing;
+
+// 3. Performance Badge Generator
+function getPerformanceBadge(accuracy) {
+  if (accuracy >= 95) {
+    return '<span class="px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-green-400 to-green-600 text-white shadow-lg">🏆 Excellent</span>';
+  } else if (accuracy >= 85) {
+    return '<span class="px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-blue-400 to-blue-600 text-white shadow-lg">⭐ Good</span>';
+  } else if (accuracy >= 75) {
+    return '<span class="px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-yellow-400 to-yellow-600 text-white shadow-lg">⚠️ Average</span>';
+  } else {
+    return '<span class="px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-red-400 to-red-600 text-white shadow-lg">❌ Needs Improvement</span>';
+  }
+}
+window.getPerformanceBadge = getPerformanceBadge;
+
+// 4. Sparkline Chart Generator (mini trend charts)
+function createSparkline(data, width = 100, height = 30, color = '#C8102E') {
+  if (!data || data.length === 0) return '';
+  
+  const max = Math.max(...data);
+  const min = Math.min(...data);
+  const range = max - min || 1;
+  
+  const points = data.map((val, idx) => {
+    const x = (idx / (data.length - 1)) * width;
+    const y = height - ((val - min) / range) * height;
+    return `${x},${y}`;
+  }).join(' ');
+  
+  return `
+    <svg width="${width}" height="${height}" style="display: inline-block; vertical-align: middle;">
+      <polyline points="${points}" fill="none" stroke="${color}" stroke-width="2" 
+                style="stroke-linejoin: round; stroke-linecap: round;"/>
+    </svg>
+  `;
+}
+window.createSparkline = createSparkline;
+
+// 5. Comparison Mode Toggle
+let comparisonMode = false;
+let comparisonData = {
+  year1: null,
+  year2: null
+};
+
+function toggleComparisonMode() {
+  comparisonMode = !comparisonMode;
+  const btn = document.getElementById('comparison-toggle');
+  if (btn) {
+    btn.classList.toggle('active');
+    btn.innerHTML = comparisonMode 
+      ? '<i class="fas fa-toggle-on"></i> Comparison: ON'
+      : '<i class="fas fa-toggle-off"></i> Comparison: OFF';
+  }
+  
+  showToast(comparisonMode ? 'Comparison mode enabled' : 'Comparison mode disabled', 'info');
+  updateDashboard();
+}
+window.toggleComparisonMode = toggleComparisonMode;
+
+// 6. Data Summary Stats Bar
+function updateDataSummaryBar() {
+  if (!filteredData) return;
+  
+  const totalRecords = filteredData.length;
+  const uniqueRecruiters = new Set(filteredData.map(r => r['Recruiter Name']).filter(Boolean)).size;
+  const uniqueStages = new Set(filteredData.map(r => r['Recruitment Stage']).filter(Boolean)).size;
+  const uniqueParameters = new Set(filteredData.map(r => r['Parameter']).filter(Boolean)).size;
+  
+  const summaryBar = document.getElementById('data-summary-bar');
+  if (summaryBar) {
+    summaryBar.innerHTML = `
+      <div class="flex items-center justify-around text-sm py-2">
+        <div class="flex items-center gap-2">
+          <i class="fas fa-database text-blue-500"></i>
+          <span class="font-semibold">${totalRecords}</span> Records
+        </div>
+        <div class="flex items-center gap-2">
+          <i class="fas fa-users text-green-500"></i>
+          <span class="font-semibold">${uniqueRecruiters}</span> Recruiters
+        </div>
+        <div class="flex items-center gap-2">
+          <i class="fas fa-layer-group text-purple-500"></i>
+          <span class="font-semibold">${uniqueStages}</span> Stages
+        </div>
+        <div class="flex items-center gap-2">
+          <i class="fas fa-list-check text-orange-500"></i>
+          <span class="font-semibold">${uniqueParameters}</span> Parameters
+        </div>
+      </div>
+    `;
+  }
+}
+window.updateDataSummaryBar = updateDataSummaryBar;
+
+// 7. Keyboard Shortcuts
+document.addEventListener('keydown', function(e) {
+  // Ctrl/Cmd + E: Export to CSV
+  if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
+    e.preventDefault();
+    exportToCSV();
+  }
+  // Ctrl/Cmd + R: Reset Filters
+  if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+    e.preventDefault();
+    resetFilters();
+  }
+  // Ctrl/Cmd + P: Export PDF
+  if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+    e.preventDefault();
+    exportToPDF();
+  }
+  // Ctrl/Cmd + K: Focus search
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    e.preventDefault();
+    const search = document.getElementById('global-search');
+    if (search) search.focus();
+  }
+});
+
+// Update dashboard with summary bar
+const originalUpdateDashboard = updateDashboard;
+updateDashboard = function() {
+  originalUpdateDashboard();
+  updateDataSummaryBar();
+}
+
 console.log('M&M Dashboard JavaScript loaded successfully with creative enhancements');
+console.log('✨ New Features: Export CSV, Progress Rings, Performance Badges, Sparklines, Comparison Mode');
+console.log('⌨️  Keyboard Shortcuts: Ctrl+E (Export), Ctrl+R (Reset), Ctrl+P (PDF), Ctrl+K (Search)');

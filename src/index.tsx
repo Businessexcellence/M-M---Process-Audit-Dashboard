@@ -2010,6 +2010,12 @@ app.get('/', (c) => {
                     </div>
                     <span class="fab-item-label">Reset Filters</span>
                 </button>
+                <button class="fab-item" onclick="exportToCSV()">
+                    <div class="fab-item-icon">
+                        <i class="fas fa-file-csv"></i>
+                    </div>
+                    <span class="fab-item-label">Export CSV</span>
+                </button>
                 <button class="fab-item" onclick="toggleTheme()">
                     <div class="fab-item-icon">
                         <i class="fas fa-adjust"></i>
@@ -2017,6 +2023,11 @@ app.get('/', (c) => {
                     <span class="fab-item-label">Toggle Theme</span>
                 </button>
             </div>
+        </div>
+        
+        <!-- Data Summary Bar -->
+        <div id="data-summary-bar" class="bg-gradient-to-r from-blue-50 to-purple-50 border-b border-gray-200 shadow-sm" style="color: var(--text-primary);">
+            <!-- Will be populated by JavaScript -->
         </div>
         
         <!-- Global Filters -->
