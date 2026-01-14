@@ -3801,13 +3801,22 @@ function highlightUpdatedData(elementId) {
 // Auto-update Quick Stats on data changes
 const originalProcessAndStoreData = processAndStoreData;
 processAndStoreData = function(data) {
-  originalProcessAndStoreData(data);
+  const result = originalProcessAndStoreData(data);
   updateQuickStats();
   
   // Highlight key metrics
   ['metric-accuracy', 'metric-error-rate', 'metric-total-audits', 'metric-sample-coverage'].forEach(id => {
     highlightUpdatedData(id);
   });
+  
+  // Trigger confetti on successful data load
+  if (result && rawData && rawData.auditCount && rawData.auditCount.length > 0) {
+    setTimeout(() => {
+      triggerConfetti();
+    }, 500);
+  }
+  
+  return result;
 }
 
 // Make functions globally available
@@ -4294,3 +4303,337 @@ document.addEventListener('keydown', function(e) {
 console.log('M&M Dashboard JavaScript loaded successfully with creative enhancements');
 console.log('✨ New Features: Export CSV, Progress Rings, Performance Badges, Sparklines, Comparison Mode');
 console.log('⌨️  Keyboard Shortcuts: Ctrl+E (Export), Ctrl+R (Reset), Ctrl+P (PDF), Ctrl+K (Search)');
+
+// ========== REVOLUTIONARY BEAUTIFICATION EFFECTS ==========
+
+// 1. Particle Background Animation
+function createParticles() {
+  const canvas = document.createElement('canvas');
+  canvas.id = 'particle-canvas';
+  document.body.appendChild(canvas);
+  const ctx = canvas.getContext('2d');
+  
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  
+  const particles = [];
+  const particleCount = 100;
+  
+  class Particle {
+    constructor() {
+      this.x = Math.random() * canvas.width;
+      this.y = Math.random() * canvas.height;
+      this.size = Math.random() * 3 + 1;
+      this.speedX = Math.random() * 2 - 1;
+      this.speedY = Math.random() * 2 - 1;
+      this.color = `rgba(200, 16, 46, ${Math.random() * 0.5 + 0.2})`;
+    }
+    
+    update() {
+      this.x += this.speedX;
+      this.y += this.speedY;
+      
+      if (this.x > canvas.width || this.x < 0) this.speedX *= -1;
+      if (this.y > canvas.height || this.y < 0) this.speedY *= -1;
+    }
+    
+    draw() {
+      ctx.fillStyle = this.color;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+  
+  for (let i = 0; i < particleCount; i++) {
+    particles.push(new Particle());
+  }
+  
+  function animateParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(particle => {
+      particle.update();
+      particle.draw();
+    });
+    
+    // Connect nearby particles
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        if (distance < 100) {
+          ctx.strokeStyle = `rgba(200, 16, 46, ${0.2 * (1 - distance / 100)})`;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+    
+    requestAnimationFrame(animateParticles);
+  }
+  
+  animateParticles();
+  
+  window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  });
+}
+
+// 2. Confetti Celebration Effect
+function triggerConfetti() {
+  const container = document.createElement('div');
+  container.id = 'confetti-container';
+  document.body.appendChild(container);
+  
+  const colors = ['#C8102E', '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8'];
+  const confettiCount = 150;
+  
+  for (let i = 0; i < confettiCount; i++) {
+    const confetti = document.createElement('div');
+    confetti.className = 'confetti';
+    confetti.style.left = Math.random() * 100 + '%';
+    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+    confetti.style.animationDelay = Math.random() * 3 + 's';
+    confetti.style.animationDuration = (Math.random() * 2 + 3) + 's';
+    container.appendChild(confetti);
+  }
+  
+  setTimeout(() => {
+    container.remove();
+  }, 5000);
+}
+
+// 3. Energy Orbs Effect
+function createEnergyOrbs() {
+  for (let i = 0; i < 3; i++) {
+    const orb = document.createElement('div');
+    orb.className = 'energy-orb';
+    orb.style.left = Math.random() * 100 + '%';
+    orb.style.top = Math.random() * 100 + '%';
+    orb.style.animationDelay = i * 1 + 's';
+    document.body.appendChild(orb);
+  }
+}
+
+// 4. Spotlight Cursor Effect
+let spotlightMode = false;
+
+function initSpotlight() {
+  const spotlight = document.createElement('div');
+  spotlight.id = 'spotlight';
+  document.body.appendChild(spotlight);
+  
+  document.addEventListener('mousemove', (e) => {
+    if (spotlightMode) {
+      spotlight.style.left = e.clientX + 'px';
+      spotlight.style.top = e.clientY + 'px';
+    }
+  });
+  
+  // Toggle spotlight with Alt+S
+  document.addEventListener('keydown', (e) => {
+    if (e.altKey && e.key === 's') {
+      spotlightMode = !spotlightMode;
+      document.body.classList.toggle('spotlight-mode', spotlightMode);
+    }
+  });
+}
+
+// 5. Ripple Click Effect
+document.addEventListener('click', function(e) {
+  const ripple = document.createElement('div');
+  ripple.className = 'ripple';
+  ripple.style.left = e.clientX - 25 + 'px';
+  ripple.style.top = e.clientY - 25 + 'px';
+  ripple.style.width = '50px';
+  ripple.style.height = '50px';
+  document.body.appendChild(ripple);
+  
+  setTimeout(() => {
+    ripple.remove();
+  }, 600);
+});
+
+// 6. Apply Glassmorphism to Cards
+function applyGlassmorphism() {
+  setTimeout(() => {
+    const cards = document.querySelectorAll('.dashboard-card, .metric-card, .chart-container, .nav-sub-items');
+    cards.forEach(card => {
+      if (!card.classList.contains('glass-card')) {
+        card.classList.add('glass-card');
+      }
+    });
+  }, 1000);
+}
+
+// 7. Apply Premium Card Effects
+function applyPremiumCardEffects() {
+  setTimeout(() => {
+    const cards = document.querySelectorAll('.dashboard-card, .metric-card');
+    cards.forEach(card => {
+      if (!card.classList.contains('premium-card')) {
+        card.classList.add('premium-card');
+      }
+    });
+  }, 1000);
+}
+
+// 8. Neon Text for Important Elements
+function applyNeonText() {
+  setTimeout(() => {
+    const headers = document.querySelectorAll('h1, h2.text-3xl');
+    headers.forEach(header => {
+      if (!header.classList.contains('neon-text')) {
+        header.classList.add('neon-text');
+      }
+    });
+  }, 1000);
+}
+
+// 9. Holographic Buttons
+function applyHolographicButtons() {
+  setTimeout(() => {
+    const buttons = document.querySelectorAll('.bg-mm-red, .nav-tab.active');
+    buttons.forEach(btn => {
+      if (!btn.classList.contains('holographic')) {
+        btn.classList.add('holographic');
+      }
+    });
+  }, 1000);
+}
+
+// 10. Liquid Morph Background for Cards
+function applyLiquidMorph() {
+  setTimeout(() => {
+    const cards = document.querySelectorAll('.metric-card');
+    cards.forEach((card, index) => {
+      if (index % 2 === 0 && !card.classList.contains('liquid-morph')) {
+        card.classList.add('liquid-morph');
+      }
+    });
+  }, 1000);
+}
+
+// 11. Floating Animation for FAB
+function applyFloatingEffect() {
+  setTimeout(() => {
+    const fab = document.getElementById('fab-button');
+    if (fab && !fab.classList.contains('floating')) {
+      fab.classList.add('floating');
+    }
+  }, 1000);
+}
+
+// 12. Glow Border for Active Elements
+function applyGlowBorders() {
+  setTimeout(() => {
+    const activeElements = document.querySelectorAll('.nav-tab.active, .strategic-tab.active');
+    activeElements.forEach(el => {
+      if (!el.classList.contains('glow-border')) {
+        el.classList.add('glow-border');
+      }
+    });
+  }, 1000);
+}
+
+// 13. 3D Flip Cards for Strategic View
+function apply3DFlipCards() {
+  setTimeout(() => {
+    const strategicCards = document.querySelectorAll('#strategic-content-rca .dashboard-card, #strategic-content-capa .dashboard-card, #strategic-content-sixsigma .dashboard-card');
+    strategicCards.forEach(card => {
+      if (!card.classList.contains('flip-card')) {
+        card.classList.add('flip-card');
+        
+        // Wrap content in flip-card-inner
+        const content = card.innerHTML;
+        card.innerHTML = `
+          <div class="flip-card-inner">
+            <div class="flip-card-front">${content}</div>
+            <div class="flip-card-back bg-gradient-to-br from-red-900 to-red-700 text-white p-6">
+              <h3 class="text-xl font-bold mb-4">More Details</h3>
+              <p>Click to flip back and explore more insights!</p>
+            </div>
+          </div>
+        `;
+        
+        card.addEventListener('click', () => {
+          card.classList.toggle('flipped');
+        });
+      }
+    });
+  }, 2000);
+}
+
+// 14. Aurora Background
+function createAuroraBackground() {
+  const aurora = document.createElement('div');
+  aurora.className = 'aurora-bg';
+  document.body.insertBefore(aurora, document.body.firstChild);
+}
+
+// 15. Magnetic Effect on Cards
+function initMagneticEffect() {
+  setTimeout(() => {
+    const cards = document.querySelectorAll('.premium-card, .metric-card, .dashboard-card');
+    cards.forEach(card => {
+      card.classList.add('magnetic');
+      
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+        
+        const moveX = x * 0.1;
+        const moveY = y * 0.1;
+        
+        card.style.transform = `translate(${moveX}px, ${moveY}px) scale(1.02)`;
+      });
+      
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = 'translate(0, 0) scale(1)';
+      });
+    });
+  }, 1000);
+}
+
+// 16. Breathing Animation for Logo
+function applyBreathingEffect() {
+  setTimeout(() => {
+    const logo = document.querySelector('header img');
+    if (logo && !logo.classList.contains('breathing')) {
+      logo.classList.add('breathing');
+    }
+  }, 1000);
+}
+
+// 17. Enhanced Data Upload Success - Already handled in line 3802
+
+// Initialize all revolutionary effects
+setTimeout(() => {
+  createParticles();
+  createEnergyOrbs();
+  createAuroraBackground();
+  initSpotlight();
+  applyGlassmorphism();
+  applyPremiumCardEffects();
+  applyNeonText();
+  applyHolographicButtons();
+  applyLiquidMorph();
+  applyFloatingEffect();
+  applyGlowBorders();
+  apply3DFlipCards();
+  initMagneticEffect();
+  applyBreathingEffect();
+}, 2000);
+
+console.log('🚀 REVOLUTIONARY EFFECTS ACTIVATED!');
+console.log('🎨 Particles, Confetti, Neon Text, Holographic Gradients, Liquid Morph');
+console.log('✨ Energy Orbs, Glassmorphism, 3D Flip Cards, Premium Animations');
+console.log('🎭 Press Alt+S to toggle Spotlight mode');
+console.log('🎉 Confetti triggers on data upload success');

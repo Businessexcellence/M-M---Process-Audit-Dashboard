@@ -1842,6 +1842,410 @@ app.get('/', (c) => {
           .progress-ring {
             animation: progress-ring 1.5s ease-out forwards;
           }
+          
+          /* ========== REVOLUTIONARY BEAUTIFICATION EFFECTS ========== */
+          
+          /* 1. Particle Background Effect */
+          #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.3;
+          }
+          
+          /* 2. Glassmorphism Cards */
+          .glass-card {
+            background: rgba(255, 255, 255, 0.05) !important;
+            backdrop-filter: blur(10px) !important;
+            -webkit-backdrop-filter: blur(10px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37) !important;
+          }
+          
+          body.light-theme .glass-card {
+            background: rgba(255, 255, 255, 0.7) !important;
+            backdrop-filter: blur(10px) !important;
+            border: 1px solid rgba(200, 16, 46, 0.1) !important;
+          }
+          
+          /* 3. Neon Glow Text */
+          .neon-text {
+            color: #fff;
+            text-shadow: 
+              0 0 5px #fff,
+              0 0 10px #fff,
+              0 0 20px #C8102E,
+              0 0 40px #C8102E,
+              0 0 80px #C8102E,
+              0 0 90px #C8102E,
+              0 0 100px #C8102E,
+              0 0 150px #C8102E;
+            animation: neon-flicker 1.5s infinite alternate;
+          }
+          
+          @keyframes neon-flicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+              text-shadow: 
+                0 0 5px #fff,
+                0 0 10px #fff,
+                0 0 20px #C8102E,
+                0 0 40px #C8102E,
+                0 0 80px #C8102E;
+            }
+            20%, 24%, 55% {        
+              text-shadow: none;
+            }
+          }
+          
+          /* 4. Holographic Gradient */
+          .holographic {
+            background: linear-gradient(
+              45deg,
+              #ff0080, #ff8c00, #40e0d0, #4169e1, #c71585, #ff0080
+            );
+            background-size: 400% 400%;
+            animation: holographic-shift 10s ease infinite;
+          }
+          
+          @keyframes holographic-shift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+          }
+          
+          /* 5. Liquid Morphing Animation */
+          .liquid-morph {
+            position: relative;
+            overflow: hidden;
+          }
+          
+          .liquid-morph::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(200,16,46,0.3) 0%, transparent 70%);
+            animation: liquid-rotate 10s linear infinite;
+          }
+          
+          @keyframes liquid-rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+          
+          /* 6. Energy Orb Pulse */
+          .energy-orb {
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(200,16,46,0.4) 0%, transparent 70%);
+            animation: orb-pulse 3s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 2;
+            filter: blur(40px);
+          }
+          
+          @keyframes orb-pulse {
+            0%, 100% { 
+              transform: scale(1);
+              opacity: 0.5;
+            }
+            50% { 
+              transform: scale(1.5);
+              opacity: 0.8;
+            }
+          }
+          
+          /* 7. Spotlight Cursor Effect */
+          #spotlight {
+            position: fixed;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(200,16,46,0.3) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: all 0.1s ease;
+            opacity: 0;
+          }
+          
+          body.spotlight-mode #spotlight {
+            opacity: 1;
+          }
+          
+          body.spotlight-mode {
+            filter: brightness(0.3);
+          }
+          
+          body.spotlight-mode #spotlight ~ * {
+            filter: brightness(1);
+          }
+          
+          /* 8. Ripple Click Effect */
+          .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(200, 16, 46, 0.5);
+            transform: scale(0);
+            animation: ripple-effect 0.6s ease-out;
+            pointer-events: none;
+          }
+          
+          @keyframes ripple-effect {
+            to {
+              transform: scale(4);
+              opacity: 0;
+            }
+          }
+          
+          /* 9. 3D Card Flip */
+          .flip-card {
+            perspective: 1000px;
+            cursor: pointer;
+          }
+          
+          .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+          }
+          
+          .flip-card:hover .flip-card-inner,
+          .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+          }
+          
+          .flip-card-front,
+          .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 12px;
+          }
+          
+          .flip-card-back {
+            transform: rotateY(180deg);
+          }
+          
+          /* 10. Premium Card Animations */
+          .premium-card {
+            position: relative;
+            transform-style: preserve-3d;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.320, 1);
+          }
+          
+          .premium-card:hover {
+            transform: translateY(-10px) rotateX(5deg) rotateY(5deg);
+            box-shadow: 
+              0 20px 40px rgba(0, 0, 0, 0.3),
+              0 0 60px rgba(200, 16, 46, 0.4);
+          }
+          
+          .premium-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: inherit;
+            background: linear-gradient(135deg, transparent 0%, rgba(200,16,46,0.1) 50%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.5s;
+          }
+          
+          .premium-card:hover::before {
+            opacity: 1;
+          }
+          
+          /* 11. Confetti Container */
+          #confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9998;
+            overflow: hidden;
+          }
+          
+          .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #C8102E;
+            animation: confetti-fall 3s linear forwards;
+          }
+          
+          @keyframes confetti-fall {
+            to {
+              transform: translateY(100vh) rotate(360deg);
+              opacity: 0;
+            }
+          }
+          
+          /* 12. Magnetic Effect */
+          .magnetic {
+            transition: transform 0.2s ease;
+          }
+          
+          /* 13. Typewriter Effect */
+          .typewriter {
+            overflow: hidden;
+            border-right: 3px solid #C8102E;
+            white-space: nowrap;
+            animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+          }
+          
+          @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+          }
+          
+          @keyframes blink-caret {
+            from, to { border-color: transparent; }
+            50% { border-color: #C8102E; }
+          }
+          
+          /* 14. Aurora Background */
+          .aurora-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.15;
+            background: 
+              radial-gradient(ellipse at top, rgba(200,16,46,0.4), transparent),
+              radial-gradient(ellipse at bottom, rgba(139,0,0,0.4), transparent);
+            animation: aurora-move 20s ease-in-out infinite;
+          }
+          
+          @keyframes aurora-move {
+            0%, 100% { 
+              background-position: 0% 0%, 100% 100%;
+            }
+            50% { 
+              background-position: 100% 100%, 0% 0%;
+            }
+          }
+          
+          /* 15. Floating Animation */
+          .floating {
+            animation: floating 3s ease-in-out infinite;
+          }
+          
+          @keyframes floating {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+          }
+          
+          /* 16. Glow Border Animation */
+          .glow-border {
+            position: relative;
+            border: 2px solid transparent;
+            background: linear-gradient(var(--bg-card), var(--bg-card)) padding-box,
+                        linear-gradient(45deg, #C8102E, #ff0080, #4169e1, #C8102E) border-box;
+            animation: border-glow 3s linear infinite;
+            background-size: 300% 300%;
+          }
+          
+          @keyframes border-glow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+          }
+          
+          /* 17. Shimmer Loading Effect */
+          .shimmer {
+            background: linear-gradient(90deg, 
+              rgba(255,255,255,0) 0%, 
+              rgba(200,16,46,0.3) 50%, 
+              rgba(255,255,255,0) 100%
+            );
+            background-size: 200% 100%;
+            animation: shimmer-slide 2s infinite;
+          }
+          
+          @keyframes shimmer-slide {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+          }
+          
+          /* 18. Parallax Layers */
+          .parallax-layer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+          }
+          
+          /* 19. Glitch Effect */
+          .glitch {
+            position: relative;
+          }
+          
+          .glitch::before,
+          .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+          }
+          
+          .glitch::before {
+            animation: glitch-1 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite;
+            color: #C8102E;
+            z-index: -1;
+          }
+          
+          .glitch::after {
+            animation: glitch-2 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) reverse both infinite;
+            color: #4169e1;
+            z-index: -2;
+          }
+          
+          @keyframes glitch-1 {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+          }
+          
+          @keyframes glitch-2 {
+            0% { transform: translate(0); }
+            20% { transform: translate(2px, -2px); }
+            40% { transform: translate(2px, 2px); }
+            60% { transform: translate(-2px, -2px); }
+            80% { transform: translate(-2px, 2px); }
+            100% { transform: translate(0); }
+          }
+          
+          /* 20. Breathing Animation */
+          .breathing {
+            animation: breathing 4s ease-in-out infinite;
+          }
+          
+          @keyframes breathing {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+          }
         </style>
     </head>
     <body class="bg-gray-50">
