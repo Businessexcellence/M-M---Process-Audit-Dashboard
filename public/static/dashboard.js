@@ -3777,6 +3777,7 @@ switchTab = function(tabName) {
     }, 400);
   }
 }
+window.switchTab = switchTab; // Expose to global scope for onclick handlers
 
 // Override applyFilters to update pill display
 const originalApplyFilters = applyFilters;
