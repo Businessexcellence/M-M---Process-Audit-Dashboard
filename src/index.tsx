@@ -4467,7 +4467,7 @@ app.get('/', (c) => {
                     </h3>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div class="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border border-green-200">
-                            <div class="text-3xl font-bold text-green-700" id="metric-accuracy">--</div>
+                            <div class="text-3xl font-bold text-green-700" id="benchmark-accuracy">--</div>
                             <div class="text-sm text-gray-600 mt-1">Your Accuracy</div>
                             <div class="text-2xl font-bold text-green-600 mt-2">95%</div>
                             <div class="text-xs text-gray-500">Industry Best: Top 10%</div>
@@ -4476,7 +4476,7 @@ app.get('/', (c) => {
                             </div>
                         </div>
                         <div class="text-center p-4 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg border border-yellow-200">
-                            <div class="text-3xl font-bold text-yellow-700" id="metric-sample-coverage">--</div>
+                            <div class="text-3xl font-bold text-yellow-700" id="benchmark-sample-coverage">--</div>
                             <div class="text-sm text-gray-600 mt-1">Sample Coverage</div>
                             <div class="text-2xl font-bold text-yellow-600 mt-2">80%</div>
                             <div class="text-xs text-gray-500">Industry Target: Top 25%</div>
@@ -4485,7 +4485,7 @@ app.get('/', (c) => {
                             </div>
                         </div>
                         <div class="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200">
-                            <div class="text-3xl font-bold text-blue-700" id="metric-error-rate">--</div>
+                            <div class="text-3xl font-bold text-blue-700" id="benchmark-error-rate">--</div>
                             <div class="text-sm text-gray-600 mt-1">Error Rate</div>
                             <div class="text-2xl font-bold text-blue-600 mt-2">&lt;3%</div>
                             <div class="text-xs text-gray-500">Industry Best: Top Quartile</div>
