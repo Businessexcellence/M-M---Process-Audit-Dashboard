@@ -303,6 +303,12 @@ function processAndStoreData(data) {
   console.log('Audit Count raw key:', auditCountRawKey, 'rows:', auditCountRaw.length);
   console.log('Audit Count parsed key:', auditCountParsedKey, 'rows:', auditCountParsed.length);
   
+  // Log first parsed row to see column names
+  if (auditCountParsed.length > 0) {
+    console.log('First parsed row columns:', Object.keys(auditCountParsed[0]));
+    console.log('First parsed row sample:', auditCountParsed[0]);
+  }
+  
   // Extract unique Financial Years from Column B (skipping header row)
   const financialYears = [];
   for (let i = 1; i < auditCountRaw.length; i++) {
@@ -621,13 +627,20 @@ function updateDashboard() {
 
 // Update key metrics
 function updateKeyMetrics() {
+  console.log('updateKeyMetrics called. filteredData:', filteredData ? filteredData.length + ' records' : 'null');
+  
   if (!filteredData || filteredData.length === 0) {
+    console.warn('No filtered data available for metrics');
     document.getElementById('metric-accuracy').textContent = '--';
     document.getElementById('metric-error-rate').textContent = '--';
     document.getElementById('metric-total-audits').textContent = '--';
     document.getElementById('metric-sample-coverage').textContent = '--';
     return;
   }
+  
+  // Log first row to see available columns
+  console.log('First filtered row:', filteredData[0]);
+  console.log('Available columns:', Object.keys(filteredData[0]));
   
   // Calculate metrics based on correct formulas:
   // 1. Overall Accuracy = Sum(Opportunity Pass) / (Sum(Opportunity Count) - Sum(Opportunity NA))
@@ -640,6 +653,15 @@ function updateKeyMetrics() {
   const totalNA = filteredData.reduce((sum, r) => sum + (parseFloat(r['Opportunity NA']) || 0), 0);
   const totalPopulation = filteredData.reduce((sum, r) => sum + (parseFloat(r['Total Population']) || 0), 0);
   const totalSamples = filteredData.reduce((sum, r) => sum + (parseFloat(r['Sample Count']) || 0), 0);
+  
+  console.log('Metric calculations:', {
+    totalPass,
+    totalFail,
+    totalOpportunityCount,
+    totalNA,
+    totalPopulation,
+    totalSamples
+  });
   
   // Calculate denominator (Opportunity Count - Opportunity NA)
   const totalExcludingNA = totalOpportunityCount - totalNA;
