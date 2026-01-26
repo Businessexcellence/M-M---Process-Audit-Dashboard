@@ -2732,6 +2732,16 @@ app.get('/', (c) => {
                 </div>
             </div>
             
+            <div class="nav-tab" onclick="switchTab('sop')">
+                <div class="nav-tab-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <div class="nav-tab-content">
+                    <div class="nav-tab-title">SOP Assistant</div>
+                    <div class="nav-tab-desc">AI-Powered Help</div>
+                </div>
+            </div>
+            
         </nav>
 
         <!-- Main Content Wrapper -->
@@ -5018,6 +5028,138 @@ app.get('/', (c) => {
                                     <li>• Centered header title for balanced design</li>
                                     <li>• Removed logo animation for professional look</li>
                                 </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- SOP Assistant Tab -->
+            <div id="tab-sop" class="tab-content hidden page-transition">
+                <div class="dashboard-card p-6 mb-6">
+                    <h2 class="text-3xl font-bold flex items-center gap-3 mb-2">
+                        <i class="fas fa-robot text-purple-600"></i>
+                        SOP AI Assistant
+                    </h2>
+                    <p class="text-gray-600">Ask questions about M&M Recruitment Process - Voice & Chat supported</p>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Chat Interface -->
+                    <div class="lg:col-span-2">
+                        <div class="dashboard-card p-6" style="height: 600px; display: flex; flex-direction: column;">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-xl font-bold flex items-center gap-2">
+                                    <i class="fas fa-comments text-blue-600"></i>
+                                    Chat with SOP Assistant
+                                </h3>
+                                <div class="flex gap-2">
+                                    <button id="voice-btn" onclick="toggleVoiceInput()" class="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 transition flex items-center gap-2">
+                                        <i class="fas fa-microphone"></i>
+                                        <span id="voice-btn-text">Voice</span>
+                                    </button>
+                                    <button onclick="clearChat()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Chat Messages -->
+                            <div id="chat-messages" class="flex-1 overflow-y-auto mb-4 p-4 bg-gray-50 rounded-lg space-y-4" style="min-height: 400px;">
+                                <div class="message bot-message">
+                                    <div class="flex items-start gap-3">
+                                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white">
+                                            <i class="fas fa-robot"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="bg-white rounded-lg p-4 shadow-sm">
+                                                <p class="text-gray-800">Hello! I'm your SOP AI Assistant. I can help you with questions about the M&M Recruitment Process. You can type your question or use voice input. How can I help you today?</p>
+                                            </div>
+                            <div class="text-xs text-gray-500 mt-1">Just now</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Chat Input -->
+                            <div class="flex gap-2">
+                                <input 
+                                    type="text" 
+                                    id="chat-input" 
+                                    placeholder="Type your question about SOP..." 
+                                    class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                    onkeypress="if(event.key==='Enter') sendMessage()"
+                                />
+                                <button onclick="sendMessage()" class="px-6 py-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-lg hover:from-purple-600 hover:to-blue-600 transition flex items-center gap-2">
+                                    <i class="fas fa-paper-plane"></i>
+                                    Send
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Actions & SOP Info -->
+                    <div class="space-y-6">
+                        <!-- SOP Document Info -->
+                        <div class="dashboard-card p-6">
+                            <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+                                <i class="fas fa-file-alt text-green-600"></i>
+                                SOP Document
+                            </h3>
+                            <div class="space-y-3">
+                                <div class="p-3 bg-green-50 rounded-lg">
+                                    <div class="text-sm text-gray-600 mb-1">Document Name</div>
+                                    <div class="font-semibold text-gray-800">MM_SF_Module V 1.1</div>
+                                </div>
+                                <div class="p-3 bg-blue-50 rounded-lg">
+                                    <div class="text-sm text-gray-600 mb-1">Type</div>
+                                    <div class="font-semibold text-gray-800">Recruitment SOP</div>
+                                </div>
+                                <div class="p-3 bg-purple-50 rounded-lg">
+                                    <div class="text-sm text-gray-600 mb-1">Status</div>
+                                    <div class="font-semibold text-green-600 flex items-center gap-2">
+                                        <span class="pulse-dot"></span>
+                                        Ready
+                                    </div>
+                                </div>
+                                <a href="https://www.genspark.ai/api/files/s/c1rdkliN" target="_blank" class="block w-full px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition text-center">
+                                    <i class="fas fa-download mr-2"></i>
+                                    Download SOP
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <!-- Quick Questions -->
+                        <div class="dashboard-card p-6">
+                            <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+                                <i class="fas fa-question-circle text-blue-600"></i>
+                                Quick Questions
+                            </h3>
+                            <div class="space-y-2">
+                                <button onclick="askQuestion('What is the recruitment process flow?')" class="w-full text-left p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition">
+                                    <div class="text-sm font-medium text-gray-800">Recruitment Process Flow</div>
+                                </button>
+                                <button onclick="askQuestion('What are the key stages in recruitment?')" class="w-full text-left p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition">
+                                    <div class="text-sm font-medium text-gray-800">Key Recruitment Stages</div>
+                                </button>
+                                <button onclick="askQuestion('Who is responsible for each process?')" class="w-full text-left p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition">
+                                    <div class="text-sm font-medium text-gray-800">Process Ownership</div>
+                                </button>
+                                <button onclick="askQuestion('What documents are required?')" class="w-full text-left p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition">
+                                    <div class="text-sm font-medium text-gray-800">Required Documents</div>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Voice Status -->
+                        <div id="voice-status" class="dashboard-card p-6 hidden">
+                            <div class="text-center">
+                                <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center text-white animate-pulse">
+                                    <i class="fas fa-microphone text-2xl"></i>
+                                </div>
+                                <div class="font-bold text-lg mb-1">Listening...</div>
+                                <div class="text-sm text-gray-600">Speak your question</div>
+                                <div id="voice-transcript" class="mt-3 p-3 bg-gray-50 rounded-lg text-sm text-gray-700"></div>
                             </div>
                         </div>
                     </div>

@@ -2624,7 +2624,8 @@ function switchTab(tabName) {
     'insights': 'Insights and Recommendations',
     'strategic': 'Strategic View - RCAs, CAPAs and Six Sigma Projects',
     'bestpractices': 'Best Practices - Industry benchmarks and recommendations',
-    'usermanual': 'User Manual - Dashboard creation guide'
+    'usermanual': 'User Manual - Dashboard creation guide',
+    'sop': 'SOP Assistant - AI-powered help with voice and chat'
   };
   
   if (audioEnabled && tabNames[tabName]) {
@@ -4847,3 +4848,250 @@ console.log('✨ Energy Orbs, Glassmorphism, 3D Flip Cards, Premium Animations')
 console.log('🎭 Press Alt+S to toggle Spotlight mode');
 console.log('🎉 Confetti triggers on data upload success');
 console.log('💎 Additional Enhancements: Tooltips, Badges, Progress Bars, Counter Animations');
+
+// ========== SOP AI ASSISTANT ==========
+
+let isListening = false;
+let recognition = null;
+
+// Initialize Speech Recognition
+if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SpeechRecognition();
+  recognition.continuous = false;
+  recognition.interimResults = true;
+  recognition.lang = 'en-US';
+  
+  recognition.onresult = function(event) {
+    const transcript = Array.from(event.results)
+      .map(result => result[0].transcript)
+      .join('');
+    
+    document.getElementById('voice-transcript').textContent = transcript;
+    
+    if (event.results[0].isFinal) {
+      document.getElementById('chat-input').value = transcript;
+      stopVoiceInput();
+      sendMessage();
+    }
+  };
+  
+  recognition.onerror = function(event) {
+    console.error('Speech recognition error:', event.error);
+    stopVoiceInput();
+    showEnhancedToast('Voice input error: ' + event.error, 'error');
+  };
+  
+  recognition.onend = function() {
+    stopVoiceInput();
+  };
+}
+
+function toggleVoiceInput() {
+  if (isListening) {
+    stopVoiceInput();
+  } else {
+    startVoiceInput();
+  }
+}
+
+function startVoiceInput() {
+  if (!recognition) {
+    showEnhancedToast('Voice input not supported in this browser', 'warning');
+    return;
+  }
+  
+  isListening = true;
+  document.getElementById('voice-status').classList.remove('hidden');
+  document.getElementById('voice-btn').classList.add('animate-pulse');
+  document.getElementById('voice-btn-text').textContent = 'Listening...';
+  
+  try {
+    recognition.start();
+  } catch (e) {
+    console.error('Error starting recognition:', e);
+  }
+}
+
+function stopVoiceInput() {
+  isListening = false;
+  document.getElementById('voice-status').classList.add('hidden');
+  document.getElementById('voice-btn').classList.remove('animate-pulse');
+  document.getElementById('voice-btn-text').textContent = 'Voice';
+  document.getElementById('voice-transcript').textContent = '';
+  
+  if (recognition) {
+    try {
+      recognition.stop();
+    } catch (e) {
+      // Already stopped
+    }
+  }
+}
+
+// Send message function
+async function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const message = input.value.trim();
+  
+  if (!message) return;
+  
+  // Add user message to chat
+  addMessageToChat(message, 'user');
+  input.value = '';
+  
+  // Show typing indicator
+  const typingId = addTypingIndicator();
+  
+  try {
+    // Simulate AI response (you can replace this with actual API call)
+    const response = await getAIResponse(message);
+    
+    // Remove typing indicator
+    removeTypingIndicator(typingId);
+    
+    // Add bot response
+    addMessageToChat(response, 'bot');
+    
+    // Speak response if available
+    speakText(response);
+    
+  } catch (error) {
+    removeTypingIndicator(typingId);
+    addMessageToChat('Sorry, I encountered an error processing your request.', 'bot');
+    console.error('Error:', error);
+  }
+}
+
+function addMessageToChat(message, type) {
+  const messagesContainer = document.getElementById('chat-messages');
+  const messageDiv = document.createElement('div');
+  messageDiv.className = `message ${type}-message`;
+  
+  const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  
+  if (type === 'user') {
+    messageDiv.innerHTML = `
+      <div class="flex items-start gap-3 justify-end">
+        <div class="flex-1 text-right">
+          <div class="inline-block bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-lg p-4 shadow-sm max-w-lg">
+            <p>${message}</p>
+          </div>
+          <div class="text-xs text-gray-500 mt-1">${time}</div>
+        </div>
+        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center text-white">
+          <i class="fas fa-user"></i>
+        </div>
+      </div>
+    `;
+  } else {
+    messageDiv.innerHTML = `
+      <div class="flex items-start gap-3">
+        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white">
+          <i class="fas fa-robot"></i>
+        </div>
+        <div class="flex-1">
+          <div class="bg-white rounded-lg p-4 shadow-sm max-w-lg">
+            <p class="text-gray-800">${message}</p>
+          </div>
+          <div class="text-xs text-gray-500 mt-1">${time}</div>
+        </div>
+      </div>
+    `;
+  }
+  
+  messagesContainer.appendChild(messageDiv);
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function addTypingIndicator() {
+  const messagesContainer = document.getElementById('chat-messages');
+  const typingDiv = document.createElement('div');
+  const id = 'typing-' + Date.now();
+  typingDiv.id = id;
+  typingDiv.className = 'message bot-message';
+  typingDiv.innerHTML = `
+    <div class="flex items-start gap-3">
+      <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white">
+        <i class="fas fa-robot"></i>
+      </div>
+      <div class="flex-1">
+        <div class="bg-white rounded-lg p-4 shadow-sm">
+          <div class="flex gap-2">
+            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0s"></div>
+            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  messagesContainer.appendChild(typingDiv);
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  return id;
+}
+
+function removeTypingIndicator(id) {
+  const typingDiv = document.getElementById(id);
+  if (typingDiv) {
+    typingDiv.remove();
+  }
+}
+
+// Simulate AI response (replace with actual API call)
+async function getAIResponse(question) {
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 1500));
+  
+  const responses = {
+    'recruitment process': 'The M&M recruitment process includes several key stages: Job Requisition Creation, Candidate Sourcing, Screening, Assessment, Interview, Offer & APL, Pre-Onboarding, and Onboarding Initiation. Each stage has specific requirements and approvals needed.',
+    'stages': 'The key recruitment stages are: 1) Pre-Sourcing, 2) Intake, 3) Intake Meeting, 4) Screening, 5) Assessment Interview, 6) Offer/APL, and 7) Pre-Onboarding. Each stage has quality parameters that are audited.',
+    'responsible': 'Process Owner: Nitu Choubey (DGM-HR RPO & Campus), Reviewed by: Nikhil Gama (GM-HR Shared Services), Authorized by: Somesh Dravid (VP-HR AFS). Different stakeholders are involved at each recruitment stage.',
+    'documents': 'Required documents include: Job Description, Candidate Resume, Assessment Forms, Interview Feedback, Offer Letter, Background Verification Documents, Joining Documents, and Onboarding Checklist. Specific documents vary by stage.',
+    'default': 'I can help you with questions about the M&M Recruitment SOP. Key topics include: recruitment process flow, stages, responsibilities, documents required, quality parameters, and compliance requirements. What would you like to know more about?'
+  };
+  
+  // Simple keyword matching
+  const lowerQuestion = question.toLowerCase();
+  for (const [key, response] of Object.entries(responses)) {
+    if (lowerQuestion.includes(key)) {
+      return response;
+    }
+  }
+  
+  return responses.default;
+}
+
+function askQuestion(question) {
+  document.getElementById('chat-input').value = question;
+  sendMessage();
+}
+
+function clearChat() {
+  const messagesContainer = document.getElementById('chat-messages');
+  messagesContainer.innerHTML = `
+    <div class="message bot-message">
+      <div class="flex items-start gap-3">
+        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white">
+          <i class="fas fa-robot"></i>
+        </div>
+        <div class="flex-1">
+          <div class="bg-white rounded-lg p-4 shadow-sm">
+            <p class="text-gray-800">Hello! I'm your SOP AI Assistant. I can help you with questions about the M&M Recruitment Process. You can type your question or use voice input. How can I help you today?</p>
+          </div>
+          <div class="text-xs text-gray-500 mt-1">Just now</div>
+        </div>
+      </div>
+    </div>
+  `;
+  showEnhancedToast('Chat cleared', 'success');
+}
+
+// Expose functions globally
+window.toggleVoiceInput = toggleVoiceInput;
+window.sendMessage = sendMessage;
+window.askQuestion = askQuestion;
+window.clearChat = clearChat;
+
+console.log('🤖 SOP AI Assistant initialized with Voice & Chat support');
