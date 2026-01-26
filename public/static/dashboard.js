@@ -4929,16 +4929,79 @@ function stopVoiceInput() {
   }
 }
 
+// Global variable to store attached image
+let attachedImage = null;
+
+// Handle image upload for SOP Assistant
+function handleSopImageUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  // Validate file type
+  if (!file.type.startsWith('image/')) {
+    showEnhancedToast('Please select an image file', 'error');
+    return;
+  }
+  
+  // Check file size (max 5MB)
+  if (file.size > 5 * 1024 * 1024) {
+    showEnhancedToast('Image size must be less than 5MB', 'error');
+    return;
+  }
+  
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    attachedImage = {
+      name: file.name,
+      data: e.target.result,
+      type: file.type
+    };
+    
+    // Show preview
+    const previewDiv = document.getElementById('sop-image-preview');
+    previewDiv.className = 'p-3 mb-2 bg-gray-50 rounded-lg flex items-center gap-3';
+    previewDiv.innerHTML = `
+      <img src="${e.target.result}" alt="Preview" class="w-16 h-16 object-cover rounded">
+      <div class="flex-1">
+        <div class="text-sm font-medium text-gray-800">${file.name}</div>
+        <div class="text-xs text-gray-500">${(file.size / 1024).toFixed(1)} KB</div>
+      </div>
+      <button onclick="clearSopImage()" class="px-2 py-1 text-red-600 hover:bg-red-50 rounded transition">
+        <i class="fas fa-times"></i>
+      </button>
+    `;
+    
+    showEnhancedToast('Image attached successfully', 'success');
+  };
+  
+  reader.readAsDataURL(file);
+}
+
+function clearSopImage() {
+  attachedImage = null;
+  const previewDiv = document.getElementById('sop-image-preview');
+  previewDiv.className = 'hidden';
+  previewDiv.innerHTML = '';
+  document.getElementById('sop-image-upload').value = '';
+  showEnhancedToast('Image removed', 'info');
+}
+
 // Send message function
 async function sendMessage() {
   const input = document.getElementById('chat-input');
   const message = input.value.trim();
   
-  if (!message) return;
+  // Allow sending if there's a message or an attached image
+  if (!message && !attachedImage) return;
   
-  // Add user message to chat
-  addMessageToChat(message, 'user');
+  // Add user message to chat (with image if attached)
+  addMessageToChat(message || 'I have attached an image', 'user', attachedImage);
   input.value = '';
+  
+  // Clear attached image
+  if (attachedImage) {
+    clearSopImage();
+  }
   
   // Show typing indicator
   const typingId = addTypingIndicator();
@@ -4963,7 +5026,7 @@ async function sendMessage() {
   }
 }
 
-function addMessageToChat(message, type) {
+function addMessageToChat(message, type, image = null) {
   const messagesContainer = document.getElementById('chat-messages');
   const messageDiv = document.createElement('div');
   messageDiv.className = `message ${type}-message`;
@@ -4971,11 +5034,18 @@ function addMessageToChat(message, type) {
   const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   
   if (type === 'user') {
+    const imageHTML = image ? `
+      <div class="mb-2">
+        <img src="${image.data}" alt="${image.name}" class="max-w-xs rounded-lg shadow-sm">
+      </div>
+    ` : '';
+    
     messageDiv.innerHTML = `
       <div class="flex items-start gap-3 justify-end">
         <div class="flex-1 text-right">
           <div class="inline-block bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-lg p-4 shadow-sm max-w-lg">
-            <p>${message}</p>
+            ${imageHTML}
+            ${message ? `<p>${message}</p>` : ''}
           </div>
           <div class="text-xs text-gray-500 mt-1">${time}</div>
         </div>
@@ -5093,5 +5163,31 @@ window.toggleVoiceInput = toggleVoiceInput;
 window.sendMessage = sendMessage;
 window.askQuestion = askQuestion;
 window.clearChat = clearChat;
+window.handleSopImageUpload = handleSopImageUpload;
+window.clearSopImage = clearSopImage;
+
+// Welcome message when dashboard loads
+function playWelcomeMessage() {
+  const welcomeText = "Welcome to the M&M Recruitment Process Audit Dashboard, which provides insights into audits, strategic views, and more";
+  
+  // Show toast notification
+  setTimeout(() => {
+    showEnhancedToast('Welcome! 🎉 Dashboard loaded successfully', 'success');
+  }, 1000);
+  
+  // Speak welcome message if audio is available
+  setTimeout(() => {
+    speakText(welcomeText);
+  }, 1500);
+  
+  console.log('👋 Welcome message: ' + welcomeText);
+}
+
+// Play welcome message on page load
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', playWelcomeMessage);
+} else {
+  playWelcomeMessage();
+}
 
 console.log('🤖 SOP AI Assistant initialized with Voice & Chat support');

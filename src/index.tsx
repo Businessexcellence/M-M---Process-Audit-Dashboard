@@ -5082,18 +5082,33 @@ app.get('/', (c) => {
                             </div>
                             
                             <!-- Chat Input -->
-                            <div class="flex gap-2">
-                                <input 
-                                    type="text" 
-                                    id="chat-input" 
-                                    placeholder="Type your question about SOP..." 
-                                    class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                    onkeypress="if(event.key==='Enter') sendMessage()"
-                                />
-                                <button onclick="sendMessage()" class="px-6 py-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-lg hover:from-purple-600 hover:to-blue-600 transition flex items-center gap-2">
-                                    <i class="fas fa-paper-plane"></i>
-                                    Send
-                                </button>
+                            <div class="space-y-2">
+                                <!-- Image Preview Area -->
+                                <div id="sop-image-preview" class="hidden"></div>
+                                
+                                <div class="flex gap-2">
+                                    <input 
+                                        type="text" 
+                                        id="chat-input" 
+                                        placeholder="Type your question about SOP..." 
+                                        class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                        onkeypress="if(event.key==='Enter') sendMessage()"
+                                    />
+                                    <input 
+                                        type="file" 
+                                        id="sop-image-upload" 
+                                        accept="image/*" 
+                                        class="hidden" 
+                                        onchange="handleSopImageUpload(event)"
+                                    />
+                                    <button onclick="document.getElementById('sop-image-upload').click()" class="px-4 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition" title="Attach Image">
+                                        <i class="fas fa-paperclip"></i>
+                                    </button>
+                                    <button onclick="sendMessage()" class="px-6 py-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-lg hover:from-purple-600 hover:to-blue-600 transition flex items-center gap-2">
+                                        <i class="fas fa-paper-plane"></i>
+                                        Send
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
