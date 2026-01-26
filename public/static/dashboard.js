@@ -4937,52 +4937,94 @@ function handleSopImageUpload(event) {
   const file = event.target.files[0];
   if (!file) return;
   
+  console.log('📸 Image upload started:', file.name, file.type, file.size);
+  
   // Validate file type
   if (!file.type.startsWith('image/')) {
-    showEnhancedToast('Please select an image file', 'error');
+    showEnhancedToast('Please select an image file (PNG, JPG, GIF, etc.)', 'error');
+    console.error('❌ Invalid file type:', file.type);
     return;
   }
   
   // Check file size (max 5MB)
   if (file.size > 5 * 1024 * 1024) {
     showEnhancedToast('Image size must be less than 5MB', 'error');
+    console.error('❌ File too large:', file.size, 'bytes');
     return;
   }
   
   const reader = new FileReader();
+  
+  reader.onerror = function(error) {
+    console.error('❌ FileReader error:', error);
+    showEnhancedToast('Error reading image file', 'error');
+  };
+  
   reader.onload = function(e) {
-    attachedImage = {
-      name: file.name,
-      data: e.target.result,
-      type: file.type
-    };
-    
-    // Show preview
-    const previewDiv = document.getElementById('sop-image-preview');
-    previewDiv.className = 'p-3 mb-2 bg-gray-50 rounded-lg flex items-center gap-3';
-    previewDiv.innerHTML = `
-      <img src="${e.target.result}" alt="Preview" class="w-16 h-16 object-cover rounded">
-      <div class="flex-1">
-        <div class="text-sm font-medium text-gray-800">${file.name}</div>
-        <div class="text-xs text-gray-500">${(file.size / 1024).toFixed(1)} KB</div>
-      </div>
-      <button onclick="clearSopImage()" class="px-2 py-1 text-red-600 hover:bg-red-50 rounded transition">
-        <i class="fas fa-times"></i>
-      </button>
-    `;
-    
-    showEnhancedToast('Image attached successfully', 'success');
+    try {
+      attachedImage = {
+        name: file.name,
+        data: e.target.result,
+        type: file.type,
+        size: file.size
+      };
+      
+      console.log('✅ Image loaded successfully:', attachedImage.name);
+      
+      // Show preview
+      const previewDiv = document.getElementById('sop-image-preview');
+      if (!previewDiv) {
+        console.error('❌ Preview div not found');
+        return;
+      }
+      
+      previewDiv.className = 'p-3 mb-2 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg flex items-center gap-3 border-2 border-green-300 animate-slide-in';
+      previewDiv.innerHTML = `
+        <img src="${e.target.result}" alt="Preview" class="w-20 h-20 object-cover rounded-lg shadow-md border-2 border-white">
+        <div class="flex-1">
+          <div class="text-sm font-bold text-gray-800 flex items-center gap-2">
+            <i class="fas fa-check-circle text-green-600"></i>
+            ${file.name}
+          </div>
+          <div class="text-xs text-gray-600 mt-1">
+            ${(file.size / 1024).toFixed(1)} KB • ${file.type}
+          </div>
+          <div class="text-xs text-green-600 mt-1 font-medium">
+            ✓ Ready to send
+          </div>
+        </div>
+        <button onclick="window.clearSopImage()" class="px-3 py-2 text-red-600 hover:bg-red-100 rounded-lg transition flex items-center gap-1">
+          <i class="fas fa-times"></i>
+          <span class="text-xs">Remove</span>
+        </button>
+      `;
+      
+      showEnhancedToast(`✓ Image attached: ${file.name}`, 'success');
+      
+    } catch (error) {
+      console.error('❌ Error processing image:', error);
+      showEnhancedToast('Error processing image', 'error');
+    }
   };
   
   reader.readAsDataURL(file);
 }
 
 function clearSopImage() {
+  console.log('🗑️  Clearing attached image');
   attachedImage = null;
+  
   const previewDiv = document.getElementById('sop-image-preview');
-  previewDiv.className = 'hidden';
-  previewDiv.innerHTML = '';
-  document.getElementById('sop-image-upload').value = '';
+  if (previewDiv) {
+    previewDiv.className = 'hidden';
+    previewDiv.innerHTML = '';
+  }
+  
+  const uploadInput = document.getElementById('sop-image-upload');
+  if (uploadInput) {
+    uploadInput.value = '';
+  }
+  
   showEnhancedToast('Image removed', 'info');
 }
 
@@ -5168,19 +5210,66 @@ window.clearSopImage = clearSopImage;
 
 // Welcome message when dashboard loads
 function playWelcomeMessage() {
+  // Check if welcome message has already been played in this session
+  if (sessionStorage.getItem('welcomeMessagePlayed')) {
+    console.log('✓ Welcome message already played this session');
+    return;
+  }
+  
   const welcomeText = "Welcome to the M&M Recruitment Process Audit Dashboard, which provides insights into audits, strategic views, and more";
   
-  // Show toast notification
+  // Mark as played
+  sessionStorage.setItem('welcomeMessagePlayed', 'true');
+  
+  // Show enhanced welcome toast notification
   setTimeout(() => {
-    showEnhancedToast('Welcome! 🎉 Dashboard loaded successfully', 'success');
+    showEnhancedToast('🎉 Welcome to M&M Dashboard! Dashboard loaded successfully', 'success');
   }, 1000);
   
-  // Speak welcome message if audio is available
+  // Show welcome modal
   setTimeout(() => {
-    speakText(welcomeText);
+    const welcomeHTML = `
+      <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10000; background: linear-gradient(135deg, #C8102E 0%, #8B0000 100%); padding: 30px 40px; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-width: 500px; text-align: center; animation: fadeInScale 0.5s ease-out;" id="welcome-modal">
+        <div style="background: white; padding: 30px; border-radius: 15px;">
+          <div style="font-size: 48px; margin-bottom: 15px;">🎉</div>
+          <h2 style="color: #C8102E; font-size: 24px; font-weight: bold; margin-bottom: 15px;">Welcome!</h2>
+          <p style="color: #333; font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+            ${welcomeText}
+          </p>
+          <button onclick="document.getElementById('welcome-modal').remove(); document.getElementById('welcome-overlay').remove();" style="background: linear-gradient(135deg, #C8102E 0%, #8B0000 100%); color: white; padding: 12px 30px; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(200,16,46,0.3);">
+            Get Started
+          </button>
+        </div>
+      </div>
+      <div id="welcome-overlay" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; animation: fadeIn 0.3s ease-out;" onclick="document.getElementById('welcome-modal').remove(); this.remove();"></div>
+    `;
+    
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = welcomeHTML;
+    document.body.appendChild(tempDiv.firstElementChild);
+    document.body.appendChild(tempDiv.firstElementChild);
+    
+    // Auto-close after 8 seconds
+    setTimeout(() => {
+      const modal = document.getElementById('welcome-modal');
+      const overlay = document.getElementById('welcome-overlay');
+      if (modal) modal.remove();
+      if (overlay) overlay.remove();
+    }, 8000);
+    
   }, 1500);
   
-  console.log('👋 Welcome message: ' + welcomeText);
+  // Speak welcome message if audio is enabled
+  setTimeout(() => {
+    if (audioEnabled) {
+      speakText(welcomeText);
+      console.log('🔊 Speaking welcome message');
+    } else {
+      console.log('🔇 Audio disabled, not speaking welcome message');
+    }
+  }, 2000);
+  
+  console.log('👋 Welcome message displayed:', welcomeText);
 }
 
 // Play welcome message on page load
