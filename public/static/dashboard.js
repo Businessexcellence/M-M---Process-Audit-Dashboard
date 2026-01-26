@@ -5228,14 +5228,65 @@ const sopKnowledgeBase = {
   }
 };
 
-// AI Response Function with Complete SOP Knowledge
+// AI Response Function with Complete SOP Knowledge and Intelligent Matching
 async function getAIResponse(question) {
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 1500));
   
   const lowerQ = question.toLowerCase();
   
-  // Match questions with SOP content
+  // Enhanced keyword extraction - extract all meaningful words
+  const keywords = lowerQ
+    .replace(/[^\w\s]/g, ' ') // Remove punctuation
+    .split(/\s+/)
+    .filter(word => word.length > 2) // Filter out small words
+    .filter(word => !['the', 'and', 'are', 'does', 'what', 'where', 'when', 'who', 'how', 'can', 'you', 'please', 'tell', 'about', 'from', 'this', 'that', 'with', 'for'].includes(word));
+  
+  console.log('🔍 Question keywords:', keywords);
+  
+  // Function to check if text contains any of the keywords
+  const containsKeyword = (text, keywords) => {
+    const lowerText = text.toLowerCase();
+    return keywords.some(keyword => lowerText.includes(keyword));
+  };
+  
+  // Function to calculate relevance score
+  const calculateRelevance = (text, keywords) => {
+    const lowerText = text.toLowerCase();
+    let score = 0;
+    keywords.forEach(keyword => {
+      if (lowerText.includes(keyword)) score++;
+    });
+    return score;
+  };
+  
+  // Search through all SOP steps for relevant content
+  let bestMatch = null;
+  let bestScore = 0;
+  
+  // Search in all steps
+  for (const [stepNum, stepData] of Object.entries(sopKnowledgeBase.steps)) {
+    const stepText = stepData.name + ' ' + stepData.details.join(' ');
+    const score = calculateRelevance(stepText, keywords);
+    
+    if (score > bestScore) {
+      bestScore = score;
+      bestMatch = {
+        type: 'step',
+        stepNum: stepNum,
+        name: stepData.name,
+        details: stepData.details
+      };
+    }
+  }
+  
+  // If we found a good match in steps, return it
+  if (bestScore >= 2) {
+    console.log('✓ Found match in Step', bestMatch.stepNum, 'with score:', bestScore);
+    return `**${bestMatch.name}** (Step ${bestMatch.stepNum}):\n\n${bestMatch.details.join('\n\n')}`;
+  }
+  
+  // Match questions with SOP content (fallback to specific patterns)
   
   // Requisition & Job Posting
   if (lowerQ.includes('requisition') || lowerQ.includes('jr') || lowerQ.includes('create') && lowerQ.includes('job')) {
