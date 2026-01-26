@@ -2684,6 +2684,22 @@ function switchTab(tabName) {
     updateImprovementAreas();
   } else if (tabName === 'strategic') {
     updateStrategicView();
+  } else if (tabName === 'sop') {
+    // Test SOP input box
+    setTimeout(() => {
+      const input = document.getElementById('chat-input');
+      if (input) {
+        console.log('✅ SOP input box found:', input);
+        console.log('✅ Input is enabled:', !input.disabled);
+        console.log('✅ Input is visible:', input.offsetParent !== null);
+        console.log('✅ Input value:', input.value);
+        // Try to focus the input to verify it's accessible
+        input.focus();
+        console.log('✅ Input focused successfully');
+      } else {
+        console.error('❌ SOP input box NOT found!');
+      }
+    }, 100);
   }
 }
 
@@ -3314,7 +3330,14 @@ function toggleTheme() {
 
 function speakText(text) {
   // Always allow speech synthesis for welcome message and SOP assistant
-  if (!('speechSynthesis' in window)) return;
+  console.log('🔊 speakText called with:', text.substring(0, 50) + '...');
+  
+  if (!('speechSynthesis' in window)) {
+    console.error('❌ Speech synthesis NOT supported in this browser');
+    return;
+  }
+  
+  console.log('✓ Speech synthesis IS supported');
   
   // Cancel any ongoing speech
   window.speechSynthesis.cancel();
@@ -3323,7 +3346,21 @@ function speakText(text) {
   utterance.rate = 1.0;
   utterance.pitch = 1.0;
   utterance.volume = 1.0;
+  
+  utterance.onstart = function() {
+    console.log('✓ Speech started playing');
+  };
+  
+  utterance.onend = function() {
+    console.log('✓ Speech finished playing');
+  };
+  
+  utterance.onerror = function(event) {
+    console.error('❌ Speech error:', event.error);
+  };
+  
   window.speechSynthesis.speak(utterance);
+  console.log('✓ Speech utterance queued');
 }
 
 // Forecast View Toggle
@@ -5222,24 +5259,17 @@ window.clearSopImage = clearSopImage;
 
 // Welcome message when dashboard loads
 function playWelcomeMessage() {
-  // Check if welcome message has already been played in this session
-  if (sessionStorage.getItem('welcomeMessagePlayed')) {
-    console.log('✓ Welcome message already played this session');
-    return;
-  }
-  
   const welcomeText = "Welcome to the M&M Recruitment Process Audit Dashboard, which provides insights into audits, strategic views, and more";
   
-  // Mark as played
-  sessionStorage.setItem('welcomeMessagePlayed', 'true');
+  console.log('👋 Preparing to play welcome message:', welcomeText);
   
-  // Speak welcome message (NO toast, NO modal, ONLY voice)
+  // Speak welcome message immediately (NO session check, NO toast, NO modal, ONLY voice)
   setTimeout(() => {
     speakText(welcomeText);
-    console.log('🔊 Speaking welcome message');
+    console.log('🔊 Playing welcome message now');
+    console.log('🔊 Speech synthesis available:', 'speechSynthesis' in window);
+    console.log('🔊 Speech synthesis speaking:', window.speechSynthesis.speaking);
   }, 1500);
-  
-  console.log('👋 Welcome message displayed:', welcomeText);
 }
 
 // Play welcome message on page load
