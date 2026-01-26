@@ -3313,7 +3313,8 @@ function toggleTheme() {
 }
 
 function speakText(text) {
-  if (!audioEnabled || !('speechSynthesis' in window)) return;
+  // Always allow speech synthesis for welcome message and SOP assistant
+  if (!('speechSynthesis' in window)) return;
   
   // Cancel any ongoing speech
   window.speechSynthesis.cancel();
@@ -5157,11 +5158,22 @@ async function getAIResponse(question) {
   await new Promise(resolve => setTimeout(resolve, 1500));
   
   const responses = {
+    // Recruitment Process Keywords
     'recruitment process': 'The M&M recruitment process includes several key stages: Job Requisition Creation, Candidate Sourcing, Screening, Assessment, Interview, Offer & APL, Pre-Onboarding, and Onboarding Initiation. Each stage has specific requirements and approvals needed.',
+    'job posting': 'Job Posting is the first stage in the M&M recruitment process. It involves: 1) Creating a Job Requisition (JR) with position details and justification, 2) Getting approval from the hiring manager and HR, 3) Posting the job on internal portals and external job boards, 4) Setting up the candidate sourcing strategy. The process owner reviews all job postings for compliance with company standards.',
+    'process of job posting': 'The job posting process follows these steps: 1) Job Requisition Creation - Define role requirements, qualifications, and budget approval, 2) JR Approval - Get sign-off from department head and HR, 3) Job Description Finalization - Ensure JD meets quality parameters, 4) Channel Selection - Choose appropriate job boards and platforms, 5) Posting - Publish on selected channels, 6) Tracking - Monitor applications and response rates. Timeline: 2-3 days for internal approvals, immediate posting after approval.',
+    'how to post job': 'To post a job in M&M: First, create a Job Requisition (JR) in the HRMS system with complete details. Get approval from your reporting manager and HR Business Partner. Once approved, HR RPO team will post the job on relevant platforms including Mahindra Careers Portal, Naukri, LinkedIn, and other job boards based on the role type. You can track the posting status and applications in the recruitment dashboard.',
     'stages': 'The key recruitment stages are: 1) Pre-Sourcing, 2) Intake, 3) Intake Meeting, 4) Screening, 5) Assessment Interview, 6) Offer/APL, and 7) Pre-Onboarding. Each stage has quality parameters that are audited.',
     'responsible': 'Process Owner: Nitu Choubey (DGM-HR RPO & Campus), Reviewed by: Nikhil Gama (GM-HR Shared Services), Authorized by: Somesh Dravid (VP-HR AFS). Different stakeholders are involved at each recruitment stage.',
+    'owner': 'Process Owner: Nitu Choubey (DGM-HR RPO & Campus), Reviewed by: Nikhil Gama (GM-HR Shared Services), Authorized by: Somesh Dravid (VP-HR AFS). Different stakeholders are involved at each recruitment stage.',
     'documents': 'Required documents include: Job Description, Candidate Resume, Assessment Forms, Interview Feedback, Offer Letter, Background Verification Documents, Joining Documents, and Onboarding Checklist. Specific documents vary by stage.',
-    'default': 'I can help you with questions about the M&M Recruitment SOP. Key topics include: recruitment process flow, stages, responsibilities, documents required, quality parameters, and compliance requirements. What would you like to know more about?'
+    'required documents': 'Required documents include: Job Description, Candidate Resume, Assessment Forms, Interview Feedback, Offer Letter, Background Verification Documents, Joining Documents, and Onboarding Checklist. Specific documents vary by stage.',
+    'screening': 'The Screening stage involves reviewing candidate resumes and applications against job requirements. HR Recruiter conducts initial screening calls to verify basic qualifications, availability, notice period, and salary expectations. Shortlisted candidates are moved to the Assessment stage.',
+    'interview': 'The Interview stage includes Assessment Interview with hiring manager and technical panel. It covers technical skills, behavioral competencies, cultural fit, and role-specific requirements. Interview feedback is documented in standard forms and scoring is done based on predefined parameters.',
+    'onboarding': 'Pre-Onboarding starts after offer acceptance and includes: Background Verification, Document Collection, System Access Setup, Buddy Assignment, and Onboarding Schedule. On joining day, the candidate completes Onboarding Initiation including induction, policy briefing, and workspace setup.',
+    'quality parameters': 'Quality parameters audited include: Job Description Completeness, Sourcing Channel Effectiveness, Time-to-Hire, Screening Quality, Interview Panel Readiness, Offer Accuracy, Documentation Compliance, and Candidate Experience Scores. Each parameter has defined thresholds and is tracked monthly.',
+    'compliance': 'Compliance requirements include: Equal Employment Opportunity guidelines, Background Verification completion before joining, Offer Letter format adherence, Legal documentation, Data Privacy (candidate data protection), and Audit Trail maintenance for all recruitment decisions.',
+    'default': 'I can help you with questions about the M&M Recruitment SOP. Key topics include: recruitment process flow, job posting, stages, responsibilities, documents required, quality parameters, and compliance requirements. What would you like to know more about?'
   };
   
   // Simple keyword matching
