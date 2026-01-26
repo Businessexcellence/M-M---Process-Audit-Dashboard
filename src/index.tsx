@@ -5041,7 +5041,7 @@ app.get('/', (c) => {
                         <i class="fas fa-robot text-purple-600"></i>
                         SOP AI Assistant
                     </h2>
-                    <p class="text-gray-600">Ask questions about M&M Recruitment Process - Voice & Chat supported</p>
+                    <p class="text-gray-600">Ask questions about M&M Recruitment Process SOP</p>
                 </div>
                 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -5073,7 +5073,7 @@ app.get('/', (c) => {
                                         </div>
                                         <div class="flex-1">
                                             <div class="bg-white rounded-lg p-4 shadow-sm">
-                                                <p class="text-gray-800">Hello! I'm your SOP AI Assistant. I can help you with questions about the M&M Recruitment Process. You can type your question or use voice input. How can I help you today?</p>
+                                                <p class="text-gray-800">Hello! I'm your SOP AI Assistant. I can help you with questions about the M&M Recruitment Process. Type your question below. How can I help you today?</p>
                                             </div>
                             <div class="text-xs text-gray-500 mt-1">Just now</div>
                                         </div>
@@ -5163,18 +5163,6 @@ app.get('/', (c) => {
                                 <button onclick="askQuestion('What documents are required?')" class="w-full text-left p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition">
                                     <div class="text-sm font-medium text-gray-800">Required Documents</div>
                                 </button>
-                            </div>
-                        </div>
-                        
-                        <!-- Voice Status -->
-                        <div id="voice-status" class="dashboard-card p-6 hidden">
-                            <div class="text-center">
-                                <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center text-white animate-pulse">
-                                    <i class="fas fa-microphone text-2xl"></i>
-                                </div>
-                                <div class="font-bold text-lg mb-1">Listening...</div>
-                                <div class="text-sm text-gray-600">Speak your question</div>
-                                <div id="voice-transcript" class="mt-3 p-3 bg-gray-50 rounded-lg text-sm text-gray-700"></div>
                             </div>
                         </div>
                     </div>

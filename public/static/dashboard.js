@@ -2625,7 +2625,7 @@ function switchTab(tabName) {
     'strategic': 'Strategic View - RCAs, CAPAs and Six Sigma Projects',
     'bestpractices': 'Best Practices - Industry benchmarks and recommendations',
     'usermanual': 'User Manual - Dashboard creation guide',
-    'sop': 'SOP Assistant - AI-powered help with voice and chat'
+    'sop': 'SOP Assistant - AI-powered help for M&M Recruitment Process'
   };
   
   if (audioEnabled && tabNames[tabName]) {
@@ -4888,84 +4888,7 @@ console.log('🎉 Confetti triggers on data upload success');
 console.log('💎 Additional Enhancements: Tooltips, Badges, Progress Bars, Counter Animations');
 
 // ========== SOP AI ASSISTANT ==========
-
-let isListening = false;
-let recognition = null;
-
-// Initialize Speech Recognition
-if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  recognition = new SpeechRecognition();
-  recognition.continuous = false;
-  recognition.interimResults = true;
-  recognition.lang = 'en-US';
-  
-  recognition.onresult = function(event) {
-    const transcript = Array.from(event.results)
-      .map(result => result[0].transcript)
-      .join('');
-    
-    document.getElementById('voice-transcript').textContent = transcript;
-    
-    if (event.results[0].isFinal) {
-      document.getElementById('chat-input').value = transcript;
-      stopVoiceInput();
-      sendMessage();
-    }
-  };
-  
-  recognition.onerror = function(event) {
-    console.error('Speech recognition error:', event.error);
-    stopVoiceInput();
-    showEnhancedToast('Voice input error: ' + event.error, 'error');
-  };
-  
-  recognition.onend = function() {
-    stopVoiceInput();
-  };
-}
-
-function toggleVoiceInput() {
-  if (isListening) {
-    stopVoiceInput();
-  } else {
-    startVoiceInput();
-  }
-}
-
-function startVoiceInput() {
-  if (!recognition) {
-    showEnhancedToast('Voice input not supported in this browser', 'warning');
-    return;
-  }
-  
-  isListening = true;
-  document.getElementById('voice-status').classList.remove('hidden');
-  document.getElementById('voice-btn').classList.add('animate-pulse');
-  document.getElementById('voice-btn-text').textContent = 'Listening...';
-  
-  try {
-    recognition.start();
-  } catch (e) {
-    console.error('Error starting recognition:', e);
-  }
-}
-
-function stopVoiceInput() {
-  isListening = false;
-  document.getElementById('voice-status').classList.add('hidden');
-  document.getElementById('voice-btn').classList.remove('animate-pulse');
-  document.getElementById('voice-btn-text').textContent = 'Voice';
-  document.getElementById('voice-transcript').textContent = '';
-  
-  if (recognition) {
-    try {
-      recognition.stop();
-    } catch (e) {
-      // Already stopped
-    }
-  }
-}
+// Voice input feature removed as per user request
 
 // Global variable to store attached image
 let attachedImage = null;
@@ -5440,7 +5363,7 @@ function clearChat() {
 }
 
 // Expose functions globally
-window.toggleVoiceInput = toggleVoiceInput;
+// Voice input removed
 window.sendMessage = sendMessage;
 window.askQuestion = askQuestion;
 window.clearChat = clearChat;
@@ -5451,4 +5374,4 @@ window.clearSopImage = clearSopImage;
 // Welcome message removed as per user request
 console.log('✓ M&M Dashboard initialized - SOP AI Assistant ready');
 
-console.log('🤖 SOP AI Assistant initialized with Voice & Chat support');
+console.log('🤖 SOP AI Assistant initialized with complete SOP knowledge base');
