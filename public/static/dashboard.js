@@ -5280,8 +5280,8 @@ async function getAIResponse(question) {
     }
   }
   
-  // If we found a good match in steps, return it
-  if (bestScore >= 2) {
+  // If we found a match in steps (even with score of 1), return it
+  if (bestScore >= 1 && bestMatch) {
     console.log('✓ Found match in Step', bestMatch.stepNum, 'with score:', bestScore);
     return `**${bestMatch.name}** (Step ${bestMatch.stepNum}):\n\n${bestMatch.details.join('\n\n')}`;
   }

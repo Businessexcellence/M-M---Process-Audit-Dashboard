@@ -5054,12 +5054,9 @@ app.get('/', (c) => {
                                     Chat with SOP Assistant
                                 </h3>
                                 <div class="flex gap-2">
-                                    <button id="voice-btn" onclick="toggleVoiceInput()" class="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 transition flex items-center gap-2">
-                                        <i class="fas fa-microphone"></i>
-                                        <span id="voice-btn-text">Voice</span>
-                                    </button>
                                     <button onclick="clearChat()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition">
                                         <i class="fas fa-trash"></i>
+                                        <span class="ml-2">Clear</span>
                                     </button>
                                 </div>
                             </div>
