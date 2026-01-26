@@ -2624,9 +2624,17 @@ app.get('/', (c) => {
         <!-- Header -->
         <header class="bg-mm-red text-white shadow-lg" style="position: fixed; top: 0; left: 0; right: 0; z-index: 10000; width: 100%;">
             <div class="container mx-auto px-6 py-4">
-                <div class="text-center">
-                    <h1 class="text-2xl font-bold">M&M Recruitment Process Audit Dashboard</h1>
-                    <p class="text-sm text-red-100 mt-1">Real-time QA Insights & Performance Analytics</p>
+                <div class="flex justify-between items-center">
+                    <div class="text-center flex-1">
+                        <h1 class="text-2xl font-bold">M&M Recruitment Process Audit Dashboard</h1>
+                        <p class="text-sm text-red-100 mt-1">Real-time QA Insights & Performance Analytics</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="playWelcomeMessageManual()" class="px-3 py-2 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-lg transition flex items-center gap-2" title="Click to Hear Welcome Message">
+                            <i class="fas fa-volume-up"></i>
+                            <span class="hidden md:inline text-sm">Welcome</span>
+                        </button>
+                    </div>
                 </div>
                 <!-- Keep file input hidden for FAB to trigger -->
                 <input type="file" id="excel-upload" accept=".xlsx,.xls" class="hidden" onchange="handleFileUpload(event)">

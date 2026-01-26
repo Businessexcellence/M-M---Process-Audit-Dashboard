@@ -5272,6 +5272,17 @@ function playWelcomeMessage() {
   }, 1500);
 }
 
+// Manual trigger function that always works (requires user interaction)
+function playWelcomeMessageManual() {
+  const welcomeText = "Welcome to the M&M Recruitment Process Audit Dashboard, which provides insights into audits, strategic views, and more";
+  console.log('🔊 Manual welcome message triggered');
+  speakText(welcomeText);
+  showEnhancedToast('🔊 Playing welcome message', 'info');
+}
+
+// Expose manual function
+window.playWelcomeMessageManual = playWelcomeMessageManual;
+
 // Play welcome message on page load
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', playWelcomeMessage);
