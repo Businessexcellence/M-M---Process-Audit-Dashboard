@@ -5221,53 +5221,11 @@ function playWelcomeMessage() {
   // Mark as played
   sessionStorage.setItem('welcomeMessagePlayed', 'true');
   
-  // Show enhanced welcome toast notification
+  // Speak welcome message (NO toast, NO modal, ONLY voice)
   setTimeout(() => {
-    showEnhancedToast('🎉 Welcome to M&M Dashboard! Dashboard loaded successfully', 'success');
-  }, 1000);
-  
-  // Show welcome modal
-  setTimeout(() => {
-    const welcomeHTML = `
-      <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10000; background: linear-gradient(135deg, #C8102E 0%, #8B0000 100%); padding: 30px 40px; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-width: 500px; text-align: center; animation: fadeInScale 0.5s ease-out;" id="welcome-modal">
-        <div style="background: white; padding: 30px; border-radius: 15px;">
-          <div style="font-size: 48px; margin-bottom: 15px;">🎉</div>
-          <h2 style="color: #C8102E; font-size: 24px; font-weight: bold; margin-bottom: 15px;">Welcome!</h2>
-          <p style="color: #333; font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
-            ${welcomeText}
-          </p>
-          <button onclick="document.getElementById('welcome-modal').remove(); document.getElementById('welcome-overlay').remove();" style="background: linear-gradient(135deg, #C8102E 0%, #8B0000 100%); color: white; padding: 12px 30px; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(200,16,46,0.3);">
-            Get Started
-          </button>
-        </div>
-      </div>
-      <div id="welcome-overlay" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; animation: fadeIn 0.3s ease-out;" onclick="document.getElementById('welcome-modal').remove(); this.remove();"></div>
-    `;
-    
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = welcomeHTML;
-    document.body.appendChild(tempDiv.firstElementChild);
-    document.body.appendChild(tempDiv.firstElementChild);
-    
-    // Auto-close after 8 seconds
-    setTimeout(() => {
-      const modal = document.getElementById('welcome-modal');
-      const overlay = document.getElementById('welcome-overlay');
-      if (modal) modal.remove();
-      if (overlay) overlay.remove();
-    }, 8000);
-    
+    speakText(welcomeText);
+    console.log('🔊 Speaking welcome message');
   }, 1500);
-  
-  // Speak welcome message if audio is enabled
-  setTimeout(() => {
-    if (audioEnabled) {
-      speakText(welcomeText);
-      console.log('🔊 Speaking welcome message');
-    } else {
-      console.log('🔇 Audio disabled, not speaking welcome message');
-    }
-  }, 2000);
   
   console.log('👋 Welcome message displayed:', welcomeText);
 }
