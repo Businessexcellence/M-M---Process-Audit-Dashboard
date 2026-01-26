@@ -5189,39 +5189,229 @@ function removeTypingIndicator(id) {
   }
 }
 
-// Simulate AI response (replace with actual API call)
+// M&M Recruitment SOP Knowledge Base - Complete Content
+const sopKnowledgeBase = {
+  overview: {
+    purpose: "To ensure that a standard approach is adopted for the recruitment of all vacant positions. M&M is committed to attracting and recruiting the best talent with equality in employment for all people.",
+    processOwner: "Nitu Choubey (DGM-HR RPO & Campus)",
+    reviewedBy: "Nikhil Gama (GM-HR Shared Services)",
+    authorizedBy: "Somesh Dravid (VP-HR AFS)",
+    version: "1.2 (Updated 23rd May 2025)"
+  },
+  
+  abbreviations: {
+    HM: "Hiring Manager",
+    IJP: "Internal Job Posting",
+    ER: "Employee Referral",
+    CHRO: "Chief Human Resources Office/HR Director",
+    PM: "Program Manager",
+    CTQ: "Critical to Quality",
+    HR: "BHR, SHRBP, HR Head",
+    CSAT: "Candidate Satisfaction Survey",
+    JD: "Job Description",
+    GAT: "Graduate Apprentice Trainee",
+    PGET: "Post Graduate Engineer Trainee",
+    GET: "Graduate Engineer Trainee"
+  },
+  
+  steps: {
+    "1": {
+      name: "REQUISITION CREATION, ALLOCATION & INTAKE MEETING",
+      details: [
+        "Step 1.1: HM discuss the requirement with the BHR.",
+        "Step 1.2: BHR raises the JR against the position & updates the CTQ on the system. Any requirement offline would require CHRO approval, exception for L3Ex & above.",
+        "Step 1.3: BHR updates company code, template, BU, Grade, Location, type (New/Replacement), HM details, Dept. Head, Assessment & JD.",
+        "Step 1.4: BHR allocates the JR to PM on the system.",
+        "Step 1.5: PM allocates position to recruiters on the system.",
+        "Step 1.6: Recruiter checks completeness of JR and CTQ details."
+      ]
+    },
+    
+    "2": {
+      name: "JOB POSTING",
+      details: [
+        "Step 2.1: Check Job Posting Status, if marked confidential, not to be posted on any platform.",
+        "Step 2.2: HR/Recruiter to do Job Posting on IJP portal for first 7 days mandatory (any deviation needs HR Head approval, not applicable for confirmation & campus hiring).",
+        "Step 2.3: HR/Recruiter to do Job Posting on career portal.",
+        "Step 2.4: For confidential positions, recruiters/vendors upload profile on system."
+      ]
+    },
+    
+    "3": {
+      name: "SOURCING & SCREENING",
+      details: [
+        "Positions (if not confidential) to be posted on IJP for first 7 days, then can be posted to all channels simultaneously including Employee Referral, Career Portal, External Sourcing.",
+        "Step 3.1: Application on system via Recruiter/Vendor upload, ER upload, IJP internal applications, Direct applicants, Ex-employees.",
+        "Step 3.2: Recruiter Screening - Review all applications and evaluate against CTQ parameters, share shortlisted profiles with BHR.",
+        "Step 3.3: BHR Screening - Review/screen profiles and mark as shortlisted or rejected.",
+        "Step 3.4: HM Screening - Screen profiles shortlisted by BHR and mark as shortlisted or rejected."
+      ]
+    },
+    
+    "4": {
+      name: "INTERVIEW & ASSESSMENT",
+      details: [
+        "Step 4.1 First/Second/Final Round: Recruiter schedules interview via system. HM & HR submit final hiring decision (Selection/Rejection) and record overall comments. For L3Ex & above, any 1 feedback from panel is ok.",
+        "Step 4.2 Assessment: Initiated before final round on need basis. Not mandatory for all hiring, triggered by HM/HR need. Reports available before final round.",
+        "Assessment Tools: EX band - Hogan (Leader Basis report) triggered by Sector HR Head; DH band - DISC triggered by SHRBP; O&M - No assessments.",
+        "Assessment reports should not be used standalone for Go/No-Go decisions."
+      ]
+    },
+    
+    "5": {
+      name: "DOCUMENTATION & FITMENT",
+      details: [
+        "Step 5.1: Candidate uploads required documents on system before final HR Round.",
+        "Step 5.2: Recruiter does first-level salary expectations & prepares current salary structure in designated format, shares with BHR."
+      ]
+    },
+    
+    "6": {
+      name: "LOI & FINAL OFFER",
+      details: [
+        "Step 6.1: HR does salary discussion with candidate based on details from recruiter.",
+        "Step 6.2: HR confirms CTC/JB/DOJ etc. on system.",
+        "Step 6.3: For additional/Deviation, approval required as per defined matrix. No approval for downgrade deviations.",
+        "Step 6.5: BHR confirms all necessary approvals are in place via checklist.",
+        "Step 6.6: BHR shares LOI with candidate.",
+        "Step 6.7: Candidate accepts LOI in system.",
+        "Step 6.8: Recruiter parks case with offer team with deviation checklist.",
+        "Step 6.9: Offer SPOC prepares final offer letter & add-on letter.",
+        "Step 6.10: RSU letters released for all employees. For 1001 company code, direct release; others need Compensation team confirmation.",
+        "Step 6.11: Quality check of documents and offer letter.",
+        "Step 6.12: Comp team approval not required for standard JB letters (DH & below with approved amount); EX band needs Comp team signoff.",
+        "Step 6.13: Offer SPOC releases final offer through system (only after LOI acceptance).",
+        "Step 6.14: Offer SPOC initiates onboarding (only after final offer acceptance)."
+      ]
+    },
+    
+    "7": {
+      name: "POST-OFFER PROCESS",
+      details: [
+        "Medical: Self-Medical Declaration form for all lateral and campus hires. Medical Check mandatory only for candidates 35yrs and above. Offer SPOC shares unfit forms with Plant Doctors. Certification required if anything declared or abnormality found.",
+        "Background Verification (Lateral Hires only): BGV scope includes education, last two employment, PAN Card, Aadhaar Card, Criminal Court Record (excluding current employer).",
+        "Offer SPOC initiates BGV after offer release through vendor portal. Exceptions need approval: DH & below - HR Head approval; Ex & above - CHRO approval.",
+        "Offer SPOC validates BGV report through candidate resume. Exception approval from BHR for Orange/Red Report cases."
+      ]
+    }
+  },
+  
+  raci: {
+    requisition: "BHR is Responsible for creating requisition, HM is Consulted, PM is Informed",
+    jobPosting: "PM is Accountable, Recruiter is Responsible for career site posting",
+    sourcing: "PM is Accountable, Recruiter is Responsible for CV screening",
+    interview: "Recruiter is Responsible for scheduling, HM is Accountable for hiring decision",
+    offer: "BHR is Responsible for salary negotiation, Offer Team is Responsible for final offer release"
+  }
+};
+
+// AI Response Function with Complete SOP Knowledge
 async function getAIResponse(question) {
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 1500));
   
-  const responses = {
-    // Recruitment Process Keywords
-    'recruitment process': 'The M&M recruitment process includes several key stages: Job Requisition Creation, Candidate Sourcing, Screening, Assessment, Interview, Offer & APL, Pre-Onboarding, and Onboarding Initiation. Each stage has specific requirements and approvals needed.',
-    'job posting': 'Job Posting is the first stage in the M&M recruitment process. It involves: 1) Creating a Job Requisition (JR) with position details and justification, 2) Getting approval from the hiring manager and HR, 3) Posting the job on internal portals and external job boards, 4) Setting up the candidate sourcing strategy. The process owner reviews all job postings for compliance with company standards.',
-    'process of job posting': 'The job posting process follows these steps: 1) Job Requisition Creation - Define role requirements, qualifications, and budget approval, 2) JR Approval - Get sign-off from department head and HR, 3) Job Description Finalization - Ensure JD meets quality parameters, 4) Channel Selection - Choose appropriate job boards and platforms, 5) Posting - Publish on selected channels, 6) Tracking - Monitor applications and response rates. Timeline: 2-3 days for internal approvals, immediate posting after approval.',
-    'how to post job': 'To post a job in M&M: First, create a Job Requisition (JR) in the HRMS system with complete details. Get approval from your reporting manager and HR Business Partner. Once approved, HR RPO team will post the job on relevant platforms including Mahindra Careers Portal, Naukri, LinkedIn, and other job boards based on the role type. You can track the posting status and applications in the recruitment dashboard.',
-    'stages': 'The key recruitment stages are: 1) Pre-Sourcing, 2) Intake, 3) Intake Meeting, 4) Screening, 5) Assessment Interview, 6) Offer/APL, and 7) Pre-Onboarding. Each stage has quality parameters that are audited.',
-    'responsible': 'Process Owner: Nitu Choubey (DGM-HR RPO & Campus), Reviewed by: Nikhil Gama (GM-HR Shared Services), Authorized by: Somesh Dravid (VP-HR AFS). Different stakeholders are involved at each recruitment stage.',
-    'owner': 'Process Owner: Nitu Choubey (DGM-HR RPO & Campus), Reviewed by: Nikhil Gama (GM-HR Shared Services), Authorized by: Somesh Dravid (VP-HR AFS). Different stakeholders are involved at each recruitment stage.',
-    'documents': 'Required documents include: Job Description, Candidate Resume, Assessment Forms, Interview Feedback, Offer Letter, Background Verification Documents, Joining Documents, and Onboarding Checklist. Specific documents vary by stage.',
-    'required documents': 'Required documents include: Job Description, Candidate Resume, Assessment Forms, Interview Feedback, Offer Letter, Background Verification Documents, Joining Documents, and Onboarding Checklist. Specific documents vary by stage.',
-    'screening': 'The Screening stage involves reviewing candidate resumes and applications against job requirements. HR Recruiter conducts initial screening calls to verify basic qualifications, availability, notice period, and salary expectations. Shortlisted candidates are moved to the Assessment stage.',
-    'interview': 'The Interview stage includes Assessment Interview with hiring manager and technical panel. It covers technical skills, behavioral competencies, cultural fit, and role-specific requirements. Interview feedback is documented in standard forms and scoring is done based on predefined parameters.',
-    'onboarding': 'Pre-Onboarding starts after offer acceptance and includes: Background Verification, Document Collection, System Access Setup, Buddy Assignment, and Onboarding Schedule. On joining day, the candidate completes Onboarding Initiation including induction, policy briefing, and workspace setup.',
-    'quality parameters': 'Quality parameters audited include: Job Description Completeness, Sourcing Channel Effectiveness, Time-to-Hire, Screening Quality, Interview Panel Readiness, Offer Accuracy, Documentation Compliance, and Candidate Experience Scores. Each parameter has defined thresholds and is tracked monthly.',
-    'compliance': 'Compliance requirements include: Equal Employment Opportunity guidelines, Background Verification completion before joining, Offer Letter format adherence, Legal documentation, Data Privacy (candidate data protection), and Audit Trail maintenance for all recruitment decisions.',
-    'default': 'I can help you with questions about the M&M Recruitment SOP. Key topics include: recruitment process flow, job posting, stages, responsibilities, documents required, quality parameters, and compliance requirements. What would you like to know more about?'
-  };
+  const lowerQ = question.toLowerCase();
   
-  // Simple keyword matching
-  const lowerQuestion = question.toLowerCase();
-  for (const [key, response] of Object.entries(responses)) {
-    if (lowerQuestion.includes(key)) {
-      return response;
-    }
+  // Match questions with SOP content
+  
+  // Requisition & Job Posting
+  if (lowerQ.includes('requisition') || lowerQ.includes('jr') || lowerQ.includes('create') && lowerQ.includes('job')) {
+    return `REQUISITION CREATION PROCESS:\n\n${sopKnowledgeBase.steps["1"].details.join('\n\n')}\n\nKey Point: Any offline requirement needs CHRO approval (exception for L3Ex & above).`;
   }
   
-  return responses.default;
+  if (lowerQ.includes('job posting') || lowerQ.includes('how to post') || lowerQ.includes('posting process')) {
+    return `JOB POSTING PROCESS:\n\n${sopKnowledgeBase.steps["2"].details.join('\n\n')}\n\nIMPORTANT: IJP posting is mandatory for first 7 days (unless confidential or campus/confirmation hiring). Any deviation needs HR Head approval.`;
+  }
+  
+  if (lowerQ.includes('ijp') || lowerQ.includes('internal job')) {
+    return `INTERNAL JOB POSTING (IJP):\n\nAll non-confidential positions MUST be posted on IJP portal for the first 7 days before external posting. This is mandatory unless:\n- Position is marked confidential\n- Campus hiring\n- Confirmation processes\n\nAny deviation requires HR Head approval. After 7 days, positions can be posted simultaneously on all channels including Career Portal, Employee Referral, and External Sourcing.`;
+  }
+  
+  // Sourcing & Screening
+  if (lowerQ.includes('sourcing') || lowerQ.includes('screening') || lowerQ.includes('cv')) {
+    return `SOURCING & SCREENING PROCESS:\n\n${sopKnowledgeBase.steps["3"].details.join('\n\n')}\n\nSources: Employee Referral, IJP, Career Portal, External Sourcing, Ex-employees. Best-fit candidate selected regardless of source.`;
+  }
+  
+  if (lowerQ.includes('ctq') || lowerQ.includes('critical to quality')) {
+    return `CTQ (Critical to Quality):\n\nCTQ parameters are quality criteria that must be defined for each position. The BHR updates CTQ details on the system during requisition creation. Recruiters evaluate all candidate applications against these CTQ parameters during screening to ensure only qualified candidates move forward.`;
+  }
+  
+  // Interview & Assessment
+  if (lowerQ.includes('interview') || lowerQ.includes('assessment') || lowerQ.includes('round')) {
+    return `INTERVIEW & ASSESSMENT PROCESS:\n\n${sopKnowledgeBase.steps["4"].details.join('\n\n')}\n\nKey: Assessment is need-based, not mandatory. Reports should not be sole decision factor.`;
+  }
+  
+  if (lowerQ.includes('assessment tool') || lowerQ.includes('hogan') || lowerQ.includes('disc')) {
+    return `ASSESSMENT TOOLS BY BAND:\n\n• EX Band: Hogan (Leader Basis report) - Triggered by Sector HR Head\n• DH Band: DISC - Triggered by SHRBP\n• O&M Band: No assessments\n\nIMPORTANT: Assessment reports on standalone basis should NOT be used for Go/No-Go decisions. They are advisory inputs only.`;
+  }
+  
+  // Documentation & Offer
+  if (lowerQ.includes('documentation') || lowerQ.includes('documents required') || lowerQ.includes('upload')) {
+    return `DOCUMENTATION PROCESS:\n\n${sopKnowledgeBase.steps["5"].details.join('\n\n')}\n\nCandidates must upload required documents before final HR Round. Recruiter prepares salary structure in M&M format.`;
+  }
+  
+  if (lowerQ.includes('loi') || lowerQ.includes('letter of intent') || lowerQ.includes('offer')) {
+    return `LOI & FINAL OFFER PROCESS:\n\n${sopKnowledgeBase.steps["6"].details.join('\n\n')}\n\nKey Sequence: HR salary discussion → CTC confirmation → Approvals → LOI release → Candidate acceptance → Park with Offer team → Final offer → Onboarding initiation.`;
+  }
+  
+  if (lowerQ.includes('salary') || lowerQ.includes('ctc') || lowerQ.includes('compensation') || lowerQ.includes('fitment')) {
+    return `SALARY FITMENT & APPROVAL:\n\n1. HR conducts salary discussion with candidate based on recruiter's inputs\n2. HR confirms CTC/JB/DOJ on system\n3. Approval matrix applies for:\n   - Outside grid CTC\n   - Notice buyout\n   - Joining Bonus\n   - Short Notice Joining\n4. NO approval required for downgrade deviations\n5. BHR confirms all approvals via checklist\n6. Standard JB letters (DH & below): No Comp team approval needed\n7. EX band JB letters: Require Comp team signoff`;
+  }
+  
+  if (lowerQ.includes('rsu') || lowerQ.includes('joining bonus') || lowerQ.includes('jb')) {
+    return `RSU & JOINING BONUS:\n\nRSU Letters: Released for all employees. For JRs on 1001 company code, direct release; all other cases need Compensation team confirmation.\n\nJoining Bonus: Comp team approval NOT required for standard JB letters where amount has been approved by HR Team (DH & below only). Anything in EX band needs signoff from Comp team.`;
+  }
+  
+  // Post-Offer
+  if (lowerQ.includes('medical') || lowerQ.includes('health check')) {
+    return `MEDICAL PROCESS:\n\n1. Self-Medical Declaration form required for ALL lateral and campus hires (all grades)\n2. Medical Check: NOT required for candidates below 35 years; MANDATORY for candidates 35 years and above\n3. Offer SPOC shares only unfit Self Medical declaration forms and medical reports with Plant Doctors\n4. If anything declared or abnormality found, certification required by Plant Doctor\n5. Tests have been revised in alignment with candidate profile`;
+  }
+  
+  if (lowerQ.includes('bgv') || lowerQ.includes('background verification') || lowerQ.includes('background check')) {
+    return `BACKGROUND VERIFICATION (BGV):\n\nApplicable to: All Lateral Hires only\n\nBGV Scope:\n- Education verification\n- Last two employment (excluding current employer)\n- PAN Card\n- Aadhaar Card\n- Criminal Court Record\n\nProcess:\n1. Offer SPOC initiates BGV ONLY after offer release through vendor portal\n2. Exceptions for pre-offer BGV need approval:\n   - DH band & below: HR Head approval\n   - EX & above: CHRO approval\n3. Offer SPOC follows up with vendor & candidate\n4. Offer SPOC validates BGV report through candidate resume\n5. Orange/Red Report cases: Exception approval required from BHR`;
+  }
+  
+  if (lowerQ.includes('onboarding') || lowerQ.includes('joining')) {
+    return `ONBOARDING INITIATION:\n\nOffer SPOC initiates onboarding on the system ONLY after:\n1. Final offer acceptance by candidate\n2. Medical clearance (if applicable for 35+ years)\n3. BGV initiation (for lateral hires)\n\nOnboarding includes:\n- System access setup\n- Buddy assignment\n- Induction schedule\n- Policy briefing\n- Workspace setup`;
+  }
+  
+  // Roles & Responsibilities
+  if (lowerQ.includes('who is responsible') || lowerQ.includes('role') || lowerQ.includes('raci') || lowerQ.includes('owner')) {
+    return `KEY ROLES & RESPONSIBILITIES:\n\nProcess Owner: ${sopKnowledgeBase.overview.processOwner}\nReviewed by: ${sopKnowledgeBase.overview.reviewedBy}\nAuthorized by: ${sopKnowledgeBase.overview.authorizedBy}\n\nKey Responsibilities:\n- Hiring Manager (HM): Defines requirements, conducts interviews, makes hiring decisions\n- Business HR (BHR): Creates requisition, updates CTQ, conducts screening, salary fitment\n- Program Manager (PM): Allocates JR to recruiters, accountable for process\n- Recruiter: CV screening, interview scheduling, documentation coordination\n- Offer Team: Prepares & releases offer letters, initiates BGV, onboarding\n\nRaci Matrix: ${sopKnowledgeBase.raci.requisition}`;
+  }
+  
+  if (lowerQ.includes('bhp') || lowerQ.includes('business hr')) {
+    return `BUSINESS HR (BHR) RESPONSIBILITIES:\n\n1. Raises JR against position & updates CTQ\n2. Updates company code, template, BU, Grade, Location, position type, HM details, JD\n3. Allocates JR to Program Manager\n4. Screens profiles shared by recruiters\n5. Confirms CTC/JB/DOJ with recruiter input\n6. Shares Letter of Intent (LOI) with candidate\n7. Confirms all necessary approvals via checklist\n8. Approval authority for Orange/Red BGV reports`;
+  }
+  
+  // Abbreviations
+  if (lowerQ.includes('abbreviation') || lowerQ.includes('acronym') || lowerQ.includes('what is') && (lowerQ.includes('hm') || lowerQ.includes('ijp') || lowerQ.includes('pm'))) {
+    const abbrevs = Object.entries(sopKnowledgeBase.abbreviations).map(([key, val]) => `${key}: ${val}`).join('\n');
+    return `ABBREVIATIONS & ACRONYMS:\n\n${abbrevs}`;
+  }
+  
+  // Overall Process
+  if (lowerQ.includes('overall process') || lowerQ.includes('high level') || lowerQ.includes('steps') || lowerQ.includes('recruitment process flow')) {
+    return `M&M RECRUITMENT PROCESS - HIGH LEVEL FLOW:\n\n1. REQUISITION CREATION & INTAKE\n2. JOB POSTING (IJP mandatory for 7 days)\n3. SOURCING & SCREENING (CTQ-based evaluation)\n4. INTERVIEW & ASSESSMENT (need-based)\n5. DOCUMENTATION & FITMENT\n6. LOI & FINAL OFFER\n7. POST-OFFER (Medical & BGV)\n\nPurpose: ${sopKnowledgeBase.overview.purpose}\n\nFor detailed information on any step, please ask specifically about that step.`;
+  }
+  
+  // Timeline questions
+  if (lowerQ.includes('how long') || lowerQ.includes('timeline') || lowerQ.includes('duration')) {
+    return `RECRUITMENT TIMELINES:\n\n• IJP Posting: Mandatory first 7 days\n• Approval Timeline: 2-3 days for internal approvals\n• Medical: For 35+ years candidates\n• BGV: Initiated after offer release, completed pre-joining\n• Assessment: Before final interview round\n\nNote: Timelines may vary based on position criticality and approvals required.`;
+  }
+  
+  // Confidential positions
+  if (lowerQ.includes('confidential')) {
+    return `CONFIDENTIAL POSITIONS:\n\nIf a position is marked confidential:\n• NOT to be posted on IJP portal\n• NOT to be posted on career portal\n• NOT to be posted on any external platform\n• Recruiters/vendors must upload profiles directly on the system\n• Invitation links can be used for targeted outreach\n\nThis maintains confidentiality for sensitive roles.`;
+  }
+  
+  // Exception & Approvals
+  if (lowerQ.includes('exception') || lowerQ.includes('approval') || lowerQ.includes('deviation')) {
+    return `EXCEPTIONS & APPROVALS:\n\n1. Offline Requisitions: CHRO approval required (exception for L3Ex & above)\n2. IJP Deviation (skip 7-day posting): HR Head approval\n3. Pre-offer BGV:\n   - DH & below: HR Head approval\n   - EX & above: CHRO approval\n4. CTC Deviations:\n   - Outside grid\n   - Notice buyout\n   - Joining Bonus\n   - Short Notice Joining\n   (As per defined approval matrix)\n5. BGV Orange/Red Reports: BHR approval\n\nNo approval required for: Downgrade deviations`;
+  }
+  
+  // Default response
+  return `I'm your M&M Recruitment SOP AI Assistant. I have complete knowledge of the recruitment process. You can ask me about:\n\n• Requisition creation & job posting\n• IJP (Internal Job Posting) process\n• Sourcing & screening (CTQ parameters)\n• Interview & assessment process\n• Documentation & salary fitment\n• LOI & offer process\n• Medical & BGV requirements\n• Roles & responsibilities (RACI)\n• Approvals & exceptions\n• Timelines & process flow\n\nWhat specific information do you need from the SOP?`;
 }
 
 function askQuestion(question) {
@@ -5258,36 +5448,7 @@ window.handleSopImageUpload = handleSopImageUpload;
 window.clearSopImage = clearSopImage;
 
 // Welcome message when dashboard loads
-function playWelcomeMessage() {
-  const welcomeText = "Welcome to the M&M Recruitment Process Audit Dashboard, which provides insights into audits, strategic views, and more";
-  
-  console.log('👋 Preparing to play welcome message:', welcomeText);
-  
-  // Speak welcome message immediately (NO session check, NO toast, NO modal, ONLY voice)
-  setTimeout(() => {
-    speakText(welcomeText);
-    console.log('🔊 Playing welcome message now');
-    console.log('🔊 Speech synthesis available:', 'speechSynthesis' in window);
-    console.log('🔊 Speech synthesis speaking:', window.speechSynthesis.speaking);
-  }, 1500);
-}
-
-// Manual trigger function that always works (requires user interaction)
-function playWelcomeMessageManual() {
-  const welcomeText = "Welcome to the M&M Recruitment Process Audit Dashboard, which provides insights into audits, strategic views, and more";
-  console.log('🔊 Manual welcome message triggered');
-  speakText(welcomeText);
-  showEnhancedToast('🔊 Playing welcome message', 'info');
-}
-
-// Expose manual function
-window.playWelcomeMessageManual = playWelcomeMessageManual;
-
-// Play welcome message on page load
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', playWelcomeMessage);
-} else {
-  playWelcomeMessage();
-}
+// Welcome message removed as per user request
+console.log('✓ M&M Dashboard initialized - SOP AI Assistant ready');
 
 console.log('🤖 SOP AI Assistant initialized with Voice & Chat support');
