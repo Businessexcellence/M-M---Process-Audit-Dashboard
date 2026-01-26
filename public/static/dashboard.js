@@ -4487,7 +4487,8 @@ function applyPremiumCardEffects() {
 // 8. Neon Text for Important Elements
 function applyNeonText() {
   setTimeout(() => {
-    const headers = document.querySelectorAll('h1, h2.text-3xl');
+    // Apply neon text only to h2 with text-3xl class, NOT to h1 (main title)
+    const headers = document.querySelectorAll('h2.text-3xl');
     headers.forEach(header => {
       if (!header.classList.contains('neon-text')) {
         header.classList.add('neon-text');
