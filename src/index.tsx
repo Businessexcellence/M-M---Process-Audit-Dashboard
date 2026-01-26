@@ -2246,6 +2246,337 @@ app.get('/', (c) => {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.05); }
           }
+          
+          /* ========== ADDITIONAL CREATIVE ENHANCEMENTS ========== */
+          
+          /* 21. Tooltip Styles */
+          .custom-tooltip {
+            position: relative;
+            display: inline-block;
+          }
+          
+          .custom-tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: rgba(0, 0, 0, 0.9);
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 10px;
+            position: absolute;
+            z-index: 10001;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            transform: translateY(10px);
+            font-size: 12px;
+          }
+          
+          .custom-tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+            transform: translateY(0);
+          }
+          
+          /* 22. Gradient Borders */
+          .gradient-border {
+            position: relative;
+            padding: 2px;
+            border-radius: 12px;
+            background: linear-gradient(45deg, #C8102E, #FF6B6B, #4ECDC4, #45B7D1);
+            background-size: 300% 300%;
+            animation: gradient-border-animation 5s ease infinite;
+          }
+          
+          @keyframes gradient-border-animation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+          }
+          
+          .gradient-border > div {
+            background: var(--bg-card);
+            border-radius: 10px;
+            padding: 1rem;
+          }
+          
+          /* 23. Pulsing Dot Indicator */
+          .pulse-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #10B981;
+            animation: pulse-dot-animation 2s infinite;
+            position: relative;
+          }
+          
+          .pulse-dot::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #10B981;
+            animation: pulse-ring 2s infinite;
+          }
+          
+          @keyframes pulse-dot-animation {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+          }
+          
+          @keyframes pulse-ring {
+            0% {
+              transform: scale(1);
+              opacity: 0.5;
+            }
+            100% {
+              transform: scale(2);
+              opacity: 0;
+            }
+          }
+          
+          /* 24. Card Reveal Animation */
+          .card-reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: card-reveal-animation 0.6s ease-out forwards;
+          }
+          
+          @keyframes card-reveal-animation {
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+          
+          /* 25. Number Counter Animation */
+          .counter {
+            font-variant-numeric: tabular-nums;
+          }
+          
+          /* 26. Skeleton Loading */
+          .skeleton {
+            background: linear-gradient(90deg, 
+              rgba(200,16,46,0.1) 25%, 
+              rgba(200,16,46,0.2) 50%, 
+              rgba(200,16,46,0.1) 75%
+            );
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite;
+            border-radius: 8px;
+          }
+          
+          @keyframes skeleton-loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+          }
+          
+          /* 27. Bounce In Animation */
+          .bounce-in {
+            animation: bounce-in-animation 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+          }
+          
+          @keyframes bounce-in-animation {
+            0% {
+              transform: scale(0);
+              opacity: 0;
+            }
+            50% {
+              transform: scale(1.1);
+            }
+            100% {
+              transform: scale(1);
+              opacity: 1;
+            }
+          }
+          
+          /* 28. Slide In From Sides */
+          .slide-in-left {
+            animation: slide-in-left-animation 0.5s ease-out;
+          }
+          
+          .slide-in-right {
+            animation: slide-in-right-animation 0.5s ease-out;
+          }
+          
+          @keyframes slide-in-left-animation {
+            from {
+              transform: translateX(-100px);
+              opacity: 0;
+            }
+            to {
+              transform: translateX(0);
+              opacity: 1;
+            }
+          }
+          
+          @keyframes slide-in-right-animation {
+            from {
+              transform: translateX(100px);
+              opacity: 0;
+            }
+            to {
+              transform: translateX(0);
+              opacity: 1;
+            }
+          }
+          
+          /* 29. Icon Spin on Hover */
+          .icon-spin-hover:hover i {
+            animation: icon-spin 0.5s ease-in-out;
+          }
+          
+          @keyframes icon-spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+          
+          /* 30. Scale Up on Hover */
+          .scale-hover {
+            transition: transform 0.3s ease;
+          }
+          
+          .scale-hover:hover {
+            transform: scale(1.05);
+          }
+          
+          /* 31. Badge Styles */
+          .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+          }
+          
+          .badge-success {
+            background: #10B981;
+            color: white;
+          }
+          
+          .badge-warning {
+            background: #F59E0B;
+            color: white;
+          }
+          
+          .badge-danger {
+            background: #EF4444;
+            color: white;
+          }
+          
+          .badge-info {
+            background: #3B82F6;
+            color: white;
+          }
+          
+          /* 32. Progress Bar */
+          .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background: rgba(200, 16, 46, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+          }
+          
+          .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #C8102E, #FF6B6B);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+            position: relative;
+            overflow: hidden;
+          }
+          
+          .progress-bar-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(
+              90deg,
+              transparent,
+              rgba(255,255,255,0.3),
+              transparent
+            );
+            animation: progress-shimmer 1.5s infinite;
+          }
+          
+          @keyframes progress-shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+          }
+          
+          /* 33. Card Header with Icon */
+          .card-header-icon {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+          }
+          
+          .card-header-icon i {
+            font-size: 24px;
+            color: #C8102E;
+          }
+          
+          /* 34. Quick Action Button */
+          .quick-action-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #C8102E 0%, #8B0000 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+          }
+          
+          .quick-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(200, 16, 46, 0.4);
+          }
+          
+          .quick-action-btn:active {
+            transform: translateY(0);
+          }
+          
+          /* 35. Data Card Enhancement */
+          .data-card-enhanced {
+            position: relative;
+            overflow: hidden;
+          }
+          
+          .data-card-enhanced::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+              90deg,
+              transparent,
+              rgba(200, 16, 46, 0.1),
+              transparent
+            );
+            transition: left 0.5s ease;
+          }
+          
+          .data-card-enhanced:hover::before {
+            left: 100%;
+          }
         </style>
     </head>
     <body class="bg-gray-50">

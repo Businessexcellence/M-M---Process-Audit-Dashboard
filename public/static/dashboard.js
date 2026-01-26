@@ -610,6 +610,12 @@ function updateDashboard() {
     console.error('Error updating strategic view:', error);
   }
   
+  try {
+    updateComparisonView();
+  } catch (error) {
+    console.error('Error updating comparison view:', error);
+  }
+  
   console.log('Dashboard update complete');
 }
 
@@ -3831,6 +3837,24 @@ window.updateBreadcrumb = updateBreadcrumb;
 
 let currentComparisonType = 'year';
 
+// Update comparison view with data
+function updateComparisonView() {
+  if (!rawData || !rawData.auditCount) {
+    console.log('No data available for comparison view');
+    return;
+  }
+  
+  console.log('Updating comparison view...');
+  
+  // Initialize with year comparison by default
+  updateYearComparison();
+  populateRecruiterDropdowns();
+  populateStageDropdowns();
+  
+  // Show the current comparison type
+  showComparisonType(currentComparisonType);
+}
+
 function showComparisonType(type) {
   currentComparisonType = type;
   
@@ -4631,10 +4655,173 @@ setTimeout(() => {
   apply3DFlipCards();
   initMagneticEffect();
   applyBreathingEffect();
+  applyAdditionalEnhancements();
 }, 2000);
+
+// Apply additional creative enhancements
+function applyAdditionalEnhancements() {
+  // Add tooltips to metric cards
+  setTimeout(() => {
+    const metricCards = document.querySelectorAll('.metric-card');
+    metricCards.forEach((card, index) => {
+      card.classList.add('card-reveal', 'data-card-enhanced', 'scale-hover');
+      card.style.animationDelay = `${index * 0.1}s`;
+    });
+  }, 500);
+  
+  // Add slide-in animations to dashboard cards
+  setTimeout(() => {
+    const dashboardCards = document.querySelectorAll('.dashboard-card');
+    dashboardCards.forEach((card, index) => {
+      if (index % 2 === 0) {
+        card.classList.add('slide-in-left');
+      } else {
+        card.classList.add('slide-in-right');
+      }
+      card.style.animationDelay = `${index * 0.1}s`;
+    });
+  }, 1000);
+  
+  // Add bounce-in animation to FAB menu items
+  setTimeout(() => {
+    const fabItems = document.querySelectorAll('.fab-menu-item');
+    fabItems.forEach((item, index) => {
+      item.classList.add('bounce-in');
+      item.style.animationDelay = `${index * 0.1}s`;
+    });
+  }, 1500);
+  
+  // Add icon spin to navigation items
+  setTimeout(() => {
+    const navItems = document.querySelectorAll('.nav-tab, .nav-sub-item');
+    navItems.forEach(item => {
+      item.classList.add('icon-spin-hover');
+    });
+  }, 1000);
+  
+  // Add counter animation to numbers
+  animateCounters();
+  
+  // Add gradient borders to important cards
+  setTimeout(() => {
+    const importantCards = document.querySelectorAll('.metric-card');
+    importantCards.forEach((card, index) => {
+      if (index < 4) { // First 4 metric cards
+        const wrapper = document.createElement('div');
+        wrapper.className = 'gradient-border';
+        card.parentNode.insertBefore(wrapper, card);
+        wrapper.appendChild(card);
+      }
+    });
+  }, 2000);
+  
+  // Add pulse dots to live indicators
+  setTimeout(() => {
+    const liveIndicators = document.querySelectorAll('.live-indicator');
+    liveIndicators.forEach(indicator => {
+      const dot = document.createElement('div');
+      dot.className = 'pulse-dot';
+      indicator.insertBefore(dot, indicator.firstChild);
+    });
+  }, 1500);
+}
+
+// Animate number counters
+function animateCounters() {
+  const counters = document.querySelectorAll('[data-counter]');
+  counters.forEach(counter => {
+    const target = parseInt(counter.getAttribute('data-counter'));
+    const duration = 2000;
+    const increment = target / (duration / 16);
+    let current = 0;
+    
+    const timer = setInterval(() => {
+      current += increment;
+      if (current >= target) {
+        counter.textContent = target;
+        clearInterval(timer);
+      } else {
+        counter.textContent = Math.ceil(current);
+      }
+    }, 16);
+  });
+}
+
+// Add progress bars to charts
+function addProgressBarsToCharts() {
+  setTimeout(() => {
+    const chartContainers = document.querySelectorAll('.chart-container');
+    chartContainers.forEach(container => {
+      const progressBar = document.createElement('div');
+      progressBar.className = 'progress-bar-container';
+      progressBar.innerHTML = '<div class="progress-bar-fill" style="width: 0%"></div>';
+      container.insertBefore(progressBar, container.firstChild);
+      
+      // Animate progress bar
+      setTimeout(() => {
+        const fill = progressBar.querySelector('.progress-bar-fill');
+        fill.style.width = '100%';
+      }, 100);
+    });
+  }, 2000);
+}
+
+// Enhanced toast notifications with icons
+function showEnhancedToast(message, type = 'info') {
+  const icons = {
+    success: '✓',
+    error: '✗',
+    warning: '⚠',
+    info: 'ℹ'
+  };
+  
+  const colors = {
+    success: '#10B981',
+    error: '#EF4444',
+    warning: '#F59E0B',
+    info: '#3B82F6'
+  };
+  
+  const toast = document.createElement('div');
+  toast.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: ${colors[type]};
+    color: white;
+    padding: 16px 24px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 600;
+    animation: slide-in-right-animation 0.3s ease-out;
+  `;
+  
+  toast.innerHTML = `
+    <span style="font-size: 20px;">${icons[type]}</span>
+    <span>${message}</span>
+  `;
+  
+  document.body.appendChild(toast);
+  
+  setTimeout(() => {
+    toast.style.animation = 'slide-in-right-animation 0.3s ease-out reverse';
+    setTimeout(() => {
+      toast.remove();
+    }, 300);
+  }, 3000);
+}
+
+// Override original showToast with enhanced version
+const originalShowToast = window.showToast || function() {};
+window.showToast = showEnhancedToast;
 
 console.log('🚀 REVOLUTIONARY EFFECTS ACTIVATED!');
 console.log('🎨 Particles, Confetti, Neon Text, Holographic Gradients, Liquid Morph');
 console.log('✨ Energy Orbs, Glassmorphism, 3D Flip Cards, Premium Animations');
 console.log('🎭 Press Alt+S to toggle Spotlight mode');
 console.log('🎉 Confetti triggers on data upload success');
+console.log('💎 Additional Enhancements: Tooltips, Badges, Progress Bars, Counter Animations');
