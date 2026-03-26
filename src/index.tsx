@@ -2891,7 +2891,7 @@ app.get('/', (c) => {
         <!-- Main Content -->
         <main class="px-6 py-6">
             <!-- Loading State -->
-            <div id="loading-state" class="text-center py-20">
+            <div id="loading-state" class="text-center py-20 hidden">
                 <div class="loading-spinner mx-auto mb-4"></div>
                 <p class="text-gray-600">Please upload the Excel file to begin...</p>
             </div>

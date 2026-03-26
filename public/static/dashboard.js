@@ -63,7 +63,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
   
-  showLoadingState();
+  // Don't show loading state on page load - show Overview tab instead
+  // showLoadingState(); // REMOVED - Overview tab is visible by default
 });
 
 // File upload handler with progress tracking
