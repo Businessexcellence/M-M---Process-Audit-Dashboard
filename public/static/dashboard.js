@@ -2093,9 +2093,15 @@ function updateFYMetrics() {
   
   rawData.auditCount.forEach(r => {
     const fy = r['Financial Year'];
-    if (fy && fy.includes('23')) fyData.fy23.push(r);
-    else if (fy && fy.includes('24')) fyData.fy24.push(r);
-    else if (fy && fy.includes('25')) fyData.fy25.push(r);
+    if (!fy) return; // Skip if no financial year
+    
+    // Convert to string to handle both number and string formats
+    const fyStr = String(fy).toLowerCase();
+    
+    // Match FY23, 2023, 23, FY2023, etc.
+    if (fyStr.includes('23')) fyData.fy23.push(r);
+    else if (fyStr.includes('24')) fyData.fy24.push(r);
+    else if (fyStr.includes('25')) fyData.fy25.push(r);
   });
   
   ['fy23', 'fy24', 'fy25'].forEach(fy => {
