@@ -802,13 +802,16 @@ function updateMonthlyAccuracyChart() {
     const pass = parseFloat(r['Opportunity Pass']) || 0;
     const total = parseFloat(r['Opportunity Excluding NA']) || 0;
     
-    if (fy.includes('23')) {
+    // Convert to string to handle both number and string formats
+    const fyStr = String(fy).toLowerCase();
+    
+    if (fyStr.includes('23')) {
       monthlyData[key].fy23.pass += pass;
       monthlyData[key].fy23.total += total;
-    } else if (fy.includes('24')) {
+    } else if (fyStr.includes('24')) {
       monthlyData[key].fy24.pass += pass;
       monthlyData[key].fy24.total += total;
-    } else if (fy.includes('25')) {
+    } else if (fyStr.includes('25')) {
       monthlyData[key].fy25.pass += pass;
       monthlyData[key].fy25.total += total;
     }
@@ -2146,13 +2149,16 @@ function updateFYComparisonChart() {
     const pass = parseFloat(r['Opportunity Pass']) || 0;
     const total = parseFloat(r['Opportunity Excluding NA']) || 0;
     
-    if (fy.includes('23')) {
+    // Convert to string to handle both number and string formats
+    const fyStr = String(fy).toLowerCase();
+    
+    if (fyStr.includes('23')) {
       monthlyData[month].fy23.pass += pass;
       monthlyData[month].fy23.total += total;
-    } else if (fy.includes('24')) {
+    } else if (fyStr.includes('24')) {
       monthlyData[month].fy24.pass += pass;
       monthlyData[month].fy24.total += total;
-    } else if (fy.includes('25')) {
+    } else if (fyStr.includes('25')) {
       monthlyData[month].fy25.pass += pass;
       monthlyData[month].fy25.total += total;
     }
