@@ -10,10 +10,9 @@ app.use('/api/*', cors())
 // Serve static files from public directory
 app.use('/static/*', serveStatic({ root: './public' }))
 
-// Simple favicon route (returns empty response to prevent 502 error)
-app.get('/favicon.ico', (c) => {
-  return new Response('', { status: 204 })
-})
+// Simple favicon routes (return empty response to prevent errors)
+app.get('/favicon.ico', (c) => new Response('', { status: 204 }))
+app.get('/favicon.svg', (c) => new Response('', { status: 204 }))
 
 // In-memory data store (in production, use Cloudflare D1 or KV)
 let dashboardData: any = null
