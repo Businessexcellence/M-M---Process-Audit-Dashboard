@@ -10,6 +10,11 @@ app.use('/api/*', cors())
 // Serve static files from public directory
 app.use('/static/*', serveStatic({ root: './public' }))
 
+// Simple favicon route (returns empty response to prevent 502 error)
+app.get('/favicon.ico', (c) => {
+  return new Response('', { status: 204 })
+})
+
 // In-memory data store (in production, use Cloudflare D1 or KV)
 let dashboardData: any = null
 
@@ -63,6 +68,7 @@ app.get('/', (c) => {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>M&M Recruitment Process Audit Dashboard</title>
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg">
         <script src="https://cdn.tailwindcss.com"></script>
         <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
         <style>
