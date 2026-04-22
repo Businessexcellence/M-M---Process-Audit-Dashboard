@@ -534,23 +534,8 @@ app.get('/', (c) => {
           .metric-value {
             font-size: 3rem;
             font-weight: 700;
-            background: linear-gradient(135deg, var(--mm-red) 0%, var(--mm-dark-red) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: var(--mm-red);
             line-height: 1;
-            animation: countUp 0.8s ease-out;
-          }
-          
-          @keyframes countUp {
-            from {
-              opacity: 0;
-              transform: translateY(20px);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0);
-            }
           }
           
           .metric-label {
@@ -783,15 +768,7 @@ app.get('/', (c) => {
             to { transform: rotate(360deg); }
           }
           
-          /* Pulse Animation for Metrics */
-          .metric-card {
-            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-          }
-          
-          @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.9; }
-          }
+          /* No animation for metric cards - keep them static for readability */
           
           /* Shimmer Effect for Cards */
           .dashboard-card {
@@ -869,16 +846,7 @@ app.get('/', (c) => {
             to { background-position: 40px 0; }
           }
           
-          /* Number Counter Animation */
-          .text-3xl, .text-2xl {
-            animation: numberPop 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-          }
-          
-          @keyframes numberPop {
-            0% { transform: scale(0.8); opacity: 0; }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); opacity: 1; }
-          }
+          /* No animation for numbers - keep them static for readability */
           
           /* Tooltip Styles */
           [title] {
