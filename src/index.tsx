@@ -508,9 +508,24 @@ app.get('/', (c) => {
           .metric-card {
             text-align: center;
             padding: 32px 24px;
-            background: white;
-            border: 2px solid var(--mm-red);
-            border-radius: 8px;
+            background: white !important;
+            border: 2px solid var(--mm-red) !important;
+            border-radius: 8px !important;
+            box-shadow: none !important;
+            transform: none !important;
+            transition: none !important;
+            position: static !important;
+            overflow: visible !important;
+          }
+          
+          .metric-card:hover {
+            transform: none !important;
+            box-shadow: none !important;
+            background: white !important;
+          }
+          
+          .metric-card::before {
+            display: none !important;
           }
           
           .metric-value {
