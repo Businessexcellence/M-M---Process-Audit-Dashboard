@@ -589,6 +589,30 @@ app.get('/', (c) => {
             background-image: none !important;
           }
           
+          /* Force white background on chart card headers */
+          .chart-card .bg-mm-light-red {
+            background: #FFE5E5 !important;
+            background-color: #FFE5E5 !important;
+          }
+          
+          body.dark-theme .chart-card .bg-mm-light-red {
+            background: #FFE5E5 !important;
+            background-color: #FFE5E5 !important;
+          }
+          
+          /* Force white background on chart containers inside chart cards */
+          .chart-card .chart-container {
+            background: #FFFFFF !important;
+            background-color: #FFFFFF !important;
+            background-image: none !important;
+          }
+          
+          body.dark-theme .chart-card .chart-container {
+            background: #FFFFFF !important;
+            background-color: #FFFFFF !important;
+            background-image: none !important;
+          }
+          
           .metric-value {
             font-size: 3rem;
             font-weight: 700;
@@ -954,9 +978,23 @@ app.get('/', (c) => {
           /* Chart Container Enhancements */
           .chart-container {
             position: relative;
-            background: var(--bg-card);
+            background: #FFFFFF !important;
+            background-color: #FFFFFF !important;
+            background-image: none !important;
             border-radius: 8px;
             padding: 20px;
+          }
+          
+          body.dark-theme .chart-container {
+            background: #FFFFFF !important;
+            background-color: #FFFFFF !important;
+            background-image: none !important;
+          }
+          
+          body.light-theme .chart-container {
+            background: #FFFFFF !important;
+            background-color: #FFFFFF !important;
+            background-image: none !important;
           }
           
           canvas {
