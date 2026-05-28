@@ -508,8 +508,10 @@ app.get('/', (c) => {
           .metric-card {
             text-align: center;
             padding: 32px 24px;
-            background: white !important;
-            border: 2px solid var(--mm-red) !important;
+            background: #FFFFFF !important;
+            background-color: #FFFFFF !important;
+            background-image: none !important;
+            border: 2px solid #C8102E !important;
             border-radius: 8px !important;
             box-shadow: none !important;
             transform: none !important;
@@ -521,11 +523,26 @@ app.get('/', (c) => {
           .metric-card:hover {
             transform: none !important;
             box-shadow: none !important;
-            background: white !important;
+            background: #FFFFFF !important;
+            background-color: #FFFFFF !important;
+            background-image: none !important;
           }
           
           .metric-card::before {
             display: none !important;
+            content: none !important;
+          }
+          
+          body.dark-theme .metric-card {
+            background: #FFFFFF !important;
+            background-color: #FFFFFF !important;
+            background-image: none !important;
+          }
+          
+          body.light-theme .metric-card {
+            background: #FFFFFF !important;
+            background-color: #FFFFFF !important;
+            background-image: none !important;
           }
           
           .metric-value {
@@ -2886,22 +2903,22 @@ app.get('/', (c) => {
                 
                 <!-- Key Metrics -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-                    <div class="dashboard-card metric-card">
+                    <div class="metric-card">
                         <div class="metric-value" id="metric-accuracy">--</div>
                         <div class="metric-label">Overall Accuracy</div>
                         <div class="text-xs text-gray-500 mt-2">Weighted by Opportunity Count</div>
                     </div>
-                    <div class="dashboard-card metric-card">
+                    <div class="metric-card">
                         <div class="metric-value" id="metric-error-rate">--</div>
                         <div class="metric-label">Overall Error Rate</div>
                         <div class="text-xs text-gray-500 mt-2">Opportunities Failed / Total</div>
                     </div>
-                    <div class="dashboard-card metric-card">
+                    <div class="metric-card">
                         <div class="metric-value" id="metric-total-audits">--</div>
                         <div class="metric-label">Total Audits</div>
                         <div class="text-xs text-gray-500 mt-2">Opportunity Count</div>
                     </div>
-                    <div class="dashboard-card metric-card">
+                    <div class="metric-card">
                         <div class="metric-value" id="metric-sample-coverage">--</div>
                         <div class="metric-label">Sample Coverage</div>
                         <div class="text-xs text-gray-500 mt-2">Sample / Population</div>
