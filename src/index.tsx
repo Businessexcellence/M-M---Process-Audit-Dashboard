@@ -159,7 +159,11 @@ app.get('/', (c) => {
           .mm-red { color: var(--mm-red); }
           .bg-mm-red { background-color: var(--mm-red); }
           .bg-mm-dark-red { background-color: var(--mm-dark-red); }
-          .bg-mm-light-red { background-color: var(--mm-light-red); }
+          .bg-mm-light-red { 
+            background-color: #FFFFFF !important;
+            background: #FFFFFF !important;
+            background-image: none !important;
+          }
           .border-mm-red { border-color: var(--mm-red); }
           .hover\\:bg-mm-dark-red:hover { background-color: var(--mm-dark-red); }
           
@@ -589,14 +593,27 @@ app.get('/', (c) => {
             background-image: none !important;
           }
           
-          /* Force pure white background on chart card headers - no colors */
+          /* Force pure white background on ALL chart headers - no colors */
           .chart-card .bg-mm-light-red {
+            background: #FFFFFF !important;
+            background-color: #FFFFFF !important;
+            background-image: none !important;
+            border-color: #e5e7eb !important;
+          }
+          
+          .chart-card .p-4 {
             background: #FFFFFF !important;
             background-color: #FFFFFF !important;
             background-image: none !important;
           }
           
           body.dark-theme .chart-card .bg-mm-light-red {
+            background: #FFFFFF !important;
+            background-color: #FFFFFF !important;
+            background-image: none !important;
+          }
+          
+          body.dark-theme .chart-card .p-4 {
             background: #FFFFFF !important;
             background-color: #FFFFFF !important;
             background-image: none !important;
@@ -620,6 +637,27 @@ app.get('/', (c) => {
           .chart-card canvas {
             background: #FFFFFF !important;
             background-color: #FFFFFF !important;
+          }
+          
+          /* Ultra-specific override - target ALL elements inside chart cards */
+          .chart-card * {
+            background-image: none !important;
+          }
+          
+          .chart-card div[class*="bg-"] {
+            background: #FFFFFF !important;
+            background-color: #FFFFFF !important;
+            background-image: none !important;
+          }
+          
+          /* Remove any possible gradient backgrounds */
+          .grid .chart-card,
+          .grid .chart-card > div,
+          .grid .chart-card .chart-container,
+          .grid .chart-card canvas {
+            background: #FFFFFF !important;
+            background-color: #FFFFFF !important;
+            background-image: none !important;
           }
           
           .metric-value {
