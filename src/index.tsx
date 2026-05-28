@@ -589,28 +589,37 @@ app.get('/', (c) => {
             background-image: none !important;
           }
           
-          /* Force white background on chart card headers */
+          /* Force pure white background on chart card headers - no colors */
           .chart-card .bg-mm-light-red {
-            background: #FFE5E5 !important;
-            background-color: #FFE5E5 !important;
+            background: #FFFFFF !important;
+            background-color: #FFFFFF !important;
+            background-image: none !important;
           }
           
           body.dark-theme .chart-card .bg-mm-light-red {
-            background: #FFE5E5 !important;
-            background-color: #FFE5E5 !important;
+            background: #FFFFFF !important;
+            background-color: #FFFFFF !important;
+            background-image: none !important;
           }
           
-          /* Force white background on chart containers inside chart cards */
+          /* Force pure white background on chart containers inside chart cards */
           .chart-card .chart-container {
             background: #FFFFFF !important;
             background-color: #FFFFFF !important;
             background-image: none !important;
+            padding: 20px !important;
           }
           
           body.dark-theme .chart-card .chart-container {
             background: #FFFFFF !important;
             background-color: #FFFFFF !important;
             background-image: none !important;
+          }
+          
+          /* Force white on canvas backgrounds */
+          .chart-card canvas {
+            background: #FFFFFF !important;
+            background-color: #FFFFFF !important;
           }
           
           .metric-value {
@@ -998,7 +1007,7 @@ app.get('/', (c) => {
           }
           
           canvas {
-            animation: fadeIn 0.5s ease-in-out;
+            /* No animations on charts */
           }
           
           /* Creative Enhancements */
