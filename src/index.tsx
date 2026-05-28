@@ -508,27 +508,9 @@ app.get('/', (c) => {
           .metric-card {
             text-align: center;
             padding: 32px 24px;
-            background: linear-gradient(135deg, var(--mm-white) 0%, var(--mm-light-red) 100%);
-            border-left: 4px solid var(--mm-red);
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s ease;
-          }
-          
-          .metric-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: linear-gradient(90deg, var(--mm-red) 0%, var(--mm-dark-red) 100%);
-          }
-          
-          .metric-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(200, 16, 46, 0.2);
-            border-left-width: 6px;
+            background: white;
+            border: 2px solid var(--mm-red);
+            border-radius: 8px;
           }
           
           .metric-value {
@@ -536,6 +518,8 @@ app.get('/', (c) => {
             font-weight: 700;
             color: var(--mm-red);
             line-height: 1;
+            position: relative;
+            z-index: 10;
           }
           
           .metric-label {
@@ -770,25 +754,14 @@ app.get('/', (c) => {
           
           /* No animation for metric cards - keep them static for readability */
           
-          /* Shimmer Effect for Cards */
+          /* No shimmer effect - keep cards simple for readability */
           .dashboard-card {
             position: relative;
-            overflow: hidden;
           }
           
-          .dashboard-card::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s;
-          }
-          
-          .dashboard-card:hover::after {
-            left: 100%;
+          /* Disable shimmer on metric cards specifically */
+          .metric-card::after {
+            display: none !important;
           }
           
           /* Glowing Border Effect */
