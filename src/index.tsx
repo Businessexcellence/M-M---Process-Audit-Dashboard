@@ -545,6 +545,50 @@ app.get('/', (c) => {
             background-image: none !important;
           }
           
+          /* Chart cards - same clean style as metric cards */
+          .chart-card {
+            background: #FFFFFF !important;
+            background-color: #FFFFFF !important;
+            background-image: none !important;
+            border: 1px solid #e5e7eb !important;
+            border-radius: 8px !important;
+            box-shadow: none !important;
+            transform: none !important;
+            transition: none !important;
+            position: static !important;
+            overflow: visible !important;
+          }
+          
+          .chart-card:hover {
+            transform: none !important;
+            box-shadow: none !important;
+            background: #FFFFFF !important;
+            background-color: #FFFFFF !important;
+            background-image: none !important;
+          }
+          
+          .chart-card::before {
+            display: none !important;
+            content: none !important;
+          }
+          
+          .chart-card::after {
+            display: none !important;
+            content: none !important;
+          }
+          
+          body.dark-theme .chart-card {
+            background: #FFFFFF !important;
+            background-color: #FFFFFF !important;
+            background-image: none !important;
+          }
+          
+          body.light-theme .chart-card {
+            background: #FFFFFF !important;
+            background-color: #FFFFFF !important;
+            background-image: none !important;
+          }
+          
           .metric-value {
             font-size: 3rem;
             font-weight: 700;
@@ -2953,7 +2997,7 @@ app.get('/', (c) => {
 
                 <!-- Charts Row 1 -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                    <div class="dashboard-card">
+                    <div class="chart-card">
                         <div class="p-4 border-b border-gray-200 bg-mm-light-red">
                             <h3 class="font-bold text-gray-800">
                                 <i class="fas fa-chart-bar text-mm-red mr-2"></i>Monthly Accuracy vs Error Rate (FY Comparison)
@@ -2963,7 +3007,7 @@ app.get('/', (c) => {
                             <canvas id="monthly-accuracy-chart"></canvas>
                         </div>
                     </div>
-                    <div class="dashboard-card">
+                    <div class="chart-card">
                         <div class="p-4 border-b border-gray-200 bg-mm-light-red">
                             <h3 class="font-bold text-gray-800">
                                 <i class="fas fa-layer-group text-mm-red mr-2"></i>Recruitment Stage-wise Audit Scores
@@ -2977,7 +3021,7 @@ app.get('/', (c) => {
 
                 <!-- Charts Row 2 -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                    <div class="dashboard-card">
+                    <div class="chart-card">
                         <div class="p-4 border-b border-gray-200 bg-mm-light-red">
                             <h3 class="font-bold text-gray-800">
                                 <i class="fas fa-exclamation-triangle text-mm-red mr-2"></i>Parameter-wise Error Hotspots
@@ -2987,7 +3031,7 @@ app.get('/', (c) => {
                             <canvas id="parameter-error-chart"></canvas>
                         </div>
                     </div>
-                    <div class="dashboard-card">
+                    <div class="chart-card">
                         <div class="p-4 border-b border-gray-200 bg-mm-light-red">
                             <h3 class="font-bold text-gray-800">
                                 <i class="fas fa-calendar-week text-mm-red mr-2"></i>Weekly Accuracy and Volume Trend
@@ -3000,7 +3044,7 @@ app.get('/', (c) => {
                 </div>
 
                 <!-- Funnel Chart -->
-                <div class="dashboard-card mb-6">
+                <div class="chart-card mb-6">
                     <div class="p-4 border-b border-gray-200 bg-mm-light-red">
                         <h3 class="font-bold text-gray-800">
                             <i class="fas fa-filter text-mm-red mr-2"></i>Opportunities Funnel
